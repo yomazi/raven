@@ -3,25 +3,15 @@ require("dotenv").config();
 const express = require("express");
 const path = require("path");
 const cookieSession = require("cookie-session");
-const {
-  createOAuthClient,
-  createOAuthClientWithSessionRedirectUri,
-  generateAuthUrl,
-} = require("./google/googleClient");
+const { createOAuthClientWithSession } = require("./google/client");
+const livereload = require("livereload");
+const connectLivereload = require("connect-livereload");
+const fs = require("fs");
 
 const app = express();
 app.use(express.json());
-app.use(cookieSession({ name: "session", keys: [process.env.SESSION_SECRET] }));
 
-const cors = require("cors");
 const { google } = require("googleapis");
-
-app.use(
-  cors({
-    origin: "http://localhost:5173", // your React dev server
-    credentials: true, // allow cookies
-  })
-);
 
 app.use(
   cookieSession({
@@ -33,49 +23,9 @@ app.use(
   })
 );
 
-// OAuth routes
-app.get("/auth/google", (req, res) => {
-  try {
-    const oauth2Client = createOAuthClient(req);
-    const url = generateAuthUrl(oauth2Client);
+const authRoutes = require("./auth/auth.routes");
 
-    // Save the exact redirect URI used for this login in session
-    req.session.redirectUri = oauth2Client.redirectUri;
-
-    res.redirect(url);
-  } catch (err) {
-    console.error("Failed to generate auth URL:", err);
-    res.status(500).send("Internal Server Error — see server console");
-  }
-});
-
-app.get("/auth/google/callback", async (req, res) => {
-  console.log("Callback query:", req.query); // check what’s actually coming through
-  const code = req.query.code;
-  if (!code) {
-    console.error("No code in callback query!");
-    return res.status(400).send("No code in callback");
-  }
-  const oauth2Client = createOAuthClientWithSessionRedirectUri(req);
-  const { tokens } = await oauth2Client.getToken(code);
-  console.log("tokens:");
-  console.log(tokens);
-  oauth2Client.setCredentials(tokens);
-  google.options({ auth: oauth2Client });
-
-  // Get basic user info
-  const oauth2 = google.oauth2({ version: "v2", auth: oauth2Client });
-  const userinfo = await oauth2.userinfo.get();
-
-  // Store user session in memory
-  req.session.user = {
-    email: userinfo.data.email,
-    name: userinfo.data.name,
-    tokens,
-  };
-
-  res.redirect("/"); // redirect to frontend
-});
+app.use("/auth", authRoutes);
 
 // simple API endpoint
 app.get("/api/data", (req, res) => {
@@ -91,14 +41,11 @@ app.get("/api/me", (req, res) => {
 // List files in user's Drive root folder
 app.get("/api/drive/root", async (req, res) => {
   if (!req.session.user) return res.status(401).json({ error: "Not logged in" });
-  console.log("Session user:", req.session.user); // <--- add this
-
-  const oauth2Client = createOAuthClientWithSessionRedirectUri(req);
-  oauth2Client.setCredentials(req.session.user.tokens);
-  google.options({ auth: oauth2Client });
+  console.log("Session user:", req.session.user);
 
   try {
-    const drive = google.drive({ version: "v3", auth: oauth2Client });
+    const client = createOAuthClientWithSession(req);
+    const drive = google.drive({ version: "v3", auth: client });
 
     const response = await drive.files.list({
       q: "'root' in parents and trashed = false",
@@ -113,11 +60,45 @@ app.get("/api/drive/root", async (req, res) => {
   }
 });
 
+const waitForFile = async (filePath, timeout = 10000, interval = 100) => {
+  return new Promise((resolve, reject) => {
+    const start = Date.now();
+
+    const check = () => {
+      if (fs.existsSync(filePath)) {
+        return resolve();
+      }
+      if (Date.now() - start > timeout) {
+        return reject(new Error(`File ${filePath} did not appear within ${timeout}ms`));
+      }
+      setTimeout(check, interval);
+    };
+
+    check();
+  });
+};
+
 // **Serve React after all API / OAuth routes**
 const reactBuildPath = path.join(__dirname, "../client/dist");
+if (!fs.existsSync(reactBuildPath)) {
+  fs.mkdirSync(reactBuildPath, { recursive: true });
+}
+
+const liveReloadServer = livereload.createServer();
+liveReloadServer.watch(reactBuildPath);
+
+app.use(connectLivereload());
+
 app.use(express.static(reactBuildPath));
-app.get(/^\/(?!api).*/, (req, res) => {
-  res.sendFile(path.join(reactBuildPath, "index.html"));
+
+app.get(/^\/(?!api).*/, async (req, res) => {
+  const indexPath = path.join(reactBuildPath, "index.html");
+  try {
+    await waitForFile(indexPath);
+    res.sendFile(indexPath);
+  } catch (err) {
+    res.status(503).send("React build not ready yet. Please refresh in a moment.");
+  }
 });
 
 const PORT = process.env.PORT || 3001;

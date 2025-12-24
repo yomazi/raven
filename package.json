@@ -5,22 +5,26 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "concurrently \"npm:start-server\" \"npm:start-client\"",
-    "start-server": "npm --prefix server run dev",
-    "start-client": "npm --prefix client run dev"
+    "start:server": "npm --prefix server run start",
+    "dev:server": "npm --prefix server run dev",
+    "build:client": "npm --prefix client run build",
+    "build:client:watch": "npm --prefix client run build -- --watch",
+    "dev:client": "npm --prefix client run dev",
+    "start": "npm run build:client && npm run start:server",
+    "dev": "concurrently -k       \"npm run build:client:watch\"       \"npm run dev:server\""
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/yomazi/raven-poc.git"
+    "url": "git+https://github.com/yomazi/raven.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "commonjs",
   "bugs": {
-    "url": "https://github.com/yomazi/raven-poc/issues"
+    "url": "https://github.com/yomazi/raven/issues"
   },
-  "homepage": "https://github.com/yomazi/raven-poc#readme",
+  "homepage": "https://github.com/yomazi/raven#readme",
   "devDependencies": {
     "concurrently": "^9.2.1",
     "prettier-plugin-organize-imports": "^4.3.0"

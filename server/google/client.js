@@ -32,24 +32,38 @@ function createOAuthClient(req) {
   );
 }
 
-function createOAuthClientWithSessionRedirectUri(req) {
+function createOAuthClientWithSession(req) {
+  if (!req.session.user?.tokens) {
+    throw new Error("No tokens in session — user must login first");
+  }
+
   const redirectUri = req.session.redirectUri;
   console.log("Redirect URI:", redirectUri);
 
-  return new google.auth.OAuth2(
+  const client = new google.auth.OAuth2(
     process.env.GOOGLE_CLIENT_ID,
     process.env.GOOGLE_CLIENT_SECRET,
     redirectUri
   );
+
+  client.setCredentials(req.session.user.tokens);
+
+  client.on("tokens", (tokens) => {
+    if (!req.session.user) req.session.user = { tokens: {} };
+    if (tokens.refresh_token) req.session.user.tokens.refresh_token = tokens.refresh_token;
+    if (tokens.access_token) req.session.user.tokens.access_token = tokens.access_token;
+  });
+
+  return client;
 }
 
-function generateAuthUrl(client) {
+function generateAuthUrl(client, hasRefreshToken) {
   console.log("requesting access to scopes:");
   console.log(scopes);
 
   const url = client.generateAuthUrl({
     access_type: "offline", // refresh token
-    prompt: "consent", // force refresh token first login
+    prompt: hasRefreshToken ? "none" : "consent", // force refresh token first login
     include_granted_scopes: true,
     scope: scopes,
   });
@@ -58,8 +72,9 @@ function generateAuthUrl(client) {
 }
 
 module.exports = {
+  getRedirectUri,
   createOAuthClient,
-  createOAuthClientWithSessionRedirectUri,
+  createOAuthClientWithSession,
   generateAuthUrl,
   scopes,
 };

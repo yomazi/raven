@@ -32,7 +32,7 @@ function App() {
 
   return (
     <div>
-      <h1>Raven PoC</h1>
+      <h1>Raven</h1>
       <p>{message}</p>
       <h1>My Google Drive Files</h1>
       <ul>
