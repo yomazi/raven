@@ -2,7 +2,7 @@
 
 A sanity-inducing tool for any Google Workspace.
 
-# basic commands
+# basic cloudflare commands
 
 ```
 // log into cloudflare
@@ -25,4 +25,46 @@ npm run dev
 
 // ...or, to run in debug mode:
 /usr/local/bin/cloudflared tunnel --loglevel debug run raven
+```
+
+# basic docker commands
+
+```
+// Start MongoDB from the project root folder
+docker-compose up -d      s// -d runs it in the background
+
+// check logs
+docker-compose logs -f mongo
+
+// stop the container
+docker-compose down
+```
+
+# color scheme
+
+```
+Background:         #1C232D
+Surface / cards:    #273142
+Borders / dividers: #3A4556
+
+Primary text:       #E6EDF3
+Secondary text:     #B8C0CC
+Muted text:         #8A94A6
+
+Primary accent:     #22D3EE
+Secondary accent:   #F97316
+```
+
+# mongodb
+
+```
+// make sure the mongo service is running
+brew services start mongodb-community
+
+// restart the service (if you have to)
+brew services restart mongodb-community
+
+// verify it's running
+mongosh
+
 ```

@@ -1,6 +1,8 @@
-// server.js
+// index.js
 require("dotenv").config();
+
 const express = require("express");
+const { connectDB } = require("./db.js");
 const path = require("path");
 const cookieSession = require("cookie-session");
 const { createOAuthClientWithSession } = require("./google/client");
@@ -8,8 +10,12 @@ const livereload = require("livereload");
 const connectLivereload = require("connect-livereload");
 const fs = require("fs");
 
+const User = require("./models/User.js"); // example model
+
 const app = express();
 app.use(express.json());
+
+connectDB();
 
 const { google } = require("googleapis");
 
@@ -32,10 +38,16 @@ app.get("/api/data", (req, res) => {
   res.json({ message: "Hello from your local Node server!" });
 });
 
-// Example route to check if logged in
-app.get("/api/me", (req, res) => {
-  if (!req.session.user) return res.status(401).json({ loggedIn: false });
-  res.json({ loggedIn: true, user: req.session.user });
+// Example route
+app.get("/api/users", async (req, res) => {
+  if (!req.session.user) return res.status(401).json({ error: "Not logged in" });
+
+  try {
+    const users = await User.find();
+    res.json(users);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // List files in user's Drive root folder

@@ -55,19 +55,16 @@ class AuthController {
     res.redirect("/"); // redirect to frontend
   }
 
+  static async verifyAuth(req, res, next) {
+    if (!req.session.user) return res.sendStatus(401);
+
+    res.json({ loggedIn: true, user: req.session.user });
+  }
+
   static async expireAuth(req, res, next) {
-    if (!req.session.user?.tokens) {
-      return res.status(400).send("No tokens in session");
-    }
+    req.session = null; // destroy the session
 
-    // Mark the access token as expired
-    req.session.user.tokens.expiry_date = Date.now() - 1000; // 1 second in the past
-    // Optionally clear the access token entirely
-    req.session.user.tokens.access_token = null;
-
-    console.warn("Access token is now expired for testing purposes");
-
-    res.redirect("/"); // redirect to frontend
+    res.redirect("/");
   }
 }
 module.exports = AuthController;
