@@ -9,22 +9,23 @@ const scopes = [
   "https://www.googleapis.com/auth/spreadsheets",
 ];
 
-function getRedirectUri(req) {
-  const host = req.get("host"); // e.g., "localhost:3001" or "raven.neuron9.io"
+function getRedirectUri(host) {
+  let redirectUri = "";
 
   if (host.startsWith("localhost")) {
-    return process.env.OAUTH_REDIRECT_DEV;
+    redirectUri = process.env.OAUTH_REDIRECT_DEV;
   } else if (host === "raven.neuron9.io") {
-    return process.env.OAUTH_REDIRECT_PROD;
+    redirectUri = process.env.OAUTH_REDIRECT_PROD;
   } else {
     throw new Error(`Unknown host: ${host}`);
   }
+
+  console.log(`Using redirect URI: "${redirectUri}"`);
+
+  return redirectUri;
 }
 
-function createOAuthClient(req) {
-  const redirectUri = getRedirectUri(req);
-  console.log("Redirect URI:", redirectUri);
-
+function createOAuthClient(redirectUri) {
   return new google.auth.OAuth2(
     process.env.GOOGLE_CLIENT_ID,
     process.env.GOOGLE_CLIENT_SECRET,

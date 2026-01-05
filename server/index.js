@@ -1,94 +1,69 @@
 // index.js
+const { errorHandler } = require("./middlewares/error-handler");
+
 require("dotenv").config();
 
 const express = require("express");
-const { connectDB } = require("./db.js");
+const cookieParser = require("cookie-parser");
+const { connectDb } = require("./utilities/db.js");
+const { waitForFile } = require("./utilities/helpers.js");
 const path = require("path");
-const cookieSession = require("cookie-session");
-const { createOAuthClientWithSession } = require("./google/client");
 const livereload = require("livereload");
 const connectLivereload = require("connect-livereload");
 const fs = require("fs");
 
 const User = require("./models/User.js"); // example model
 
-const app = express();
-app.use(express.json());
+const AuthService = require("./auth/auth.service.js");
+const AuthDbRepository = require("./auth/auth.db.repository.js");
 
-connectDB();
+const app = express();
+
+app.use(express.json());
+app.use(cookieParser());
+
+connectDb();
 
 const { google } = require("googleapis");
 
-app.use(
-  cookieSession({
-    name: "session",
-    keys: [process.env.SESSION_SECRET],
-    maxAge: 24 * 60 * 60 * 1000, // 1 day
-    sameSite: "lax", // important for cross-origin dev
-    secure: false, // true only for HTTPS
-  })
-);
-
 const authRoutes = require("./auth/auth.routes");
+const performancesRoutes = require("./performances/performances.routes");
 
 app.use("/auth", authRoutes);
+app.use("/api", performancesRoutes);
 
 // simple API endpoint
 app.get("/api/data", (req, res) => {
   res.json({ message: "Hello from your local Node server!" });
 });
 
-// Example route
-app.get("/api/users", async (req, res) => {
-  if (!req.session.user) return res.status(401).json({ error: "Not logged in" });
-
-  try {
-    const users = await User.find();
-    res.json(users);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
 // List files in user's Drive root folder
 app.get("/api/drive/root", async (req, res) => {
-  if (!req.session.user) return res.status(401).json({ error: "Not logged in" });
-  console.log("Session user:", req.session.user);
-
   try {
-    const client = createOAuthClientWithSession(req);
+    const token = req.cookies.apiToken; // <-- read from cookie
+    if (!token) return res.sendStatus(401);
+
+    // Find user in DB by apiToken
+    const user = await AuthDbRepository.getUserByApiToken(token);
+    if (!user) return res.sendStatus(401);
+
+    // Get an authenticated Google client
+    const client = AuthService.getGoogleClient(user);
+
     const drive = google.drive({ version: "v3", auth: client });
 
-    const response = await drive.files.list({
+    const { data } = await drive.files.list({
       q: "'root' in parents and trashed = false",
       pageSize: 20,
       fields: "files(id, name, mimeType)",
     });
 
-    res.json(response.data.files);
+    res.json(data.files);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Failed to list files" });
   }
 });
-
-const waitForFile = async (filePath, timeout = 10000, interval = 100) => {
-  return new Promise((resolve, reject) => {
-    const start = Date.now();
-
-    const check = () => {
-      if (fs.existsSync(filePath)) {
-        return resolve();
-      }
-      if (Date.now() - start > timeout) {
-        return reject(new Error(`File ${filePath} did not appear within ${timeout}ms`));
-      }
-      setTimeout(check, interval);
-    };
-
-    check();
-  });
-};
 
 // **Serve React after all API / OAuth routes**
 const reactBuildPath = path.join(__dirname, "../client/dist");
@@ -100,8 +75,9 @@ const liveReloadServer = livereload.createServer();
 liveReloadServer.watch(reactBuildPath);
 
 app.use(connectLivereload());
-
 app.use(express.static(reactBuildPath));
+
+app.use(errorHandler); // use the error handler middleware
 
 app.get(/^\/(?!api).*/, async (req, res) => {
   const indexPath = path.join(reactBuildPath, "index.html");

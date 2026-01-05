@@ -31,6 +31,13 @@
   color: #2e3440;
 }
 
+.app_controls {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-right: 0.5rem;
+}
+
 .rg_icon {
   height: 50px;
   width: auto;

@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 
 const MONGO_URI = process.env.MONGO_URI;
 
-async function connectDB() {
+async function connectDb() {
   if (mongoose.connection.readyState >= 1) {
     // Already connected
     return;
@@ -17,4 +17,4 @@ async function connectDB() {
   }
 }
 
-module.exports = { connectDB };
+module.exports = { connectDb };

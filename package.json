@@ -28,5 +28,8 @@
   "devDependencies": {
     "concurrently": "^9.2.1",
     "prettier-plugin-organize-imports": "^4.3.0"
+  },
+  "dependencies": {
+    "cookie-parser": "^1.4.7"
   }
 }
