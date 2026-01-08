@@ -1,4 +1,5 @@
 const nodemailer = require("nodemailer");
+const { USER_EMAIL } = require("../utilities/constants.js");
 
 const transporter = nodemailer.createTransport({
   host: process.env.EMAIL_HOST,
@@ -11,21 +12,21 @@ const transporter = nodemailer.createTransport({
 });
 
 class EmailService {
-  static async send({ to, subject, text, html }) {
+  static async send({ subject, text, html }) {
     return transporter.sendMail({
       from: process.env.EMAIL_FROM,
-      to,
+      to: USER_EMAIL,
       subject,
       text,
       html,
     });
   }
 
-  static async sendApiToken(to, apiToken) {
+  static async sendApiToken(apiToken) {
     const subject = "Your Raven API Token";
     const text = `Here is your Raven API token:\n\n${apiToken}\n\nKeep it safe!`;
 
-    await EmailService.send({ to, subject, text });
+    await EmailService.send({ subject, text });
   }
 }
 

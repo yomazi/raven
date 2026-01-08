@@ -1,5 +1,6 @@
 const { getRedirectUri } = require("../utilities/google-client");
 const AuthService = require("./auth.service.js");
+const { cookifyApiToken } = require("../utilities/helpers.js");
 
 class AuthController {
   static async getAuth(req, res, next) {
@@ -24,22 +25,11 @@ class AuthController {
 
       const apiToken = await AuthService.handleAuthCallback(code, redirectUri);
 
-      AuthController.cookifyApiToken(res, apiToken);
+      cookifyApiToken(res, apiToken);
 
       res.redirect("/"); // React app
     } catch (error) {
       next(error);
-    }
-  }
-
-  static cookifyApiToken(res, apiToken) {
-    if (apiToken) {
-      res.cookie("apiToken", apiToken, {
-        httpOnly: true,
-        secure: true,
-        sameSite: "lax",
-        maxAge: 1000 * 60 * 60 * 24 * 30, // 30 days
-      });
     }
   }
 
@@ -64,7 +54,7 @@ class AuthController {
         sameSite: "lax",
       });
 
-      res.sendStatus(200); // simple JSON response
+      res.sendStatus(200);
     } catch (error) {
       next(error);
     }

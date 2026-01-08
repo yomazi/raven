@@ -1,8 +1,8 @@
 const { createOAuthClient, generateAuthUrl } = require("../utilities/google-client");
 const { google } = require("googleapis");
 const createError = require("http-errors");
-const crypto = require("crypto");
 const EmailService = require("../services/email.service.js");
+const ApiTokensService = require("../api-tokens/api-tokens.service.js");
 const AuthDbRepository = require("./auth.db.repository.js");
 const { USER_EMAIL, API_TOKEN_LENGTH } = require("../utilities/constants.js");
 class AuthService {
@@ -22,18 +22,10 @@ class AuthService {
 
     const oauth2 = google.oauth2({ version: "v2", auth: client }); // Get basic user info
     const { data } = await oauth2.userinfo.get();
-    const apiToken = await AuthService.createOrUpdateUser(data.email, tokens);
+    const apiToken = await ApiTokensService.createApiToken();
 
-    await EmailService.sendApiToken(data.email, apiToken); // send the new api token via email
-
-    return apiToken;
-  }
-
-  static async createOrUpdateUser(email, tokens) {
-    const apiToken = AuthService.generateApiToken();
-    const hashedApiToken = AuthService.hashApiToken(apiToken);
-
-    await AuthDbRepository.upsertUser(email, tokens, hashedApiToken);
+    await AuthDbRepository.upsertUser(data.email, tokens);
+    await EmailService.sendApiToken(apiToken); // send the new api token via email
 
     return apiToken;
   }
@@ -51,55 +43,6 @@ class AuthService {
 
     if (!user) return;
     await AuthDbRepository.clearTokens();
-  }
-
-  static async createApiToken(email) {
-    const user = await AuthDbRepository.getUserByEmail(email);
-
-    if (!user) {
-      throw new createError.NotFound(`User not found: ${email}`);
-    }
-
-    const apiToken = AuthService.generateApiToken();
-    const hashedToken = AuthService.hashApiToken(apiToken);
-
-    await AuthDbRepository.saveApiTokenHash(user._id, hashedToken);
-
-    await EmailService.send({
-      to: email,
-      subject: "Your Raven API Token",
-      text: `Here is your Raven API token:\n\n${apiToken}\n\nKeep it safe!`,
-    });
-  }
-
-  static async validateApiToken(apiToken) {
-    const hashedToken = AuthService.hashApiToken(apiToken);
-    const result = await AuthDbRepository.getUserByApiTokenHash(hashedToken);
-
-    return result;
-  }
-
-  static generateApiToken() {
-    return crypto.randomBytes(API_TOKEN_LENGTH).toString("hex"); // 64 chars
-  }
-
-  static hashApiToken(apiToken) {
-    return crypto.createHash("sha256").update(apiToken).digest("hex");
-  }
-
-  static getGoogleClient(user) {
-    const client = createOAuthClient(); // default redirectUri not needed for server-side usage
-    client.setCredentials(user.google);
-
-    // Refresh tokens are automatically persisted to DB
-    client.on("tokens", async (newTokens) => {
-      await AuthDbRepository.updateTokens({
-        ...user.google,
-        ...newTokens,
-      });
-    });
-
-    return client;
   }
 }
 module.exports = AuthService;

@@ -11,13 +11,13 @@ class AuthDbRepository {
     return User.findOne({ apiTokenHash });
   }
 
-  static async upsertUser(email, tokens, apiTokenHash) {
+  static async upsertUser(email, tokens) {
     let user = await this.getUserByEmail(email);
 
     if (!user) {
-      user = await AuthDbRepository.createUser(email, tokens, apiTokenHash);
+      user = await AuthDbRepository.createUser(email, tokens);
     } else {
-      user = await AuthDbRepository.updateUser(user, tokens, apiTokenHash);
+      user = await AuthDbRepository.updateUser(user, tokens);
     }
 
     return user;
@@ -30,8 +30,6 @@ class AuthDbRepository {
       google: tokens,
       createdAt: now,
       updatedAt: now,
-      apiTokenHash,
-      apiTokenCreatedAt: now,
     });
 
     return user;
@@ -41,36 +39,9 @@ class AuthDbRepository {
     const now = new Date();
 
     user.google = tokens;
-    user.apiTokenHash = apiTokenHash;
-    user.apiTokenCreatedAt = now;
     user.updatedAt = now;
 
     await user.save();
-  }
-
-  // Upsert the registered user after Google OAuth
-  static async upsertGoogleUser({ email, tokens }) {
-    if (email !== USER_EMAIL) {
-      throw new Error(`Unauthorized user: ${email}`);
-    }
-
-    let user = await User.findOne({ email });
-
-    if (user) {
-      // Update existing user
-      user.google = tokens;
-      user.updatedAt = new Date();
-      await user.save();
-    } else {
-      // Create the user
-      user = await User.create({
-        email,
-        google: tokens,
-        updatedAt: new Date(),
-      });
-    }
-
-    return user;
   }
 
   static async clearTokens() {
@@ -79,6 +50,7 @@ class AuthDbRepository {
 
     user.google = {};
     user.updatedAt = new Date();
+
     await user.save();
 
     return user;

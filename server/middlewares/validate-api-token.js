@@ -1,6 +1,6 @@
 // middlewares/requireApiToken.js
 const createError = require("http-errors");
-const AuthService = require("../auth/auth.service.js"); // your DB methods
+const ApiTokensService = require("../api-tokens/api-tokens.service.js"); // your DB methods
 
 /**
  * Middleware to require a valid API token in the Authorization header.
@@ -13,13 +13,11 @@ async function validateApiToken(req, res, next) {
     }
 
     const apiToken = authHeader.split(" ")[1];
-    const user = await AuthService.validateApiToken(apiToken);
+    const apiTokenHash = await ApiTokensService.getApiToken(apiToken);
 
-    if (!user) {
+    if (!apiTokenHash) {
       throw new createError.Unauthorized("Invalid API token");
     }
-
-    req.user = user;
 
     next();
   } catch (err) {

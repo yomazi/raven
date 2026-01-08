@@ -1,3 +1,14 @@
+const cookifyApiToken = (res, apiToken) => {
+  if (apiToken) {
+    res.cookie("apiToken", apiToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "lax",
+      maxAge: 1000 * 60 * 60 * 24 * 30, // 30 days
+    });
+  }
+};
+
 const waitForFile = async (filePath, timeout = 10000, interval = 100) => {
   return new Promise((resolve, reject) => {
     const start = Date.now();
@@ -16,4 +27,4 @@ const waitForFile = async (filePath, timeout = 10000, interval = 100) => {
   });
 };
 
-module.exports = { waitForFile };
+module.exports = { cookifyApiToken, waitForFile };
