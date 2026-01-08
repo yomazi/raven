@@ -19,7 +19,8 @@
     "http-errors": "^2.0.1",
     "joi": "^18.0.2",
     "mongodb": "^7.0.0",
-    "mongoose": "^9.1.0"
+    "mongoose": "^9.1.0",
+    "nodemailer": "^7.0.12"
   },
   "devDependencies": {
     "connect-livereload": "^0.6.1",

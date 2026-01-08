@@ -22,23 +22,30 @@ class AuthController {
       const host = req.get("host");
       const redirectUri = getRedirectUri(host);
 
-      const user = await AuthService.handleAuthCallback(code, redirectUri);
+      const apiToken = await AuthService.handleAuthCallback(code, redirectUri);
 
-      res.cookie("apiToken", user.apiToken, {
-        httpOnly: true,
-        secure: true,
-        sameSite: "lax",
-      });
+      AuthController.cookifyApiToken(res, apiToken);
+
       res.redirect("/"); // React app
     } catch (error) {
       next(error);
     }
   }
 
-  static async getAuthStatus(req, res, next) {
+  static cookifyApiToken(res, apiToken) {
+    if (apiToken) {
+      res.cookie("apiToken", apiToken, {
+        httpOnly: true,
+        secure: true,
+        sameSite: "lax",
+        maxAge: 1000 * 60 * 60 * 24 * 30, // 30 days
+      });
+    }
+  }
+
+  static async checkAuth(req, res, next) {
     try {
-      const token = req.cookies.apiToken;
-      if (!token) return res.sendStatus(401);
+      await AuthService.checkAuth();
 
       res.sendStatus(200);
     } catch (err) {
@@ -48,7 +55,6 @@ class AuthController {
 
   static async expireAuth(req, res, next) {
     try {
-      console.log("EXPIRING AUTH");
       await AuthService.expireAuth();
 
       // Clear cookie in browser
@@ -64,13 +70,13 @@ class AuthController {
     }
   }
 
-  static async getApiToken(req, res, next) {
+  static async createApiToken(req, res, next) {
     try {
-      if (!apiToken) {
-        return res.status(401).json({ error: "Not authenticated" });
-      }
+      const { email } = req.body;
 
-      res.json({ token: apiToken });
+      await AuthService.createApiToken(email);
+
+      res.status(200).json(`token sent to: ${email}`);
     } catch (error) {
       next(error);
     }

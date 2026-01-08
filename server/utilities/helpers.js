@@ -1,9 +1,3 @@
-const crypto = require("crypto");
-
-function generateApiToken() {
-  return crypto.randomBytes(32).toString("hex");
-}
-
 const waitForFile = async (filePath, timeout = 10000, interval = 100) => {
   return new Promise((resolve, reject) => {
     const start = Date.now();
@@ -22,4 +16,4 @@ const waitForFile = async (filePath, timeout = 10000, interval = 100) => {
   });
 };
 
-module.exports = { generateApiToken, waitForFile };
+module.exports = { waitForFile };

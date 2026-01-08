@@ -11,7 +11,7 @@ const userSchema = new mongoose.Schema({
     expiry_date: Number,
   },
 
-  apiToken: { type: String, unique: true, sparse: true },
+  apiTokenHash: { type: String, unique: true, sparse: true },
   apiTokenCreatedAt: { type: Date, default: Date.now },
 
   createdAt: { type: Date, default: Date.now },

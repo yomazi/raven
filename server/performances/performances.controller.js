@@ -1,9 +1,7 @@
-const { google } = require("googleapis");
-
 class PerformancesController {
   static async getPerformances(req, res, next) {
     try {
-      const performances = await fetchPerformances();
+      const performances = { message: "Got it!", count: 0, folders: [] };
       res.json(performances);
     } catch (err) {
       console.error(err);

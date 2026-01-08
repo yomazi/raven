@@ -6,11 +6,21 @@ export function useAuthStatus() {
   const [loading, setLoading] = useState(true); // optional, to track loading state
   const [error, setError] = useState(null); // optional, to track errors
 
+  /*
+  useEffect(() => {
+    const checkAuth = async () => {
+      setLoading(false);
+    };
+
+    checkAuth();
+  }, []);
+  */
+
   useEffect(() => {
     const checkAuth = async () => {
       setLoading(true);
       try {
-        const res = await axios.get("/auth/google/status", {
+        const res = await axios.post("/api/v1/auth/status", {
           withCredentials: "include", // sends cookie
         });
         setLoggedIn(res.status === 200); // 200 => logged in, 401 => not
@@ -27,7 +37,7 @@ export function useAuthStatus() {
 
   const logout = async () => {
     try {
-      await axios.post("/auth/google/expire", {}, { withCredentials: true });
+      await axios.post("/api/v1/auth/expire", {}, { withCredentials: true });
       setLoggedIn(false);
     } catch (err) {
       console.error(err);

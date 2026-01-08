@@ -1,69 +1,37 @@
 // index.js
-const { errorHandler } = require("./middlewares/error-handler");
-
 require("dotenv").config();
 
 const express = require("express");
 const cookieParser = require("cookie-parser");
-const { connectDb } = require("./utilities/db.js");
-const { waitForFile } = require("./utilities/helpers.js");
 const path = require("path");
 const livereload = require("livereload");
 const connectLivereload = require("connect-livereload");
 const fs = require("fs");
 
-const User = require("./models/User.js"); // example model
+const { connectDb } = require("./utilities/db.js");
+const { waitForFile } = require("./utilities/helpers.js");
 
-const AuthService = require("./auth/auth.service.js");
-const AuthDbRepository = require("./auth/auth.db.repository.js");
+const { normalizeAuthHeader } = require("./middlewares/normalize-auth-header.js");
+const { errorHandler } = require("./middlewares/error-handler");
 
 const app = express();
 
 app.use(express.json());
 app.use(cookieParser());
+app.use(normalizeAuthHeader);
 
 connectDb();
 
-const { google } = require("googleapis");
-
+const googleAuthRoutes = require("./auth/google.auth.routes.js");
 const authRoutes = require("./auth/auth.routes");
 const performancesRoutes = require("./performances/performances.routes");
 
-app.use("/auth", authRoutes);
-app.use("/api", performancesRoutes);
+const version = "v1";
+const routePrefix = `/api/${version}`;
 
-// simple API endpoint
-app.get("/api/data", (req, res) => {
-  res.json({ message: "Hello from your local Node server!" });
-});
-
-// List files in user's Drive root folder
-app.get("/api/drive/root", async (req, res) => {
-  try {
-    const token = req.cookies.apiToken; // <-- read from cookie
-    if (!token) return res.sendStatus(401);
-
-    // Find user in DB by apiToken
-    const user = await AuthDbRepository.getUserByApiToken(token);
-    if (!user) return res.sendStatus(401);
-
-    // Get an authenticated Google client
-    const client = AuthService.getGoogleClient(user);
-
-    const drive = google.drive({ version: "v3", auth: client });
-
-    const { data } = await drive.files.list({
-      q: "'root' in parents and trashed = false",
-      pageSize: 20,
-      fields: "files(id, name, mimeType)",
-    });
-
-    res.json(data.files);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Failed to list files" });
-  }
-});
+app.use("", googleAuthRoutes);
+app.use(routePrefix, authRoutes);
+app.use(routePrefix, performancesRoutes);
 
 // **Serve React after all API / OAuth routes**
 const reactBuildPath = path.join(__dirname, "../client/dist");

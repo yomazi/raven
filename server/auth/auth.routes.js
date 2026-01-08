@@ -5,11 +5,10 @@ const express = require("express");
 const router = express.Router();
 
 const { validate } = require("../middlewares/validate-request");
+const validateApiToken = require("../middlewares/validate-api-token");
 
-router.get("/google", validate(Schemas.getAuth), Controller.getAuth);
-router.get("/google/callback", validate(Schemas.getAuthCallback), Controller.getAuthCallback);
-router.get("/google/status", validate(Schemas.getAuthStatus), Controller.getAuthStatus);
-router.post("/google/expire", validate(Schemas.expireAuth), Controller.expireAuth);
-router.post("/token", validate(Schemas.getApiToken), Controller.getApiToken);
+router.post("/auth/status", validate(Schemas.checkAuth), validateApiToken, Controller.checkAuth);
+router.post("/auth/expire", validate(Schemas.expireAuth), validateApiToken, Controller.expireAuth);
+//router.post("/auth/create-api-token", validate(Schemas.createApiToken), Controller.createApiToken);
 
 module.exports = router;
