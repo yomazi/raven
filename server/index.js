@@ -24,14 +24,14 @@ connectDb();
 
 const googleAuthRoutes = require("./auth/google.auth.routes.js");
 const authRoutes = require("./auth/auth.routes");
-const performancesRoutes = require("./performances/performances.routes");
+const showsRoutes = require("./shows/shows.routes");
 
 const version = "v1";
 const routePrefix = `/api/${version}`;
 
 app.use("", googleAuthRoutes);
 app.use(routePrefix, authRoutes);
-app.use(routePrefix, performancesRoutes);
+app.use(routePrefix, showsRoutes);
 
 // **Serve React after all API / OAuth routes**
 const reactBuildPath = path.join(__dirname, "../client/dist");

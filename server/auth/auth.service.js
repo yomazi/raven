@@ -44,5 +44,37 @@ class AuthService {
     if (!user) return;
     await AuthDbRepository.clearTokens();
   }
+
+  static async getGoogleClient() {
+    const user = await AuthDbRepository.getUserByEmail(USER_EMAIL);
+
+    if (!user) {
+      throw new createError.Unauthorized(`User not found: ${USER_EMAIL}`);
+    }
+
+    if (!user.google) {
+      throw new createError.Unauthorized(`User not authenticated: ${USER_EMAIL}`);
+    }
+
+    const tokens = user.google;
+
+    if (!tokens.refresh_token) {
+      throw new Error("No refresh token found, please log in again.");
+    }
+
+    const oauth2Client = new google.auth.OAuth2(
+      process.env.GOOGLE_CLIENT_ID,
+      process.env.GOOGLE_CLIENT_SECRET,
+      process.env.GOOGLE_REDIRECT_URI
+    );
+
+    oauth2Client.setCredentials({
+      access_token: tokens.access_token,
+      refresh_token: tokens.refresh_token,
+      scope: tokens.scope,
+      token_type: tokens.token_type,
+      expiry_date: tokens.expiry_date,
+    });
+  }
 }
 module.exports = AuthService;

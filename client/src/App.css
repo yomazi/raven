@@ -1,4 +1,12 @@
 @font-face {
+  font-family: "Michroma";
+  src: url("/fonts/Michroma-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
   font-family: "ZenDots";
   src: url("/fonts/ZenDots-Regular.ttf") format("truetype");
   font-weight: 400;
@@ -60,6 +68,24 @@ button:focus-visible {
 
 .item {
   font-size: 1.1rem;
+}
+
+.bg {
+  background-color: #fff;
+  height: 500px;
+  padding: 100px;
+}
+
+.neuron {
+  font-family: "Michroma", sans-serif;
+  font-size: 200px;
+  color: #1b3a80;
+}
+
+.nine {
+  font-family: "Montserrat", sans-serif;
+  font-size: 200px;
+  color: #b00000;
 }
 /*
 .logo {

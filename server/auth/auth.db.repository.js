@@ -23,7 +23,7 @@ class AuthDbRepository {
     return user;
   }
 
-  static async createUser(email, tokens, apiTokenHash) {
+  static async createUser(email, tokens) {
     const now = new Date();
     const user = await User.create({
       email,
@@ -35,7 +35,7 @@ class AuthDbRepository {
     return user;
   }
 
-  static async updateUser(user, tokens, apiTokenHash) {
+  static async updateUser(user, tokens) {
     const now = new Date();
 
     user.google = tokens;
