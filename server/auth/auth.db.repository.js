@@ -1,5 +1,5 @@
-const User = require("../models/User");
-const { USER_EMAIL } = require("../utilities/constants.js");
+import User from "../models/User.js";
+import { USER_EMAIL } from "../utilities/constants.js";
 
 class AuthDbRepository {
   // Get the single registered user
@@ -78,4 +78,4 @@ class AuthDbRepository {
     );
   }
 }
-module.exports = AuthDbRepository;
+export default AuthDbRepository;

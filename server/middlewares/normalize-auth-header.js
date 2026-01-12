@@ -1,4 +1,4 @@
-function normalizeAuthHeader(req, res, next) {
+export function normalizeAuthHeader(req, res, next) {
   const header = req.get("authorization");
   const cookieToken = req.cookies?.apiToken;
 
@@ -8,5 +8,3 @@ function normalizeAuthHeader(req, res, next) {
 
   next();
 }
-
-module.exports = { normalizeAuthHeader };

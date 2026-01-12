@@ -1,5 +1,5 @@
 // ./models/Show.js
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 const showSchema = new mongoose.Schema({
   googleFolderId: { type: String, required: true, unique: true },
@@ -10,4 +10,4 @@ const showSchema = new mongoose.Schema({
 
 const Show = mongoose.model("Show", showSchema, "Shows");
 
-module.exports = Show;
+export default Show;

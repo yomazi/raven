@@ -1,6 +1,7 @@
 // middlewares/requireApiToken.js
-const createError = require("http-errors");
-const ApiTokensService = require("../api-tokens/api-tokens.service.js"); // your DB methods
+import createError from "http-errors";
+
+import ApiTokensService from "../api-tokens/api-tokens.service.js"; // your DB methods
 
 /**
  * Middleware to require a valid API token in the Authorization header.
@@ -25,4 +26,4 @@ async function validateApiToken(req, res, next) {
   }
 }
 
-module.exports = validateApiToken;
+export default validateApiToken;

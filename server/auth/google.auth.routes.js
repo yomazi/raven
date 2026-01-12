@@ -1,12 +1,12 @@
-const Schemas = require("./google.auth.schemas");
-const Controller = require("./auth.controller");
+import Controller from "./auth.controller.js";
+import Schemas from "./google.auth.schemas.js";
 
-const express = require("express");
+import express from "express";
 const router = express.Router();
 
-const { validate } = require("../middlewares/validate-request");
+import { validate } from "../middlewares/validate-request.js";
 
 router.get("/auth/google", validate(Schemas.getAuth), Controller.getAuth);
 router.get("/auth/google/callback", validate(Schemas.getAuthCallback), Controller.getAuthCallback);
 
-module.exports = router;
+export default router;

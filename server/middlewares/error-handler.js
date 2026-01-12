@@ -1,4 +1,4 @@
-const errorHandler = (error, req, res, next) => {
+export const errorHandler = (error, req, res, next) => {
   const status = error.status || 500;
   const name = error.name || "InternalServerError";
   const message = error.message || "An unexpected error occurred.";
@@ -12,5 +12,3 @@ const errorHandler = (error, req, res, next) => {
     message,
   });
 };
-
-module.exports = { errorHandler };

@@ -1,13 +1,12 @@
-// ./routes/show.routes.js
-const Schemas = require("./shows.schemas");
-const Controller = require("./shows.controller");
-const { validate } = require("../middlewares/validate-request");
-const validateApiToken = require("../middlewares/validate-api-token");
+import validateApiToken from "../middlewares/validate-api-token.js";
+import { validate } from "../middlewares/validate-request.js";
+import Controller from "./shows.controller.js";
+import Schemas from "./shows.schemas.js";
 
-const express = require("express");
+import express from "express";
 const router = express.Router();
 
 // GET /api/shows/sync?rootFolderId=...
 router.get("/shows/sync", validate(Schemas.sync), validateApiToken, Controller.syncShowsController);
 
-module.exports = router;
+export default router;

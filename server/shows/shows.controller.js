@@ -1,5 +1,5 @@
 // ./controllers/show.controller.js
-const ShowsService = require("./shows.service");
+import ShowsService from "./shows.service.js";
 
 class ShowsController {
   static async syncShowsController(req, res) {
@@ -14,4 +14,4 @@ class ShowsController {
   }
 }
 
-module.exports = ShowsController;
+export default ShowsController;

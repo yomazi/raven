@@ -1,6 +1,6 @@
-const crypto = require("crypto");
-const ApiTokensDbRepository = require("./api-tokens.db.repository.js");
-const { API_TOKEN_LENGTH } = require("../utilities/constants.js");
+import crypto from "crypto";
+import { API_TOKEN_LENGTH } from "../utilities/constants.js";
+import ApiTokensDbRepository from "./api-tokens.db.repository.js";
 
 class ApiTokensService {
   static async createApiToken() {
@@ -27,4 +27,5 @@ class ApiTokensService {
     return result;
   }
 }
-module.exports = ApiTokensService;
+
+export default ApiTokensService;

@@ -1,5 +1,4 @@
-const Joi = require("joi");
-const authHeaderSchema = require("../auth/auth.header.schema");
+import authHeaderSchema from "../auth/auth.header.schema.js";
 class AuthSchemas {
   static checkAuth = {
     headers: authHeaderSchema,
@@ -7,4 +6,4 @@ class AuthSchemas {
   static expireAuth = {};
 }
 
-module.exports = AuthSchemas;
+export default AuthSchemas;

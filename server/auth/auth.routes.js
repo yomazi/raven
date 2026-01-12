@@ -1,14 +1,14 @@
-const Schemas = require("./auth.schemas");
-const Controller = require("./auth.controller");
+import Controller from "./auth.controller.js";
+import Schemas from "./auth.schemas.js";
 
-const express = require("express");
+import express from "express";
+
 const router = express.Router();
 
-const { validate } = require("../middlewares/validate-request");
-const validateApiToken = require("../middlewares/validate-api-token");
+import validateApiToken from "../middlewares/validate-api-token.js";
+import { validate } from "../middlewares/validate-request.js";
 
 router.post("/auth/status", validate(Schemas.checkAuth), validateApiToken, Controller.checkAuth);
 router.post("/auth/expire", validate(Schemas.expireAuth), validateApiToken, Controller.expireAuth);
-//router.post("/auth/create-api-token", validate(Schemas.createApiToken), Controller.createApiToken);
 
-module.exports = router;
+export default router;

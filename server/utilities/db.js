@@ -1,8 +1,8 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 const MONGO_URI = process.env.MONGO_URI;
 
-async function connectDb() {
+export async function connectDb() {
   if (mongoose.connection.readyState >= 1) {
     // Already connected
     return;
@@ -16,5 +16,3 @@ async function connectDb() {
     process.exit(1);
   }
 }
-
-module.exports = { connectDb };

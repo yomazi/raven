@@ -1,6 +1,6 @@
-const Joi = require("joi");
+import Joi from "joi";
+import { API_TOKEN_LENGTH } from "../utilities/constants.js";
 
-const { API_TOKEN_LENGTH } = require("../utilities/constants.js");
 const apiTokenChars = API_TOKEN_LENGTH * 2; // hex representation
 
 const authHeaderSchema = Joi.object({
@@ -13,4 +13,4 @@ const authHeaderSchema = Joi.object({
     }),
 }).unknown(true); // unknown(true) allows other headers
 
-module.exports = authHeaderSchema;
+export default authHeaderSchema;

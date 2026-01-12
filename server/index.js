@@ -1,30 +1,34 @@
 // index.js
-require("dotenv").config();
+import "dotenv/config";
 
-const express = require("express");
-const cookieParser = require("cookie-parser");
-const path = require("path");
-const livereload = require("livereload");
-const connectLivereload = require("connect-livereload");
-const fs = require("fs");
+import connectLivereload from "connect-livereload";
+import cookieParser from "cookie-parser";
+import express from "express";
+import fs from "fs";
+import livereload from "livereload";
+import path from "path";
+import { fileURLToPath } from "url";
 
-const { connectDb } = require("./utilities/db.js");
-const { waitForFile } = require("./utilities/helpers.js");
+import { connectDb } from "./utilities/db.js";
+import { waitForFile } from "./utilities/helpers.js";
 
-const { normalizeAuthHeader } = require("./middlewares/normalize-auth-header.js");
-const { errorHandler } = require("./middlewares/error-handler");
+import { errorHandler } from "./middlewares/error-handler.js";
+import { normalizeAuthHeader } from "./middlewares/normalize-auth-header.js";
+
+// routes
+import authRoutes from "./auth/auth.routes.js";
+import googleAuthRoutes from "./auth/google.auth.routes.js";
+import showsRoutes from "./shows/shows.routes.js";
+
+const __filename = fileURLToPath(import.meta.url); // absolute path to this file
+const __dirname = path.dirname(__filename); // directory containing this file
 
 const app = express();
-
 app.use(express.json());
 app.use(cookieParser());
 app.use(normalizeAuthHeader);
 
 connectDb();
-
-const googleAuthRoutes = require("./auth/google.auth.routes.js");
-const authRoutes = require("./auth/auth.routes");
-const showsRoutes = require("./shows/shows.routes");
 
 const version = "v1";
 const routePrefix = `/api/${version}`;
@@ -35,18 +39,31 @@ app.use(routePrefix, showsRoutes);
 
 // **Serve React after all API / OAuth routes**
 const reactBuildPath = path.join(__dirname, "../client/dist");
+
+// ensure that the build path folder exists
 if (!fs.existsSync(reactBuildPath)) {
   fs.mkdirSync(reactBuildPath, { recursive: true });
 }
 
-const liveReloadServer = livereload.createServer();
+// setup live reload server
+const liveReloadServer = livereload.createServer({
+  exts: ["js", "css", "html"], // watch only relevant file types
+  delay: 100, // slight debounce to avoid multiple triggers
+});
 liveReloadServer.watch(reactBuildPath);
 
-app.use(connectLivereload());
-app.use(express.static(reactBuildPath));
+app.use(connectLivereload()); // tells express to use the live reload script
+
+// Serve static React files
+app.use(
+  express.static(reactBuildPath, {
+    maxAge: 0, // disable caching during dev for instant reloads
+  })
+);
 
 app.use(errorHandler); // use the error handler middleware
 
+// Serve up the React app for all non-API routes
 app.get(/^\/(?!api).*/, async (req, res) => {
   const indexPath = path.join(reactBuildPath, "index.html");
   try {

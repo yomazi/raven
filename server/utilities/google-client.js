@@ -1,6 +1,6 @@
-const { google } = require("googleapis");
+import { google } from "googleapis";
 
-const scopes = [
+export const scopes = [
   "openid",
   "profile",
   "email",
@@ -9,7 +9,7 @@ const scopes = [
   "https://www.googleapis.com/auth/spreadsheets",
 ];
 
-function getRedirectUri(host) {
+export function getRedirectUri(host) {
   let redirectUri = "";
 
   if (host.startsWith("localhost")) {
@@ -25,7 +25,7 @@ function getRedirectUri(host) {
   return redirectUri;
 }
 
-function createOAuthClient(redirectUri) {
+export function createOAuthClient(redirectUri) {
   return new google.auth.OAuth2(
     process.env.GOOGLE_CLIENT_ID,
     process.env.GOOGLE_CLIENT_SECRET,
@@ -33,32 +33,7 @@ function createOAuthClient(redirectUri) {
   );
 }
 
-function createOAuthClientWithSession(req) {
-  if (!req.session.user?.tokens) {
-    throw new Error("No tokens in session — user must login first");
-  }
-
-  const redirectUri = req.session.redirectUri;
-  console.log("Redirect URI:", redirectUri);
-
-  const client = new google.auth.OAuth2(
-    process.env.GOOGLE_CLIENT_ID,
-    process.env.GOOGLE_CLIENT_SECRET,
-    redirectUri
-  );
-
-  client.setCredentials(req.session.user.tokens);
-
-  client.on("tokens", (tokens) => {
-    if (!req.session.user) req.session.user = { tokens: {} };
-    if (tokens.refresh_token) req.session.user.tokens.refresh_token = tokens.refresh_token;
-    if (tokens.access_token) req.session.user.tokens.access_token = tokens.access_token;
-  });
-
-  return client;
-}
-
-function generateAuthUrl(client, hasRefreshToken) {
+export function generateAuthUrl(client, hasRefreshToken) {
   console.log("requesting access to scopes:");
   console.log(scopes);
 
@@ -71,11 +46,3 @@ function generateAuthUrl(client, hasRefreshToken) {
 
   return url;
 }
-
-module.exports = {
-  getRedirectUri,
-  createOAuthClient,
-  createOAuthClientWithSession,
-  generateAuthUrl,
-  scopes,
-};

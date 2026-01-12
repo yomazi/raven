@@ -1,5 +1,6 @@
-const nodemailer = require("nodemailer");
-const { USER_EMAIL } = require("../utilities/constants.js");
+import nodemailer from "nodemailer";
+
+import { USER_EMAIL } from "../utilities/constants.js";
 
 const transporter = nodemailer.createTransport({
   host: process.env.EMAIL_HOST,
@@ -30,4 +31,4 @@ class EmailService {
   }
 }
 
-module.exports = EmailService;
+export default EmailService;

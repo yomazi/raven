@@ -1,5 +1,5 @@
-const ApiTokensService = require("./api-tokens.service.js");
-const { cookifyApiToken } = require("../utilities/helpers.js");
+import { cookifyApiToken } from "../utilities/helpers.js";
+import ApiTokensService from "./api-tokens.service.js";
 
 class ApiTokensController {
   static async createApiToken(req, res, next) {
@@ -17,4 +17,4 @@ class ApiTokensController {
   }
 }
 
-module.exports = ApiTokensController;
+export default ApiTokensController;

@@ -1,11 +1,12 @@
-const Schemas = require("./api-tokens.schemas");
-const Controller = require("./api-tokens.controller");
+import Controller from "./api-tokens.controller.js";
+import Schemas from "./api-tokens.schemas.js";
 
-const express = require("express");
+import express from "express";
+
 const router = express.Router();
 
-const { validate } = require("../middlewares/validate-request");
-const validateApiToken = require("../middlewares/validate-api-token");
+import validateApiToken from "../middlewares/validate-api-token.js";
+import { validate } from "../middlewares/validate-request.js";
 
 router.post(
   "/auth/create-api-token",
@@ -14,4 +15,4 @@ router.post(
   Controller.createApiToken
 );
 
-module.exports = router;
+export default router;

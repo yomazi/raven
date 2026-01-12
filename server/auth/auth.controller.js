@@ -1,6 +1,6 @@
-const { getRedirectUri } = require("../utilities/google-client");
-const AuthService = require("./auth.service.js");
-const { cookifyApiToken } = require("../utilities/helpers.js");
+import { getRedirectUri } from "../utilities/google-client.js";
+import { cookifyApiToken } from "../utilities/helpers.js";
+import AuthService from "./auth.service.js";
 
 class AuthController {
   static async getAuth(req, res, next) {
@@ -73,4 +73,4 @@ class AuthController {
   }
 }
 
-module.exports = AuthController;
+export default AuthController;

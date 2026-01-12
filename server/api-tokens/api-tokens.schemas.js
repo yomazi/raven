@@ -1,5 +1,5 @@
-const Joi = require("joi");
-const authHeaderSchema = require("../auth/auth.header.schema");
+import Joi from "joi";
+import authHeaderSchema from "../auth/auth.header.schema.js";
 
 class ApiTokensSchemas {
   static createApiToken = {
@@ -10,4 +10,4 @@ class ApiTokensSchemas {
   };
 }
 
-module.exports = ApiTokensSchemas;
+export default ApiTokensSchemas;

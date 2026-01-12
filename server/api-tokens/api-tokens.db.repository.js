@@ -1,4 +1,4 @@
-const ApiToken = require("../models/ApiToken.js");
+import ApiToken from "../models/ApiToken.js";
 
 class ApiTokensDbRepository {
   static async getApiTokenHash(apiTokenHash) {
@@ -17,4 +17,4 @@ class ApiTokensDbRepository {
     return apiToken;
   }
 }
-module.exports = ApiTokensDbRepository;
+export default ApiTokensDbRepository;

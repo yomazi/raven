@@ -3,4 +3,4 @@ class GoogleAuthSchemas {
   static getAuthCallback = {};
 }
 
-module.exports = GoogleAuthSchemas;
+export default GoogleAuthSchemas;

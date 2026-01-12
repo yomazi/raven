@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 const apiTokenSchema = new mongoose.Schema({
   apiTokenHash: { type: String, required: true, unique: true },
@@ -7,4 +7,4 @@ const apiTokenSchema = new mongoose.Schema({
 
 const ApiToken = mongoose.model("ApiToken", apiTokenSchema, "ApiTokens");
 
-module.exports = ApiToken;
+export default ApiToken;

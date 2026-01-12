@@ -1,6 +1,6 @@
-const createError = require("http-errors");
+import createError from "http-errors";
 
-const validate = (schemas) => (req, res, next) => {
+export const validate = (schemas) => (req, res, next) => {
   try {
     Object.entries(schemas).forEach(([key, schema]) => {
       if (schema) {
@@ -21,5 +21,3 @@ const validate = (schemas) => (req, res, next) => {
     next(error);
   }
 };
-
-module.exports = { validate };

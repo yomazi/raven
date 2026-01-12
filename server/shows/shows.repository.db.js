@@ -1,5 +1,5 @@
 // ./repositories/show.repository.js
-const Show = require("../models/Show");
+import Show from "../models/Show.js";
 
 class ShowsRepositoryDb {
   static async upsertShows(shows) {
@@ -18,4 +18,4 @@ class ShowsRepositoryDb {
     return await Show.find({});
   }
 }
-module.exports = ShowsRepositoryDb;
+export default ShowsRepositoryDb;

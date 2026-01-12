@@ -1,4 +1,4 @@
-const authHeaderSchema = require("../auth/auth.header.schema");
+import authHeaderSchema from "../auth/auth.header.schema.js";
 
 class ShowsSchemas {
   static sync = {
@@ -6,4 +6,4 @@ class ShowsSchemas {
   };
 }
 
-module.exports = ShowsSchemas;
+export default ShowsSchemas;

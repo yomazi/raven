@@ -1,10 +1,12 @@
-const { createOAuthClient, generateAuthUrl } = require("../utilities/google-client");
-const { google } = require("googleapis");
-const createError = require("http-errors");
-const EmailService = require("../services/email.service.js");
-const ApiTokensService = require("../api-tokens/api-tokens.service.js");
-const AuthDbRepository = require("./auth.db.repository.js");
-const { USER_EMAIL, API_TOKEN_LENGTH } = require("../utilities/constants.js");
+import { google } from "googleapis";
+import createError from "http-errors";
+
+import ApiTokensService from "../api-tokens/api-tokens.service.js";
+import EmailService from "../services/email.service.js";
+import { USER_EMAIL } from "../utilities/constants.js";
+import { createOAuthClient, generateAuthUrl } from "../utilities/google-client.js";
+import AuthDbRepository from "./auth.db.repository.js";
+
 class AuthService {
   static async getAuthUrl(redirectUri) {
     const client = createOAuthClient(redirectUri);
@@ -62,19 +64,21 @@ class AuthService {
       throw new Error("No refresh token found, please log in again.");
     }
 
-    const oauth2Client = new google.auth.OAuth2(
+    const client = new google.auth.OAuth2(
       process.env.GOOGLE_CLIENT_ID,
       process.env.GOOGLE_CLIENT_SECRET,
       process.env.GOOGLE_REDIRECT_URI
     );
 
-    oauth2Client.setCredentials({
+    client.setCredentials({
       access_token: tokens.access_token,
       refresh_token: tokens.refresh_token,
       scope: tokens.scope,
       token_type: tokens.token_type,
       expiry_date: tokens.expiry_date,
     });
+
+    return client;
   }
 }
-module.exports = AuthService;
+export default AuthService;
