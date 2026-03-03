@@ -6,7 +6,7 @@ import express from "express";
 const router = express.Router();
 
 import validateApiToken from "../middlewares/validate-api-token.js";
-import { validate } from "../middlewares/validate-request.js";
+import { validate } from "../middlewares/validate-request-schema.js";
 
 router.post(
   "/auth/create-api-token",

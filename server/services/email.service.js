@@ -15,7 +15,7 @@ const transporter = nodemailer.createTransport({
 class EmailService {
   static async send({ subject, text, html }) {
     return transporter.sendMail({
-      from: process.env.EMAIL_FROM,
+      from: `"${process.env.EMAIL_FROM}" <${process.env.EMAIL_USER}>`,
       to: USER_EMAIL,
       subject,
       text,

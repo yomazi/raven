@@ -1,5 +1,5 @@
 import validateApiToken from "../middlewares/validate-api-token.js";
-import { validate } from "../middlewares/validate-request.js";
+import { validate } from "../middlewares/validate-request-schema.js";
 import Controller from "./shows.controller.js";
 import Schemas from "./shows.schemas.js";
 
