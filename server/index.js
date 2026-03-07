@@ -48,9 +48,9 @@ if (!fs.existsSync(reactBuildPath)) {
 // setup live reload server
 const liveReloadServer = livereload.createServer({
   exts: ["js", "css", "html"], // watch only relevant file types
-  delay: 100, // slight debounce to avoid multiple triggers
+  delay: 300, // slight debounce to avoid multiple triggers
 });
-liveReloadServer.watch(reactBuildPath);
+liveReloadServer.watch(path.join(reactBuildPath, "index.html"));
 
 app.use(connectLivereload()); // tells express to use the live reload script
 
@@ -66,13 +66,21 @@ app.use(errorHandler); // use the error handler middleware
 // Serve up the React app for all non-API routes
 app.get(/^\/(?!api).*/, async (req, res) => {
   const indexPath = path.join(reactBuildPath, "index.html");
-  try {
-    await waitForFile(indexPath);
-    res.sendFile(indexPath);
-  } catch (err) {
-    res.status(503).send("React build not ready yet. Please refresh in a moment.");
-  }
+  res.sendFile(indexPath, (err) => {
+    if (err) {
+      res.status(503).send("React rebuild in progress…");
+    }
+  });
 });
 
-const PORT = process.env.PORT || 3001;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+const startServer = async () => {
+  const indexPath = path.join(reactBuildPath, "index.html");
+
+  console.log("Waiting for React build...");
+  await waitForFile(indexPath);
+
+  const PORT = process.env.PORT || 3001;
+  app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+};
+
+startServer();

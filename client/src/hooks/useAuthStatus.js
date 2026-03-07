@@ -6,16 +6,6 @@ export function useAuthStatus() {
   const [loading, setLoading] = useState(true); // optional, to track loading state
   const [error, setError] = useState(null); // optional, to track errors
 
-  /*
-  useEffect(() => {
-    const checkAuth = async () => {
-      setLoading(false);
-    };
-
-    checkAuth();
-  }, []);
-  */
-
   useEffect(() => {
     const checkAuth = async () => {
       setLoading(true);

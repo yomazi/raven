@@ -1,0 +1,140 @@
+.content {
+  display: flex;
+  flex-direction: row;
+}
+
+.clickableLinkCell {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  transition: all 0.1s ease-in-out;
+  color: #1e90ff;
+}
+
+.clickableLinkCell:hover {
+  font-size: 1.1em;
+  text-decoration: underline;
+}
+
+/* folder icons */
+.folderLink:hover .iconFolderClosed {
+  opacity: 0;
+}
+
+.folderLink:hover .iconFolderOpen {
+  opacity: 1;
+}
+
+.folderLink {
+  position: relative;
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+}
+
+.iconFolderClosed {
+  width: 100%;
+  height: 100%;
+  transition: opacity 0.3s;
+}
+
+.iconFolderOpen {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+/* AG Grid hack: this class doesn't seem to exist in AG Grid but it should. */
+:global(.ag-center-aligned-cell) {
+  text-align: center;
+}
+
+/* AG Grid theme overrides */
+:global(.ag-header-cell[col-id="date"] .ag-header-cell-label) {
+  justify-content: flex-end; /* moves the label + sort icons to the right */
+  text-align: right; /* optional for safety */
+}
+
+:global(.ag-header-cell[col-id="isMulti"] .ag-header-cell-label) {
+  justify-content: center; /* moves the label + sort icons to the right */
+  text-align: center; /* optional for safety */
+}
+
+:global(.ag-theme-alpine.dark) {
+  background-color: #11171d; /* grid background */
+  color: #ffffff; /* default text */
+}
+
+:global(.ag-theme-alpine.dark .ag-header) {
+  background-color: #161a22;
+  color: #ffffff;
+}
+
+:global(.ag-theme-alpine.dark .ag-row:nth-child(odd)) {
+  background-color: #11171d;
+}
+
+:global(.ag-theme-alpine.dark .ag-row:nth-child(even)) {
+  background-color: #0f1217; /* slightly lighter than odd rows */
+}
+
+:global(.ag-theme-alpine.dark .ag-row:hover) {
+  background-color: #1b2128;
+}
+
+/*
+:global(.ag-theme-alpine.dark .ag-selection) {
+  background-color: #faa;
+}
+*/
+
+:global(.ag-header-cell-text) {
+  /*  color: #606c75; */
+  color: #a8b2b8;
+  font-weight: bold;
+  font-size: 1.1rem;
+}
+
+:global(.ag-cell-value) {
+  color: #a8b2b8;
+}
+
+:global(.ag-cell:hover) {
+  border-color: #20252e;
+}
+
+:global(.ag-header) {
+  border-bottom-color: #20252e;
+}
+
+:global(.ag-pinned-left-header) {
+  border-right-color: #20252e;
+}
+
+:global(.ag-row) {
+  border-bottom-color: #20252e;
+}
+
+:global(.ag-pinned-left-cols-container .ag-row .ag-cell) {
+  border-right-color: #20252e;
+}
+
+:global(.ag-cell-focus, .ag-cell-focus:hover) {
+  border-color: #646cff;
+}
+
+:global(.ag-icon) {
+  color: #a8b2b8;
+  font-weight: bold;
+  font-size: 1.1em;
+}
+
+:global(.ag-root-wrapper) {
+  border-color: #11171d;
+}

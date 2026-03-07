@@ -4,11 +4,8 @@
   align-items: center;
   background-color: #e5e7eb;
   color: #2e3440;
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
   height: 80px;
+  width: 100%;
   border-bottom: 1px solid #22d3ee;
 }
 
@@ -20,8 +17,9 @@
 }
 
 .app_logo {
-  height: 65px;
+  height: 50px;
   width: auto;
+  margin-right: 10px;
 }
 
 .app_title {
