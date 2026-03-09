@@ -51,6 +51,9 @@ export default function ClientArea() {
     <div style={{ flex: 1, display: "flex", flexDirection: "column", margin: "1rem" }}>
       {/* Header buttons */}
       <div style={{ marginBottom: 16 }}>
+        <button onClick={() => goToAction("show-properties")} style={{ marginRight: 8 }}>
+          Show Properties
+        </button>
         <button onClick={() => goToAction("build-show")} style={{ marginRight: 8 }}>
           Build Show
         </button>
