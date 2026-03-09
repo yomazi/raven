@@ -10,21 +10,3 @@ export const cookifyApiToken = (res, apiToken) => {
     });
   }
 };
-
-export const waitForFile = async (filePath, timeout = 10000, interval = 100) => {
-  return new Promise((resolve, reject) => {
-    const start = Date.now();
-
-    const check = () => {
-      if (fs.existsSync(filePath)) {
-        return resolve();
-      }
-      if (Date.now() - start > timeout) {
-        return reject(new Error(`File ${filePath} did not appear within ${timeout}ms`));
-      }
-      setTimeout(check, interval);
-    };
-
-    check();
-  });
-};

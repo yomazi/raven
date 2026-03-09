@@ -5,7 +5,7 @@ import { Navigate, Route, Routes, useNavigate, useParams } from "react-router-do
 function ShowProperties({ showId }) {
   return (
     <div>
-      <b>Show Properties</b> for show ID: {showId} asfase
+      <b>Show Properties</b> for show ID: {showId}
     </div>
   );
 }
