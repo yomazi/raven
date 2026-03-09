@@ -1,35 +1,34 @@
 // index.js
 import "dotenv/config";
 
-import connectLivereload from "connect-livereload";
 import cookieParser from "cookie-parser";
 import express from "express";
 import fs from "fs";
-import livereload from "livereload";
 import path from "path";
 import { fileURLToPath } from "url";
-
-import { connectDb } from "./utilities/db.js";
-import { waitForFile } from "./utilities/helpers.js";
+import { createServer as createViteServer } from "vite";
 
 import { errorHandler } from "./middlewares/error-handler.js";
 import { normalizeAuthHeader } from "./middlewares/normalize-auth-header.js";
+import { connectDb } from "./utilities/db.js";
 
 // routes
 import authRoutes from "./auth/auth.routes.js";
 import googleAuthRoutes from "./auth/google.auth.routes.js";
 import showsRoutes from "./shows/shows.routes.js";
 
-const __filename = fileURLToPath(import.meta.url); // absolute path to this file
-const __dirname = path.dirname(__filename); // directory containing this file
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
+
 app.use(express.json());
 app.use(cookieParser());
 app.use(normalizeAuthHeader);
 
 connectDb();
 
+// define API routes with versioning
 const version = "v1";
 const routePrefix = `/api/${version}`;
 
@@ -37,50 +36,31 @@ app.use("", googleAuthRoutes);
 app.use(routePrefix, authRoutes);
 app.use(routePrefix, showsRoutes);
 
-// **Serve React after all API / OAuth routes**
-const reactBuildPath = path.join(__dirname, "../client/dist");
-
-// ensure that the build path folder exists
-if (!fs.existsSync(reactBuildPath)) {
-  fs.mkdirSync(reactBuildPath, { recursive: true });
-}
-
-// setup live reload server
-const liveReloadServer = livereload.createServer({
-  exts: ["js", "css", "html"], // watch only relevant file types
-  delay: 300, // slight debounce to avoid multiple triggers
+// set up Vite middleware for dev (Raven is local-only)
+const vite = await createViteServer({
+  server: { middlewareMode: true },
+  root: path.resolve(__dirname, "../client"), // React project root
 });
-liveReloadServer.watch(path.join(reactBuildPath, "index.html"));
+app.use(vite.middlewares);
 
-app.use(connectLivereload()); // tells express to use the live reload script
+// SPA fallback catch-all for React Router
+app.use(async (req, res, next) => {
+  if (req.originalUrl.startsWith("/api")) return next();
 
-// Serve static React files
-app.use(
-  express.static(reactBuildPath, {
-    maxAge: 0, // disable caching during dev for instant reloads
-  })
-);
+  try {
+    const indexHtmlPath = path.resolve(__dirname, "../client/index.html");
+    const template = await fs.promises.readFile(indexHtmlPath, "utf-8");
+    const html = await vite.transformIndexHtml(req.originalUrl, template);
 
-app.use(errorHandler); // use the error handler middleware
-
-// Serve up the React app for all non-API routes
-app.get(/^\/(?!api).*/, async (req, res) => {
-  const indexPath = path.join(reactBuildPath, "index.html");
-  res.sendFile(indexPath, (err) => {
-    if (err) {
-      res.status(503).send("React rebuild in progress…");
-    }
-  });
+    res.status(200).set({ "Content-Type": "text/html" }).end(html);
+  } catch (err) {
+    vite.ssrFixStacktrace(err);
+    next(err);
+  }
 });
 
-const startServer = async () => {
-  const indexPath = path.join(reactBuildPath, "index.html");
+app.use(errorHandler);
 
-  console.log("Waiting for React build...");
-  await waitForFile(indexPath);
-
-  const PORT = process.env.PORT || 3001;
-  app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-};
-
-startServer();
+// start the server!
+const PORT = process.env.PORT || 3001;
+app.listen(PORT, () => console.log(`[Raven] server running on port ${PORT}`));
