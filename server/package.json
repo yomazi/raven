@@ -24,8 +24,6 @@
     "nodemailer": "^7.0.12"
   },
   "devDependencies": {
-    "connect-livereload": "^0.6.1",
-    "livereload": "^0.10.3",
     "nodemon": "^3.1.11",
     "vite": "^7.3.1"
   }
