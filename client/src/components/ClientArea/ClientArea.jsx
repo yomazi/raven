@@ -1,5 +1,6 @@
 // ClientArea.jsx
 import { Navigate, Route, Routes, useNavigate, useParams } from "react-router-dom";
+import styles from "./ClientArea.module.css";
 
 // Helper components for demonstration
 function ShowProperties({ showId }) {
@@ -48,7 +49,7 @@ export default function ClientArea() {
   };
 
   return (
-    <div style={{ flex: 1, display: "flex", flexDirection: "column", margin: "1rem" }}>
+    <div className={styles.clientArea}>
       {/* Header buttons */}
       <div style={{ marginBottom: 16 }}>
         <button onClick={() => goToAction("show-properties")} style={{ marginRight: 8 }}>

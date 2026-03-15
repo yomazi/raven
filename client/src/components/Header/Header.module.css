@@ -1,42 +1,40 @@
 .header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
   background-color: #e5e7eb;
   color: #2e3440;
   height: 80px;
   width: 100%;
-  border-bottom: 1px solid #22d3ee;
 }
 
-.app_info {
+.appInfo {
   margin-left: 0.5rem;
   display: flex;
   align-items: center;
   gap: 0.2rem;
 }
 
-.app_logo {
+.appLogo {
   height: 50px;
   width: auto;
   margin-right: 10px;
 }
 
-.app_title {
+.appTitle {
   font-family: "ZenDots", sans-serif;
   text-transform: uppercase;
   font-size: 30px;
   color: #2e3440;
 }
 
-.app_controls {
+.appControls {
   display: flex;
   align-items: center;
   gap: 1rem;
   margin-right: 0.5rem;
 }
 
-.rg_icon {
+.rgIcon {
   height: 50px;
   width: auto;
   margin-right: 0.5rem;

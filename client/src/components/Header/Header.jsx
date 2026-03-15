@@ -10,17 +10,17 @@ const Header = () => {
 
   return (
     <header className={styles.header}>
-      <article className={styles.app_info}>
-        <img src="/icons/raven-logo.png" alt="Raven Logo" className={styles.app_logo} />
-        <div className={styles.app_title}>raven</div>
+      <article className={styles.appInfo}>
+        <img src="/icons/raven-logo.png" alt="Raven Logo" className={styles.appLogo} />
+        <div className={styles.appTitle}>raven</div>
       </article>
-      <article className={styles.app_controls}>
+      <article className={styles.appControls}>
         {loggedIn ? (
           <button onClick={logout}>Logout</button>
         ) : (
           <button onClick={handleLogin}>Login with Google</button>
         )}
-        <img src="/icons/rg-icon.png" alt="RG Logo" className={styles.rg_icon} />
+        <img src="/icons/rg-icon.png" alt="RG Logo" className={styles.rgIcon} />
       </article>
     </header>
   );

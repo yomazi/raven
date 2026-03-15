@@ -1,94 +1,39 @@
 @font-face {
-  font-family: "Michroma";
-  src: url("/fonts/Michroma-Regular.ttf") format("truetype");
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
   font-family: "ZenDots";
-  src: url("/fonts/ZenDots-Regular.ttf") format("truetype");
+  src: url("/fonts/Zen_Dots/ZenDots-Regular.ttf") format("truetype");
   font-weight: 400;
   font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Montserrat";
-  src: url("/fonts/Montserrat-VariableFont_wght.ttf") format("truetype");
-  font-weight: 100 900; /* variable font supports a range */
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Montserrat";
-  src: url("/fonts/Montserrat-Italic-VariableFont_wght.ttf") format("truetype");
-  font-weight: 100 900;
-  font-style: italic;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Google Sans";
-  src: url("/fonts/GoogleSans-VariableFont_GRAD,opsz,wght.ttf") format("truetype");
-  font-weight: 100 900; /* variable font supports a range */
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Google Sans";
-  src: url("/fonts/GoogleSans-Italic-VariableFont_GRAD,opsz,wght.ttf") format("truetype");
-  font-weight: 100 900;
-  font-style: italic;
   font-display: swap;
 }
 
 /* Light */
 @font-face {
-  font-family: "Sansation";
-  src: url("/fonts/Sansation-Light.ttf") format("truetype");
+  font-family: "Nunito Sans";
+  src: url("/fonts/Nunito_Sans/NunitoSans-VariableFont_YTLC,opsz,wdth,wght.ttf") format("truetype");
   font-weight: 300;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "Sansation";
-  src: url("/fonts/Sansation-LightItalic.ttf") format("truetype");
+  font-family: "Nunito Sans";
+  src: url("/fonts/Nunito_Sans/NunitoSans-VariableFont_YTLC,opsz,wdth,wght.ttf") format("truetype");
+  font-weight: 700;
+  font-style: bold;
+}
+
+@font-face {
+  font-family: "Nunito Sans";
+  src: url("/fonts/Nunito_Sans/NunitoSans-Italic-VariableFont_YTLC,opsz,wdth,wght.ttf")
+    format("truetype");
   font-weight: 300;
   font-style: italic;
 }
 
-/* Regular */
 @font-face {
-  font-family: "Sansation";
-  src: url("/fonts/Sansation-Regular.ttf") format("truetype");
-  font-weight: 400;
+  font-family: "Source Code Pro";
+  src: url("/fonts/Source_Code_Pro/SourceCodePro-VariableFont_wght.ttf") format("truetype");
+  font-weight: 300;
   font-style: normal;
-}
-
-@font-face {
-  font-family: "Sansation";
-  src: url("/fonts/Sansation-Italic.ttf") format("truetype");
-  font-weight: 400;
-  font-style: italic;
-}
-
-/* Bold */
-@font-face {
-  font-family: "Sansation";
-  src: url("/fonts/Sansation-Bold.ttf") format("truetype");
-  font-weight: 700;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Sansation";
-  src: url("/fonts/Sansation-BoldItalic.ttf") format("truetype");
-  font-weight: 700;
-  font-style: italic;
 }
 
 #app {
@@ -99,7 +44,7 @@
 }
 
 * {
-  font-family: "Sansation", Helvetica, sans-serif;
+  font-family: "Nunito Sans", Helvetica, sans-serif;
   font-weight: 300;
 }
 
@@ -109,19 +54,24 @@ h1 {
 
 button {
   border-radius: 4px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1.1rem;
+  border-width: 1px;
+  padding: 0.7rem 0.9rem;
+  font-size: 1rem;
   font-weight: bold;
-  font-family: "Sansation", Helvetica, sans-serif;
-  background-color: #1a1a1a;
-  color: #fff;
+  font-family: "Nunito Sans", Helvetica, sans-serif;
+  background-color: #2a2b35;
+  color: #e3e3e3;
   cursor: pointer;
-  transition: border-color 0.25s;
+  transition: all 0.2s ease-in-out;
 }
+
 button:hover {
-  border-color: #646cff;
+  border-color: #5a5a8a;
+  background-color: #32333f;
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(90, 90, 138, 0.4);
 }
+
 button:focus,
 button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;

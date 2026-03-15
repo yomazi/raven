@@ -3,41 +3,21 @@
   flex-direction: row;
 }
 
-.clickableLinkCell {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  cursor: pointer;
-  transition: all 0.1s ease-in-out;
-  color: #1e90ff;
-}
-
-.clickableLinkCell:hover {
-  font-size: 1.1em;
-  text-decoration: underline;
-}
-
 /* folder icons */
-.folderLink:hover .iconFolderClosed {
+.folderLinkCell:hover .iconFolderClosed {
   opacity: 0;
 }
 
-.folderLink:hover .iconFolderOpen {
+.folderLinkCell:hover .iconFolderOpen {
   opacity: 1;
 }
 
-.folderLink {
+.folderLinkCell {
   position: relative;
   display: inline-block;
-  width: 24px;
-  height: 24px;
-}
-
-.iconFolderClosed {
-  width: 100%;
-  height: 100%;
-  transition: opacity 0.3s;
+  width: 22px;
+  height: 22px;
+  color: #e3e3e3;
 }
 
 .iconFolderOpen {
@@ -50,91 +30,89 @@
   transition: opacity 0.3s;
 }
 
-/* AG Grid hack: this class doesn't seem to exist in AG Grid but it should. */
-:global(.ag-center-aligned-cell) {
-  text-align: center;
+.iconFolderClosed {
+  width: 100%;
+  height: 100%;
+  transition: opacity 0.3s;
 }
 
-/* AG Grid theme overrides */
-:global(.ag-header-cell[col-id="date"] .ag-header-cell-label) {
-  justify-content: flex-end; /* moves the label + sort icons to the right */
-  text-align: right; /* optional for safety */
+.artistNameCell {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
 }
 
-:global(.ag-header-cell[col-id="isMulti"] .ag-header-cell-label) {
-  justify-content: center; /* moves the label + sort icons to the right */
-  text-align: center; /* optional for safety */
+.artistNameCell:hover {
+  text-decoration: underline;
 }
 
-:global(.ag-theme-alpine.dark) {
-  background-color: #11171d; /* grid background */
-  color: #ffffff; /* default text */
+.dateCell {
+  width: 100%;
+  height: 100%;
+  font-family: "Source Code Pro", monospace;
+  font-size: 0.85rem;
 }
 
-:global(.ag-theme-alpine.dark .ag-header) {
-  background-color: #161a22;
-  color: #ffffff;
+.checkboxCell {
+  position: relative;
+  display: inline-block;
+  width: 18px;
+  height: 18px;
 }
 
-:global(.ag-theme-alpine.dark .ag-row:nth-child(odd)) {
-  background-color: #11171d;
-}
-
-:global(.ag-theme-alpine.dark .ag-row:nth-child(even)) {
-  background-color: #0f1217; /* slightly lighter than odd rows */
-}
-
-:global(.ag-theme-alpine.dark .ag-row:hover) {
-  background-color: #1b2128;
-}
-
-/*
-:global(.ag-theme-alpine.dark .ag-selection) {
-  background-color: #faa;
-}
-*/
-
-:global(.ag-header-cell-text) {
-  /*  color: #606c75; */
-  color: #a8b2b8;
-  font-weight: bold;
-  font-size: 1.1rem;
-}
-
-:global(.ag-cell-value) {
+.checkboxChecked {
   color: #a8b2b8;
 }
 
-:global(.ag-cell:hover) {
-  border-color: #20252e;
+.textCell {
+  transition: all 0.1s ease-in-out;
 }
 
-:global(.ag-header) {
-  border-bottom-color: #20252e;
-}
-
-:global(.ag-pinned-left-header) {
-  border-right-color: #20252e;
-}
-
-:global(.ag-row) {
-  border-bottom-color: #20252e;
-}
-
-:global(.ag-pinned-left-cols-container .ag-row .ag-cell) {
-  border-right-color: #20252e;
-}
-
-:global(.ag-cell-focus, .ag-cell-focus:hover) {
-  border-color: #646cff;
-}
-
-:global(.ag-icon) {
-  color: #a8b2b8;
-  font-weight: bold;
+.textCell:hover {
   font-size: 1.1em;
 }
 
-:global(.ag-root-wrapper) {
-  border-color: #11171d;
+/* AG Grid style overrides */
+:global(.ag-header-cell-text) {
+  font-weight: bold;
+  font-size: 1.15em;
+}
+
+:global(.ag-header-cell[col-id="isMulti"] .ag-header-cell-label) {
+  justify-content: center;
+  text-align: center;
+}
+
+:global(.ag-center-aligned-cell) {
+  /* hack: this class doesn't seem to exist in AG Grid, but it should. */
+  text-align: center;
+}
+
+:global(.ag-row:nth-child(even)) {
+  background-color: rgb(48, 48, 48);
+}
+
+:global(.ag-row) {
+  cursor: pointer;
+}
+
+:global(.ag-cell) * {
+  transition: all 0.1s ease-in-out;
+}
+
+:global(.ag-cell:hover) .folderLinkCell {
+  width: 26px;
+  height: 26px;
+  color: #fff;
+}
+
+:global(.ag-cell:hover) .checkboxCell {
+  width: 22px;
+  height: 22px;
+}
+
+:global(.ag-cell:hover) .artistNameCell,
+:global(.ag-cell:hover) .dateCell {
+  font-size: 1.1em;
 }

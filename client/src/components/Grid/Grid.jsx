@@ -1,40 +1,50 @@
-import { AllCommunityModule, ModuleRegistry } from "ag-grid-community";
-import "ag-grid-community/styles/ag-grid.css";
-import "ag-grid-community/styles/ag-theme-alpine.css";
+import {
+  AllCommunityModule,
+  colorSchemeDark,
+  ModuleRegistry,
+  themeAlpine,
+} from "ag-grid-community";
+// import "ag-grid-community/styles/ag-theme-alpine.css";
 import { AgGridReact } from "ag-grid-react";
 import { useNavigate } from "react-router-dom";
+import SvgCheckboxChecked from "../../assets/svg/check_box_24dp_E3E3E3_FILL0_wght400_GRAD0_opsz24.svg?react";
+import SvgFolderClosed from "../../assets/svg/folder_24dp_E3E3E3_FILL0_wght400_GRAD0_opsz24.svg?react";
+import SvgFolderOpen from "../../assets/svg/folder_open_24dp_E3E3E3_FILL0_wght400_GRAD0_opsz24.svg?react";
 import styles from "./Grid.module.css";
-import ClosedFolder from "/svg/folder_24dp_E3E3E3_FILL0_wght400_GRAD0_opsz24.svg";
-import OpenFolder from "/svg/folder_open_24dp_E3E3E3_FILL0_wght400_GRAD0_opsz24.svg";
 
 ModuleRegistry.registerModules([AllCommunityModule]);
 
-const FolderIconRenderer = (params) => {
-  const url = params.data.artist.url;
-
+const FolderIconRenderer = () => {
   return (
-    <a href={url} target="_blank" rel="noopener noreferrer" className={styles.folderLink}>
-      <img src={ClosedFolder} alt="folder" className={styles.iconFolderClosed} />
-      <img src={OpenFolder} alt="folder" className={styles.iconFolderOpen} />
-    </a>
+    <div className={styles.folderLinkCell}>
+      <SvgFolderClosed className={styles.iconFolderClosed} />
+      <SvgFolderOpen className={styles.iconFolderOpen} />
+    </div>
   );
 };
 
 const ArtistNameRenderer = (params) => {
-  const navigate = useNavigate();
+  return <div className={styles.artistNameCell}>{params.data.artist.label}</div>;
+};
 
-  // Extract the "current action" from the URL
-  const currentAction = window.location.pathname.split("/").slice(2).join("/");
+const formatDate = (dateString) => {
+  if (!dateString) return "";
 
-  const handleClick = () => {
-    const id = params.data.artist.id;
+  const date = new Date(dateString);
 
-    navigate(`/${id}/${currentAction}`);
-  };
+  return date.toISOString().split("T")[0]; // "2026-01-04"
+};
 
+const DateRenderer = (params) => {
+  const dateValue = formatDate(params.value);
+
+  return <div className={styles.dateCell}>{dateValue}</div>;
+};
+
+const CheckboxRenderer = (params) => {
   return (
-    <div onClick={handleClick} className={styles.clickableLinkCell}>
-      {params.data.artist.label}
+    <div className={styles.checkboxCell}>
+      {params.value ? <SvgCheckboxChecked className={styles.checkboxChecked} /> : null}
     </div>
   );
 };
@@ -46,6 +56,7 @@ const columnDefs = [
     width: 70,
     pinned: "left",
     sortable: false,
+    resizable: false,
     suppressMovable: true,
   },
   {
@@ -54,7 +65,7 @@ const columnDefs = [
     flex: 1,
     valueGetter: (params) => params.data.artist.label, // used for sorting
     cellRenderer: FolderIconRenderer,
-    cellClass: "ag-center-aligned-cell",
+    cellClass: "ag-center-aligned-cell raven-grid-cell",
     width: 60,
     minWidth: 60,
     maxWidth: 60,
@@ -68,24 +79,18 @@ const columnDefs = [
     flex: 1,
     valueGetter: (params) => params.data.artist.label, // used for sorting
     cellRenderer: ArtistNameRenderer,
+    resizable: false,
     suppressMovable: true,
   },
   {
     headerName: "Date",
     field: "date",
     type: "dateColumn",
-    flex: 1,
-    valueFormatter: (params) => {
-      if (!params.value) return "";
-      const date = new Date(params.value);
-      return date.toLocaleDateString("en-US", {
-        weekday: "long",
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-      });
-    },
-    cellClass: "ag-right-aligned-cell",
+    width: 120,
+    minWidth: 120,
+    maxWidth: 120,
+    cellRenderer: DateRenderer,
+    resizable: false,
     suppressAutoSize: true,
     suppressMovable: true,
   },
@@ -93,13 +98,13 @@ const columnDefs = [
     headerName: "Multi",
     field: "isMulti",
     flex: 1,
-    cellRenderer: (params) =>
-      params.value ? <input type="checkbox" checked={params.value} readOnly /> : null,
+    cellRenderer: CheckboxRenderer,
     cellClass: "ag-center-aligned-cell",
     width: 100, // fixed width in pixels
     minWidth: 100,
     maxWidth: 100,
     resizable: false,
+    suppressAutoSize: true,
     suppressMovable: true,
   },
 ];
@@ -112,15 +117,50 @@ const rowData = Array.from({ length: 10000 }, (_, i) => ({
   isMulti: Math.random() < 0.5,
 }));
 
+const theme = themeAlpine.withPart(colorSchemeDark);
+
 const Grid = () => {
+  const navigate = useNavigate();
+
+  const openFolder = (url) => {
+    window.open(
+      url, // URL
+      "_blank", // open in new tab/window
+      "noopener,noreferrer" // window features (important for security)
+    );
+  };
+
+  const routeToShow = (id) => {
+    // Extract the "current action" from the URL
+    const currentAction = window.location.pathname.split("/").slice(2).join("/");
+
+    navigate(`/${id}/${currentAction}`);
+  };
+
+  const handleCellClick = (e) => {
+    const field = e.colDef?.field || "unknown";
+    const isFolder = field === "folder";
+    const isValidField = field !== "unknown";
+
+    const id = e.data?.artist?.id;
+
+    if (isFolder) {
+      const url = e.data?.artist?.url;
+
+      url ? openFolder(url) : console.warn(`No URL found for the folder in row ${id}`);
+    } else if (isValidField && id !== undefined) {
+      const id = e.data?.artist?.id;
+      const isIdValid = id !== undefined && id !== null;
+
+      isIdValid ? routeToShow(id) : console.warn(`No ID found for the artist in row ${id}`);
+    }
+  };
+
   return (
-    <div
-      className="ag-theme-alpine dark raven-grid"
-      data-ag-theme-mode="dark-blue"
-      style={{ flex: 1, height: "100%" }}
-    >
+    <div className="raven-grid" style={{ flex: 1, height: "100%" }}>
       <AgGridReact
         valueCache={true}
+        theme={theme}
         rowHeight={28}
         headerHeight={36}
         rowData={rowData}
@@ -128,6 +168,7 @@ const Grid = () => {
         defaultColDef={{ resizable: true, sortable: true }}
         suppressColumnMoveAnimation={true}
         animateRows={false}
+        onCellClicked={handleCellClick}
       />
     </div>
   );
