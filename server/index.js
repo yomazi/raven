@@ -4,6 +4,7 @@ import "dotenv/config";
 import cookieParser from "cookie-parser";
 import express from "express";
 import fs from "fs";
+import { createServer } from "http";
 import path from "path";
 import { fileURLToPath } from "url";
 import { createServer as createViteServer } from "vite";
@@ -37,8 +38,12 @@ app.use(routePrefix, authRoutes);
 app.use(routePrefix, showsRoutes);
 
 // set up Vite middleware for dev (Raven is local-only)
+
+const httpServer = createServer(app);
+const PORT = process.env.PORT || 3001;
+
 const vite = await createViteServer({
-  server: { middlewareMode: true },
+  server: { middlewareMode: true, hmr: { server: httpServer, port: 443, protocol: "wss" } },
   root: path.resolve(__dirname, "../client"), // React project root
 });
 app.use(vite.middlewares);
@@ -62,5 +67,4 @@ app.use(async (req, res, next) => {
 app.use(errorHandler);
 
 // start the server!
-const PORT = process.env.PORT || 3001;
-app.listen(PORT, () => console.log(`[Raven] server running on port ${PORT}`));
+httpServer.listen(PORT, () => console.log(`[Raven] server running on port ${PORT}`));
