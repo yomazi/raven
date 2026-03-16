@@ -18,7 +18,7 @@
 .dragHandle {
   width: 5px;
   cursor: col-resize;
-  background: rgba(0, 0, 0, 0.1);
+  background: var(--color-wyrd-dim);
   flex-shrink: 0;
   user-select: none;
 }
