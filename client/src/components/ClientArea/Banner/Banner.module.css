@@ -1,0 +1,92 @@
+.banner {
+  display: flex;
+  justify-content: flex-start;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.artist {
+  font-size: 1.5em;
+  font-weight: bold;
+  color: #2e3440;
+}
+
+.date {
+  font-size: 1.2em;
+  color: #555;
+}
+
+.copyButton {
+  display: flex;
+  align-items: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.25rem;
+  color: #000;
+  opacity: 0.4;
+  transition: all 0.2s ease;
+}
+
+.copyButton:hover {
+  color: #000;
+  opacity: 1;
+  background: none;
+  box-shadow: none;
+}
+
+.copyButton:focus,
+.copyButton:focus-visible {
+  outline: none;
+}
+
+.copyButton:active {
+  position: relative;
+  left: 2px;
+  top: 2px;
+}
+
+.folderLinkCell:hover .iconFolderClosed {
+  opacity: 0;
+}
+
+.folderLinkCell:hover .iconFolderOpen {
+  opacity: 1;
+}
+
+.folderContainer {
+  width: 2.2rem;
+  height: 2.2rem;
+  align-self: center;
+}
+
+.folderLinkCell {
+  position: relative;
+  display: inline-block;
+  width: 2rem;
+  height: 2rem;
+  color: #000;
+  transition: all 0.2s ease-in-out;
+}
+
+.folderLinkCell:hover {
+  width: 2.2rem;
+  height: 2.2rem;
+}
+
+.iconFolderOpen {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.iconFolderClosed {
+  width: 100%;
+  height: 100%;
+  transition: opacity 0.3s;
+}

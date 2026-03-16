@@ -10,3 +10,8 @@ export const syncShows = async (fromDate = null) => {
   const { data } = await apiClient.post("/drive/sync", { fromDate });
   return data;
 };
+
+export const fetchShowById = async (googleFolderId) => {
+  const { data } = await apiClient.get(`/shows/${googleFolderId}`);
+  return data.show;
+};

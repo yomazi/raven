@@ -1,5 +1,7 @@
 // ClientArea.jsx
 import { Navigate, Route, Routes, useNavigate, useParams } from "react-router-dom";
+import { useShowById } from "../../hooks/useShowById.js";
+import Banner from "./Banner/Banner.jsx";
 import styles from "./ClientArea.module.css";
 
 // Helper components for demonstration
@@ -37,11 +39,15 @@ function Livestream({ showId }) {
 
 export default function ClientArea() {
   const { showId } = useParams();
+  const { data: show, isLoading, isError } = useShowById(showId);
   const navigate = useNavigate();
 
   if (!showId) {
     return <Navigate to={`/default/`} replace />;
   }
+
+  if (isLoading) return <div>Loading show...</div>;
+  if (isError) return <div>Error loading show.</div>;
 
   // Button click handler to navigate to a specific action
   const goToAction = (action) => {
@@ -50,6 +56,7 @@ export default function ClientArea() {
 
   return (
     <div className={styles.clientArea}>
+      <Banner show={show} />
       {/* Header buttons */}
       <div style={{ marginBottom: 16 }}>
         <button onClick={() => goToAction("show-properties")} style={{ marginRight: 8 }}>
