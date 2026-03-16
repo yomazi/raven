@@ -10,9 +10,13 @@ export function useAuthStatus() {
     const checkAuth = async () => {
       setLoading(true);
       try {
-        const res = await axios.post("/api/v1/auth/status", {
-          withCredentials: "include", // sends cookie
-        });
+        const res = await axios.post(
+          "/api/v1/auth/status",
+          {},
+          {
+            withCredentials: "include", // sends cookie
+          }
+        );
         setLoggedIn(res.status === 200); // 200 => logged in, 401 => not
       } catch (err) {
         console.error(err);

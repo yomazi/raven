@@ -3,6 +3,11 @@
   flex-direction: row;
 }
 
+.ravenGrid {
+  flex: 1;
+  height: 100%;
+}
+
 /* folder icons */
 .folderLinkCell:hover .iconFolderClosed {
   opacity: 0;
@@ -59,6 +64,7 @@
   display: inline-block;
   width: 18px;
   height: 18px;
+  align-items: center;
 }
 
 .checkboxChecked {
@@ -95,6 +101,12 @@
 
 :global(.ag-row) {
   cursor: pointer;
+}
+
+:global(.ag-cell[col-id="isMulti"]) {
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 :global(.ag-cell) * {
