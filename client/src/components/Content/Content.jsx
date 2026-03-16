@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import ClientArea from "../ClientArea/ClientArea";
 import Grid from "../Grid/Grid";
 import styles from "./Content.module.css";
@@ -7,26 +7,32 @@ const Content = () => {
   const [gridWidth, setGridWidth] = useState(700);
   const dragging = useRef(false);
 
-  const onMouseMove = (e) => {
+  const onMouseMove = useCallback((e) => {
     if (dragging.current) {
       const newWidth = e.clientX;
-      if (newWidth > 150 && newWidth < 800) {
+      if (newWidth > 500) {
         setGridWidth(newWidth);
       }
     }
-  };
+  }, []);
 
-  const onMouseUp = () => {
+  const onMouseUp = useCallback(() => {
     dragging.current = false;
     window.removeEventListener("mousemove", onMouseMove);
-    window.removeEventListener("mouseup", onMouseUp);
-  };
+  }, [onMouseMove]);
 
-  const onMouseDown = () => {
+  const onMouseDown = useCallback(() => {
     dragging.current = true;
     window.addEventListener("mousemove", onMouseMove);
-    window.addEventListener("mouseup", onMouseUp);
-  };
+    window.addEventListener("mouseup", onMouseUp, { once: true }); // self-removing
+  }, [onMouseMove, onMouseUp]);
+
+  useEffect(() => {
+    return () => {
+      window.removeEventListener("mousemove", onMouseMove);
+      window.removeEventListener("mouseup", onMouseUp);
+    };
+  }, [onMouseMove, onMouseUp]);
 
   return (
     <main className={styles.content}>
