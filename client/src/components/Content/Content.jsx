@@ -40,9 +40,7 @@ const Content = () => {
         <Grid />
       </div>
       <div className={styles.dragHandle} onMouseDown={onMouseDown}></div>
-      <div className={styles.clientArea}>
-        <ClientArea />
-      </div>
+      <ClientArea />
     </main>
   );
 };

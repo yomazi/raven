@@ -43,6 +43,29 @@
   font-style: normal;
 }
 
+:root {
+  /* Backgrounds */
+  --color-void: #110e1a; /* page background */
+  --color-stone: #2e2648; /* cards, surfaces */
+  --color-header: #1d1828; /* header bar */
+
+  /* Accents */
+  --color-wyrd: #7a5fff; /* primary accent, borders */
+  --color-wyrd-dim: #3d2f8a; /* primary button fill */
+  --color-wyrd-muted: #4a3d78; /* default card borders */
+
+  /* Text */
+  --color-frost: #c9b8ff; /* primary text on dark */
+  --color-rune: #6a5fa8; /* secondary / label text */
+
+  /* Warmth */
+  --color-moonlight: #f0e8d0; /* hero values, moon badge */
+  --color-ember: #d4933a; /* warnings, secondary actions */
+  --color-ember-dim: #8a5a1a; /* ember borders */
+  --color-moss: #2a7a5f;
+  --color-fen: #3fa882;
+}
+
 #app {
   display: flex;
   flex-direction: column;
@@ -61,22 +84,20 @@ h1 {
 
 button {
   border-radius: 0.5rem 0.25rem 0.5rem 0.25rem;
-  border-width: 1px;
+  border: 1px solid transparent;
   padding: 0.7rem 0.9rem;
   font-size: 0.9rem;
   font-family: "Nunito Sans", Helvetica, sans-serif;
   font-weight: 700;
-  background-color: #3d2f8a;
-  color: #c9b8ff;
+  background-color: var(--color-stone);
+  color: var(--color-moonlight);
   cursor: pointer;
   transition: all 0.2s ease-in-out;
 }
 
 button:hover {
-  border-color: #7a5fff;
-  color: #fff;
-  background-color: #252724;
-  box-shadow: 0 2px 8px rgba(90, 90, 138, 0.4);
+  border-color: var(--color-wyrd-dim);
+  background-color: var(--color-void);
 }
 
 button:focus,

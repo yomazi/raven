@@ -3,5 +3,8 @@
   flex-direction: column;
   flex: 1;
   padding: 1rem;
-  border-top: 2px solid #aeaeae;
+  overflow: auto;
+  background-color: var(--color-void);
+  color: var(--color-ember);
+  box-sizing: border-box;
 }

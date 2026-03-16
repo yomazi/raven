@@ -15,12 +15,6 @@
   overflow: auto;
 }
 
-.clientArea {
-  flex: 1; /* take remaining space */
-  background: #fff;
-  overflow: auto;
-}
-
 .dragHandle {
   width: 5px;
   cursor: col-resize;

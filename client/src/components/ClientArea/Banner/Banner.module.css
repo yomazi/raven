@@ -9,12 +9,12 @@
 .artist {
   font-size: 1.5em;
   font-weight: bold;
-  color: #2e3440;
+  color: var(--color-moonlight);
 }
 
 .date {
   font-size: 1.2em;
-  color: #555;
+  color: var(--color-moonlight);
 }
 
 .copyButton {
@@ -24,13 +24,13 @@
   border: none;
   cursor: pointer;
   padding: 0.25rem;
-  color: #000;
+  color: var(--color-moonlight);
   opacity: 0.4;
   transition: all 0.2s ease;
 }
 
 .copyButton:hover {
-  color: #000;
+  color: #fff;
   opacity: 1;
   background: none;
   box-shadow: none;
@@ -43,8 +43,8 @@
 
 .copyButton:active {
   position: relative;
-  left: 2px;
-  top: 2px;
+  left: 1px;
+  top: 1px;
 }
 
 .folderLinkCell:hover .iconFolderClosed {
@@ -66,7 +66,7 @@
   display: inline-block;
   width: 2rem;
   height: 2rem;
-  color: #000;
+  color: var(--color-moonlight);
   transition: all 0.2s ease-in-out;
 }
 

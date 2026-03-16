@@ -1,3 +1,4 @@
+import RgIcon from "../../assets/svg/rg.svg?react";
 import { useAuthStatus } from "../../hooks/useAuthStatus";
 import styles from "./Header.module.css";
 
@@ -11,8 +12,10 @@ const Header = () => {
   return (
     <header className={styles.header}>
       <article className={styles.appInfo}>
-        <img src="/icons/raven-logo.png" alt="Raven Logo" className={styles.appLogo} />
-        <div className={styles.appTitle}>raven</div>
+        <div className={styles.appLogo}>
+          <img src="/icons/raven-logo.png" alt="Raven Logo" className={styles.appLogo} />
+        </div>
+        <p className={styles.appTitle}>raven</p>
       </article>
       <article className={styles.appControls}>
         {loggedIn ? (
@@ -20,7 +23,9 @@ const Header = () => {
         ) : (
           <button onClick={handleLogin}>Login with Google</button>
         )}
-        <img src="/icons/rg-icon.png" alt="RG Logo" className={styles.rgIcon} />
+        <div className={styles.rgIconContainer}>
+          <RgIcon alt="RG Logo" className={styles.rgIcon} />
+        </div>
       </article>
     </header>
   );

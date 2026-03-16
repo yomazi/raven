@@ -72,7 +72,7 @@ export default function ClientArea() {
       </div>
 
       {/* Dynamic client content */}
-      <div style={{ flex: 1, padding: 16, border: "1px solid #ccc" }}>
+      <div>
         <Routes>
           {/* Default route */}
           <Route index element={<Navigate to="show-properties" replace />} />

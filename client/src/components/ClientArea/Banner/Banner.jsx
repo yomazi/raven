@@ -31,7 +31,7 @@ const CopyIcon = () => (
   </svg>
 );
 
-const Banner = ({ show }) => {
+const Banner = ({ show = {} }) => {
   const formattedDate = formatDate(show.date);
 
   const handleFolderClick = () => {
