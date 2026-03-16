@@ -19,6 +19,10 @@ class ShowsService {
   static async getAll() {
     return ShowsRepository.findAll();
   }
+
+  static async getByGoogleFolderId(googleFolderId) {
+    return ShowsRepository.findByGoogleFolderId(googleFolderId);
+  }
 }
 
 export default ShowsService;

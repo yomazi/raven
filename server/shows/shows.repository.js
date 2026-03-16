@@ -17,6 +17,10 @@ class ShowsRepository {
   static async findAll() {
     return Show.find().sort({ date: 1 });
   }
+
+  static async findByGoogleFolderId(googleFolderId) {
+    return Show.findOne({ googleFolderId });
+  }
 }
 
 export default ShowsRepository;

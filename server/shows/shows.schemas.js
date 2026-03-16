@@ -1,11 +1,11 @@
 import authHeaderSchema from "../auth/auth.header.schema.js";
 
 class ShowsSchemas {
-  static hello = {
+  static getAll = {
     headers: authHeaderSchema,
   };
 
-  static getAll = {
+  static getById = {
     headers: authHeaderSchema,
   };
 }

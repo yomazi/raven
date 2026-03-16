@@ -6,7 +6,7 @@ import Schemas from "./shows.schemas.js";
 import express from "express";
 const router = express.Router();
 
-router.get("/shows/hello", validate(Schemas.hello), validateApiToken, Controller.hello);
 router.get("/shows", validate(Schemas.getAll), validateApiToken, Controller.getAll);
+router.get("/shows/:id", validate(Schemas.getById), validateApiToken, Controller.getById);
 
 export default router;
