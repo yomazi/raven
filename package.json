@@ -1,7 +1,7 @@
 {
-  "name": "raven-poc",
+  "name": "raven",
   "version": "1.0.0",
-  "description": "A POC for the Raven project.",
+  "description": "A sanity-inducing tool for Google Workspaces.",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",

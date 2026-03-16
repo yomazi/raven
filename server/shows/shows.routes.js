@@ -6,7 +6,7 @@ import Schemas from "./shows.schemas.js";
 import express from "express";
 const router = express.Router();
 
-// GET /api/shows/sync?rootFolderId=...
-router.get("/shows/sync", validate(Schemas.sync), validateApiToken, Controller.syncShowsController);
+router.get("/shows/hello", validate(Schemas.hello), validateApiToken, Controller.hello);
+router.get("/shows", validate(Schemas.getAll), validateApiToken, Controller.getAll);
 
 export default router;

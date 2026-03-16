@@ -1,12 +1,23 @@
-import ShowsRepositoryDb from "./shows.repository.db.js";
-import ShowsRepositoryDrive from "./shows.repository.drive.js";
+import ShowsRepository from "./shows.repository.js";
 
-import { ROOT_FOLDER_ID } from "../utilities/constants.js";
 class ShowsService {
-  static async syncShows(rootFolderId) {
-    const shows = await ShowsRepositoryDrive.scrapeShows(ROOT_FOLDER_ID);
-    const mergedShows = await ShowsRepositoryDb.upsertShows(shows);
-    return mergedShows;
+  static #mapDriveShowToDocument(driveShow) {
+    return {
+      googleFolderId: driveShow.driveId,
+      artist: driveShow.artist,
+      date: driveShow.date,
+      isMulti: driveShow.multipleShows,
+      unparsed: driveShow.unparsed ?? false,
+    };
+  }
+
+  static async upsertMany(driveShows) {
+    const mapped = driveShows.map(ShowsService.#mapDriveShowToDocument);
+    return ShowsRepository.upsertMany(mapped);
+  }
+
+  static async getAll() {
+    return ShowsRepository.findAll();
   }
 }
 

@@ -1,7 +1,11 @@
 import authHeaderSchema from "../auth/auth.header.schema.js";
 
 class ShowsSchemas {
-  static sync = {
+  static hello = {
+    headers: authHeaderSchema,
+  };
+
+  static getAll = {
     headers: authHeaderSchema,
   };
 }

@@ -81,4 +81,5 @@ class AuthService {
     return client;
   }
 }
+
 export default AuthService;
