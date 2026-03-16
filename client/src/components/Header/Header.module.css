@@ -60,10 +60,13 @@
   color: var(--color-moonlight);
   transform-box: fill-box;
   transform-origin: center;
-  transition: transform 0.2s ease-in-out;
+  transition:
+    transform 0.2s ease-in-out,
+    filter 0.4s ease-in-out;
 }
 
 .rgIcon:hover {
+  filter: drop-shadow(0 0 6px var(--color-moonlight));
   transform: scale(1.2);
   animation: spin;
   animation-duration: 1.5s;

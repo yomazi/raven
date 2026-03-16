@@ -83,7 +83,7 @@ h1 {
 }
 
 button {
-  border-radius: 0.5rem 0.25rem 0.5rem 0.25rem;
+  border-radius: 0.25rem;
   border: 1px solid transparent;
   padding: 0.7rem 0.9rem;
   font-size: 0.9rem;
@@ -92,12 +92,18 @@ button {
   background-color: var(--color-stone);
   color: var(--color-moonlight);
   cursor: pointer;
-  transition: all 0.2s ease-in-out;
+  transition:
+    background-color 0.2s ease-in-out,
+    border-color 0.2s ease-in-out;
 }
 
 button:hover {
   border-color: var(--color-wyrd-dim);
   background-color: var(--color-void);
+}
+
+button:active {
+  color: var(--color-frost);
 }
 
 button:focus,
