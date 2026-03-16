@@ -16,8 +16,7 @@ const theme = themeAlpine.withPart(colorSchemeDark);
 
 const Grid = () => {
   const navigate = useNavigate();
-  const { data: shows, isLoading, isError, status } = useShows();
-  console.log("Grid query status:", { status, isLoading, isError, showsCount: shows?.length });
+  const { data: shows, isLoading, isError } = useShows();
 
   const openFolder = (folderId) => {
     console.log(folderId);
