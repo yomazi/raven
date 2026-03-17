@@ -1,21 +1,30 @@
-Nunito Sans Variable Font
-=========================
+Google Sans Code Variable Font
+==============================
 
-This download contains Nunito Sans as both variable fonts and static fonts.
+This download contains Google Sans Code as both variable fonts and static fonts.
 
-Nunito Sans is a variable font with these axes:
-  YTLC
-  opsz
-  wdth
+Google Sans Code is a variable font with this axis:
   wght
 
 This means all the styles are contained in these files:
-  Nunito_Sans/NunitoSans-VariableFont_YTLC,opsz,wdth,wght.ttf
-  Nunito_Sans/NunitoSans-Italic-VariableFont_YTLC,opsz,wdth,wght.ttf
+  GoogleSansCode-VariableFont_wght.ttf
+  GoogleSansCode-Italic-VariableFont_wght.ttf
 
 If your app fully supports variable fonts, you can now pick intermediate styles
 that aren’t available as static fonts. Not all apps support variable fonts, and
-in those cases you can use the static font files for Nunito Sans:
+in those cases you can use the static font files for Google Sans Code:
+  static/GoogleSansCode-Light.ttf
+  static/GoogleSansCode-Regular.ttf
+  static/GoogleSansCode-Medium.ttf
+  static/GoogleSansCode-SemiBold.ttf
+  static/GoogleSansCode-Bold.ttf
+  static/GoogleSansCode-ExtraBold.ttf
+  static/GoogleSansCode-LightItalic.ttf
+  static/GoogleSansCode-Italic.ttf
+  static/GoogleSansCode-MediumItalic.ttf
+  static/GoogleSansCode-SemiBoldItalic.ttf
+  static/GoogleSansCode-BoldItalic.ttf
+  static/GoogleSansCode-ExtraBoldItalic.ttf
 
 Get started
 -----------

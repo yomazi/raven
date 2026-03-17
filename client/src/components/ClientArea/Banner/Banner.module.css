@@ -6,6 +6,76 @@
   margin-bottom: 1rem;
 }
 
+.bannerContainer {
+  position: relative;
+  display: flex;
+  justify-content: flex-start;
+  align-items: baseline;
+  gap: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.bannerContainer::after {
+  content: "";
+  position: absolute;
+  bottom: 3px;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background: var(--color-moonlight);
+  opacity: 0;
+  transition: opacity 0.2s ease-in-out;
+}
+
+.bannerContainer:hover::after {
+  opacity: 1;
+}
+
+.bannerContainer:hover .iconFolderClosed {
+  opacity: 0;
+}
+
+.bannerContainer:hover .iconFolderOpen {
+  opacity: 1;
+}
+
+.folderContainer {
+  position: relative;
+  top: 1px;
+  width: 2.2rem;
+  height: 2.2rem;
+  align-self: center;
+}
+
+.folderIcon {
+  position: relative;
+  display: flex;
+  display: inline-block;
+  width: 2rem;
+  height: 2rem;
+  color: var(--color-moonlight);
+  transition: all 0.2s ease-in-out;
+}
+
+.iconFolderOpen {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.iconFolderClosed {
+  width: 100%;
+  height: 100%;
+  opacity: 0.6;
+  transition: opacity 0.3s;
+}
+
 .artist {
   font-size: 1.5em;
   font-weight: bold;
@@ -25,7 +95,7 @@
   cursor: pointer;
   padding: 0.25rem;
   color: var(--color-moonlight);
-  opacity: 0.4;
+  opacity: 0.6;
   transition: all 0.2s ease;
 }
 
@@ -45,48 +115,4 @@
   position: relative;
   left: 1px;
   top: 1px;
-}
-
-.folderLinkCell:hover .iconFolderClosed {
-  opacity: 0;
-}
-
-.folderLinkCell:hover .iconFolderOpen {
-  opacity: 1;
-}
-
-.folderContainer {
-  width: 2.2rem;
-  height: 2.2rem;
-  align-self: center;
-}
-
-.folderLinkCell {
-  position: relative;
-  display: inline-block;
-  width: 2rem;
-  height: 2rem;
-  color: var(--color-moonlight);
-  transition: all 0.2s ease-in-out;
-}
-
-.folderLinkCell:hover {
-  width: 2.2rem;
-  height: 2.2rem;
-}
-
-.iconFolderOpen {
-  width: 100%;
-  height: 100%;
-  position: absolute;
-  top: 0;
-  left: 0;
-  opacity: 0;
-  transition: opacity 0.3s;
-}
-
-.iconFolderClosed {
-  width: 100%;
-  height: 100%;
-  transition: opacity 0.3s;
 }

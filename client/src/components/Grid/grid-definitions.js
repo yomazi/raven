@@ -9,7 +9,7 @@ export const columnDefs = [
   {
     headerName: "#",
     valueGetter: "node.rowIndex + 1",
-    width: 70,
+    width: 55,
     pinned: "left",
     sortable: false,
     resizable: false,

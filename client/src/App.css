@@ -8,37 +8,16 @@
 
 /* Light */
 @font-face {
-  font-family: "Nunito Sans";
-  src: url("/fonts/Nunito_Sans/NunitoSans-VariableFont_YTLC,opsz,wdth,wght.ttf") format("truetype");
-  font-weight: 300;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Nunito Sans";
-  src: url("/fonts/Nunito_Sans/NunitoSans-VariableFont_YTLC,opsz,wdth,wght.ttf") format("truetype");
-  font-weight: 400;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Nunito Sans";
-  src: url("/fonts/Nunito_Sans/NunitoSans-VariableFont_YTLC,opsz,wdth,wght.ttf") format("truetype");
-  font-weight: 700;
-  font-style: bold;
-}
-
-@font-face {
-  font-family: "Nunito Sans";
-  src: url("/fonts/Nunito_Sans/NunitoSans-Italic-VariableFont_YTLC,opsz,wdth,wght.ttf")
+  font-family: "Google Sans Flex";
+  src: url("/fonts/Google_Sans_Flex/GoogleSansFlex-VariableFont_GRAD,ROND,opsz,slnt,wdth,wght.ttf")
     format("truetype");
-  font-weight: 300;
-  font-style: italic;
+  font-weight: 1 1000; /* Define the variable weight range */
+  font-display: swap;
 }
 
 @font-face {
-  font-family: "Source Code Pro";
-  src: url("/fonts/Source_Code_Pro/SourceCodePro-VariableFont_wght.ttf") format("truetype");
+  font-family: "Google Sans Code";
+  src: url("/fonts/Google_Sans_Code/GoogleSansCode-VariableFont_wght.ttf") format("truetype");
   font-weight: 300;
   font-style: normal;
 }
@@ -74,8 +53,9 @@
 }
 
 * {
-  font-family: "Nunito Sans", Helvetica, sans-serif;
+  font-family: "Google Sans Flex", Helvetica, sans-serif;
   font-weight: 300;
+  user-select: none;
 }
 
 h1 {
@@ -87,8 +67,8 @@ button {
   border: 1px solid transparent;
   padding: 0.7rem 0.9rem;
   font-size: 0.9rem;
-  font-family: "Nunito Sans", Helvetica, sans-serif;
-  font-weight: 700;
+  font-family: "Google Sans Flex", Helvetica, sans-serif;
+  font-weight: 500;
   background-color: var(--color-stone);
   color: var(--color-moonlight);
   cursor: pointer;
@@ -103,7 +83,7 @@ button:hover {
 }
 
 button:active {
-  color: var(--color-frost);
+  color: white;
 }
 
 button:focus,

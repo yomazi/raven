@@ -39,6 +39,7 @@ function Livestream({ showId }) {
 
 export default function ClientArea() {
   const { showId } = useParams();
+  const isDefault = showId === "default";
   const { data: show, isLoading, isError } = useShowById(showId);
   const navigate = useNavigate();
 
@@ -56,7 +57,7 @@ export default function ClientArea() {
 
   return (
     <div className={styles.clientArea}>
-      <Banner show={show} />
+      {!isDefault && <Banner show={show} />}
       {/* Header buttons */}
       <div style={{ marginBottom: 16 }}>
         <button onClick={() => goToAction("show-properties")} style={{ marginRight: 8 }}>

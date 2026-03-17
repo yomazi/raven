@@ -34,7 +34,7 @@ const CopyIcon = () => (
 const Banner = ({ show = {} }) => {
   const formattedDate = formatDate(show.date);
 
-  const handleFolderClick = () => {
+  const handleClick = () => {
     const url = `https://drive.google.com/drive/folders/${show.googleFolderId}`;
 
     window.open(url, "_blank", "noopener,noreferrer");
@@ -46,14 +46,16 @@ const Banner = ({ show = {} }) => {
 
   return (
     <section className={styles.banner}>
-      <article className={styles.folderContainer} onClick={handleFolderClick}>
-        <div className={styles.folderLinkCell}>
-          <SvgFolderClosed className={styles.iconFolderClosed} />
-          <SvgFolderOpen className={styles.iconFolderOpen} />
+      <article className={styles.bannerContainer} onClick={handleClick}>
+        <div className={styles.folderContainer}>
+          <div className={styles.folderIcon}>
+            <SvgFolderClosed className={styles.iconFolderClosed} />
+            <SvgFolderOpen className={styles.iconFolderOpen} />
+          </div>
         </div>
+        <div className={styles.artist}>{show.artist}</div>
+        <div className={styles.date}>{formattedDate}</div>
       </article>
-      <article className={styles.artist}>{show.artist}</article>
-      <article className={styles.date}>{formattedDate}</article>
       <button className={styles.copyButton} onClick={handleCopy} title="Copy to clipboard">
         <CopyIcon />
       </button>
