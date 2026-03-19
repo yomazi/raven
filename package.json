@@ -4,14 +4,11 @@
   "description": "A sanity-inducing tool for Google Workspaces.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start:server": "npm --prefix server run start",
+    "dev": "npm run dev:server",
     "dev:server": "npm --prefix server run dev",
-    "build:client": "npm --prefix client run build",
-    "build:client:watch": "npm --prefix client run build -- --watch",
-    "dev:client": "npm --prefix client run dev",
     "start": "npm run start:server",
-    "dev": "npm run dev:server"
+    "start:server": "npm --prefix server run start",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
@@ -26,7 +23,6 @@
   },
   "homepage": "https://github.com/yomazi/raven#readme",
   "devDependencies": {
-    "concurrently": "^9.2.1",
     "prettier-plugin-organize-imports": "^4.3.0"
   },
   "dependencies": {
