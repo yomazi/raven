@@ -5,12 +5,12 @@ import ApiTokensService from "../api-tokens/api-tokens.service.js";
 import EmailService from "../services/email.service.js";
 import { USER_EMAIL } from "../utilities/constants.js";
 import { createOAuthClient, generateAuthUrl } from "../utilities/google-client.js";
-import AuthDbRepository from "./auth.db.repository.js";
+import AuthRepository from "./auth.repository.js";
 
 class AuthService {
   static async getAuthUrl(redirectUri) {
     const client = createOAuthClient(redirectUri);
-    const user = await AuthDbRepository.getUserByEmail(USER_EMAIL);
+    const user = await AuthRepository.getUserByEmail(USER_EMAIL);
     const url = generateAuthUrl(client);
 
     return url;
@@ -26,14 +26,14 @@ class AuthService {
     const { data } = await oauth2.userinfo.get();
     const apiToken = await ApiTokensService.createApiToken();
 
-    await AuthDbRepository.upsertUser(data.email, tokens);
+    await AuthRepository.upsertUser(data.email, tokens);
     await EmailService.sendApiToken(apiToken); // send the new api token via email
 
     return apiToken;
   }
 
   static async checkAuth() {
-    const user = await AuthDbRepository.getUserByEmail(USER_EMAIL);
+    const user = await AuthRepository.getUserByEmail(USER_EMAIL);
 
     if (!user || (user?.google && Object.keys(user?.google).length === 0)) {
       throw new createError.Unauthorized(`User not authenticated: ${USER_EMAIL}`);
@@ -41,14 +41,14 @@ class AuthService {
   }
 
   static async expireAuth() {
-    const user = await AuthDbRepository.getUserByEmail(USER_EMAIL);
+    const user = await AuthRepository.getUserByEmail(USER_EMAIL);
 
     if (!user) return;
-    await AuthDbRepository.clearTokens();
+    await AuthRepository.clearTokens();
   }
 
   static async getGoogleClient() {
-    const user = await AuthDbRepository.getUserByEmail(USER_EMAIL);
+    const user = await AuthRepository.getUserByEmail(USER_EMAIL);
 
     if (!user) {
       throw new createError.Unauthorized(`User not found: ${USER_EMAIL}`);

@@ -17,6 +17,14 @@ class DriveService {
       modified: result.modifiedCount,
     };
   }
+
+  static async listFolderFiles({ folderId }) {
+    return DriveRepository.listFolderFiles({ folderId });
+  }
+
+  static async uploadFile({ buffer, filename, mimeType, folderId }) {
+    return DriveRepository.uploadFile({ buffer, filename, mimeType, folderId });
+  }
 }
 
 export default DriveService;

@@ -17,6 +17,7 @@ import { connectDb } from "./utilities/db.js";
 import authRoutes from "./auth/auth.routes.js";
 import googleAuthRoutes from "./auth/google.auth.routes.js";
 import driveRoutes from "./drive/drive.routes.js";
+import gmailRoutes from "./gmail/gmail.routes.js";
 import showsRoutes from "./shows/shows.routes.js";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -37,6 +38,7 @@ const routePrefix = `/api/${version}`;
 app.use("", googleAuthRoutes);
 app.use(routePrefix, authRoutes);
 app.use(routePrefix, driveRoutes);
+app.use(routePrefix, gmailRoutes);
 app.use(routePrefix, showsRoutes);
 
 // set up Vite middleware for dev (Raven is local-only)

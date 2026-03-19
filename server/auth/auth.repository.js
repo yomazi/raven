@@ -1,7 +1,7 @@
 import User from "../models/User.js";
 import { USER_EMAIL } from "../utilities/constants.js";
 
-class AuthDbRepository {
+class AuthRepository {
   // Get the single registered user
   static async getUserByEmail(email) {
     return User.findOne({ email });
@@ -15,9 +15,9 @@ class AuthDbRepository {
     let user = await this.getUserByEmail(email);
 
     if (!user) {
-      user = await AuthDbRepository.createUser(email, tokens);
+      user = await AuthRepository.createUser(email, tokens);
     } else {
-      user = await AuthDbRepository.updateUser(user, tokens);
+      user = await AuthRepository.updateUser(user, tokens);
     }
 
     return user;
@@ -78,4 +78,4 @@ class AuthDbRepository {
     );
   }
 }
-export default AuthDbRepository;
+export default AuthRepository;

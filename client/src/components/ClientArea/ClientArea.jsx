@@ -3,40 +3,42 @@ import { Navigate, Route, Routes, useNavigate, useParams } from "react-router-do
 import { useShowById } from "../../hooks/useShowById.js";
 import Banner from "./Banner/Banner.jsx";
 import styles from "./ClientArea.module.css";
+import Dragonfly from "./Dragonfly/Dragonfly.jsx";
 
 // Helper components for demonstration
-function ShowProperties({ showId }) {
+function ShowProperties({ showFolderId }) {
   return (
     <div>
-      <b>Show Properties</b> for show ID: {showId}
+      <b>Show Properties</b> for show ID: {showFolderId}
     </div>
   );
 }
 
-function BuildShow({ showId }) {
+function BuildShow({ showFolderId }) {
   return (
     <div>
-      <b>Build Show</b> for show ID: {showId}
+      <b>Build Show</b> for show ID: {showFolderId}
     </div>
   );
 }
 
-function GenerateEmail({ showId }) {
+function GenerateEmail({ showFolderId }) {
   return (
     <div>
-      <b>Generate Email</b> for show ID: {showId}
+      <b>Generate Email</b> for show ID: {showFolderId}
     </div>
   );
 }
 
-function Livestream({ showId }) {
+function Livestream({ showFolderId }) {
   return (
     <div>
-      <b>Build Livestream</b> for show ID: {showId}
+      <b>Build Livestream</b> for show ID: {showFolderId}
     </div>
   );
 }
 
+/*
 function Dragonfly({ showId }) {
   const { threadId, messageId } = useParams();
   return (
@@ -49,6 +51,7 @@ function Dragonfly({ showId }) {
     </>
   );
 }
+*/
 
 export default function ClientArea() {
   const { showId } = useParams();
@@ -91,12 +94,15 @@ export default function ClientArea() {
           {/* Default route */}
           <Route index element={<Navigate to="show-properties" replace />} />
           {/* Routes for different actions */}
-          <Route path="show-properties" element={<ShowProperties showId={showId} />} />
-          <Route path="build-show" element={<BuildShow showId={showId} />} />
-          <Route path="generate-email" element={<GenerateEmail showId={showId} />} />
-          <Route path="livestream" element={<Livestream showId={showId} />} />
-          <Route path="dragonfly" element={<Dragonfly />} />
-          <Route path="dragonfly/:threadId/:messageId" element={<Dragonfly />} />
+          <Route path="show-properties" element={<ShowProperties showFolderId={showId} />} />
+          <Route path="build-show" element={<BuildShow showFolderId={showId} />} />
+          <Route path="generate-email" element={<GenerateEmail showFolderId={showId} />} />
+          <Route path="livestream" element={<Livestream showFolderId={showId} />} />
+          <Route path="dragonfly" element={<Dragonfly showFolderId={showId} />} />
+          <Route
+            path="dragonfly/:threadId/:messageId"
+            element={<Dragonfly showFolderId={showId} />}
+          />
         </Routes>
       </div>
     </div>

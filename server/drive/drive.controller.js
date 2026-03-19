@@ -15,6 +15,40 @@ class DriveController {
       res.status(500).json({ success: false, error: err.message });
     }
   }
+
+  static async listFolderFiles(req, res) {
+    try {
+      const { folderId } = req.params;
+      const files = await DriveService.listFolderFiles({ folderId });
+      res.json({ success: true, files });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ success: false, error: err.message });
+    }
+  }
+
+  static async upload(req, res) {
+    try {
+      // req.file is populated by multer; req.body has the non-file fields
+      if (!req.file) {
+        return res.status(400).json({ success: false, error: "No file received." });
+      }
+
+      const { filename, mimeType, folderId } = req.body;
+
+      const result = await DriveService.uploadFile({
+        buffer: req.file.buffer,
+        filename,
+        mimeType,
+        folderId,
+      });
+
+      res.json({ success: true, ...result });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ success: false, error: err.message });
+    }
+  }
 }
 
 export default DriveController;

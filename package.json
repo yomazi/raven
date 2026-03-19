@@ -10,8 +10,8 @@
     "build:client": "npm --prefix client run build",
     "build:client:watch": "npm --prefix client run build -- --watch",
     "dev:client": "npm --prefix client run dev",
-    "start": "npm run build:client && npm run start:server",
-    "dev": "concurrently -k       \"npm run build:client:watch\"       \"npm run dev:server\""
+    "start": "npm run start:server",
+    "dev": "npm run dev:server"
   },
   "repository": {
     "type": "git",

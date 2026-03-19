@@ -1,7 +1,7 @@
 // ./repositories/googleDrive.repository.js
 import { blue, bold, green, red, yellow } from "colorette";
 import { google } from "googleapis";
-
+import { Readable } from "stream";
 import AuthService from "../auth/auth.service.js";
 
 const PRODUCTION_FOLDER_REGEX = /^(\d{1,2}-\d{1,2}-\d{2,4})\s+(.+?)(\s+\(multiple shows\))?$/i;
@@ -103,6 +103,78 @@ class DriveRepository {
 
     console.log(green(`[Drive] Scraped ${bold(productions.length)} productions`));
     return productions;
+  }
+
+  /**
+   * GET /api/v1/drive/folders/:folderId/files
+   *
+   * Lists all non-trashed files directly inside a Drive folder.
+   * Excludes subfolders — Dragonfly only needs to scan filenames for version
+   * number inference, and show folders only contain files at the top level.
+   *
+   * Uses a single files.list call with pageToken looping to handle folders
+   * with more than 1000 files (the Drive API max per page).
+   *
+   * Response shape: [{ id, name, mimeType }]
+   */
+  static async listFolderFiles({ folderId }) {
+    const drive = await DriveRepository.#getDriveClient();
+
+    const files = [];
+    let pageToken = undefined;
+
+    do {
+      const response = await drive.files.list({
+        q: `'${folderId}' in parents and mimeType != 'application/vnd.google-apps.folder' and trashed = false`,
+        fields: "nextPageToken, files(id, name, mimeType)",
+        pageSize: 1000,
+        supportsAllDrives: true,
+        includeItemsFromAllDrives: true,
+        ...(pageToken ? { pageToken } : {}),
+      });
+
+      files.push(...(response.data.files ?? []));
+      pageToken = response.data.nextPageToken;
+    } while (pageToken);
+
+    return files;
+  }
+
+  /**
+   * POST /api/v1/drive/upload
+   *
+   * Uploads a file Buffer to a specific Drive folder using the renamed filename
+   * supplied by Dragonfly's naming form. Uses multipart upload (metadata +
+   * media in one request) which is appropriate for files up to ~5MB. For larger
+   * files the Drive API supports resumable uploads, but attachment files in this
+   * context are typically contracts and riders (PDFs, Word docs) well under that.
+   *
+   * The Drive API requires the media body as a readable stream — we convert the
+   * Buffer to one with Readable.from().
+   *
+   * Returns: { id, name, webViewLink }
+   */
+  static async uploadFile({ buffer, filename, mimeType, folderId }) {
+    const drive = await DriveRepository.#getDriveClient();
+
+    const response = await drive.files.create({
+      requestBody: {
+        name: filename,
+        parents: [folderId],
+      },
+      media: {
+        mimeType,
+        body: Readable.from(buffer),
+      },
+      fields: "id, name, webViewLink",
+      supportsAllDrives: true,
+    });
+
+    return {
+      id: response.data.id,
+      name: response.data.name,
+      webViewLink: response.data.webViewLink,
+    };
   }
 }
 
