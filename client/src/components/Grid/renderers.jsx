@@ -1,6 +1,7 @@
 import SvgCheckboxChecked from "../../assets/svg/check_box_24dp_E3E3E3_FILL0_wght400_GRAD0_opsz24.svg?react";
 import SvgFolderClosed from "../../assets/svg/folder_24dp_E3E3E3_FILL0_wght400_GRAD0_opsz24.svg?react";
 import SvgFolderOpen from "../../assets/svg/folder_open_24dp_E3E3E3_FILL0_wght400_GRAD0_opsz24.svg?react";
+import SvgShortText from "../../assets/svg/short_text_24dp_E3E3E3_FILL0_wght400_GRAD0_opsz24.svg?react";
 import styles from "./Grid.module.css";
 
 export const FolderIconRenderer = () => {
@@ -24,6 +25,14 @@ export const DateRenderer = (params) => {
   };
 
   return <div className={styles.dateCell}>{formatDate(params.value)}</div>;
+};
+
+export const ShortTextRenderer = () => {
+  return (
+    <div className={styles.shortTextCell}>
+      <SvgShortText className={styles.shortText} />
+    </div>
+  );
 };
 
 export const CheckboxRenderer = (params) => {

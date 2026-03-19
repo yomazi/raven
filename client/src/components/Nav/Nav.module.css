@@ -1,0 +1,183 @@
+.navRoot {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background-color: var(--color-void);
+  padding: 0 16px;
+  height: 48px;
+  border-bottom: 1px solid var(--color-wyrd-dim);
+}
+
+.navList {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.navLink,
+.navTrigger {
+  display: flex;
+  align-items: center;
+  padding: 6px 12px;
+  font-size: 14px;
+  color: var(--color-fen);
+  text-decoration: none;
+  border-radius: 4px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition:
+    color 0.15s,
+    background-color 0.15s;
+}
+
+.navLink:hover,
+.navTrigger:hover,
+.navTrigger[data-state="open"] {
+  color: #fff;
+  background-color: color(srgb 1 1 1 / 0.08);
+}
+
+.navLink.active {
+  color: var(--color-ember);
+}
+
+/* The floating dropdown panel */
+.navViewport {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: max-content;
+  background-color: var(--color-void);
+  border: 1px solid color(srgb 1 1 1 / 0.12);
+  border-radius: 6px;
+  box-shadow: 0 8px 24px rgb(0 0 0 / 0.4);
+  overflow: hidden;
+  z-index: 100;
+}
+
+.navContent {
+  padding: 4px;
+}
+
+.navDropdownList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  min-width: 180px;
+}
+
+.navDropdownLink {
+  display: block;
+  padding: 8px 12px;
+  font-size: 14px;
+  color: var(--color-fen);
+  text-decoration: none;
+  border-radius: 4px;
+  transition:
+    color 0.15s,
+    background-color 0.15s;
+}
+
+.navDropdownLink:hover {
+  color: #fff;
+  background-color: color(srgb 1 1 1 / 0.08);
+}
+
+.navDropdownLink.active {
+  color: var(--color-ember);
+}
+.navRoot {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background-color: var(--color-void);
+  padding: 0 16px;
+  height: 48px;
+}
+
+.navList {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.navLink,
+.navTrigger {
+  display: flex;
+  align-items: center;
+  padding: 6px 12px;
+  font-size: 14px;
+  color: var(--color-fen);
+  text-decoration: none;
+  border-radius: 4px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition:
+    color 0.15s,
+    background-color 0.15s;
+}
+
+.navLink:hover,
+.navTrigger:hover,
+.navTrigger[data-state="open"] {
+  color: #fff;
+  background-color: color(srgb 1 1 1 / 0.08);
+}
+
+.navLink.active {
+  color: var(--color-ember);
+}
+
+/* The floating dropdown panel */
+.navViewport {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: max-content;
+  background-color: var(--color-void);
+  border: 1px solid color(srgb 1 1 1 / 0.12);
+  border-radius: 6px;
+  box-shadow: 0 8px 24px rgb(0 0 0 / 0.4);
+  overflow: hidden;
+  z-index: 100;
+}
+
+.navContent {
+  padding: 4px;
+}
+
+.navDropdownList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  min-width: 180px;
+}
+
+.navDropdownLink {
+  display: block;
+  padding: 8px 12px;
+  font-size: 14px;
+  color: var(--color-fen);
+  text-decoration: none;
+  border-radius: 4px;
+  transition:
+    color 0.15s,
+    background-color 0.15s;
+}
+
+.navDropdownLink:hover {
+  color: #fff;
+  background-color: color(srgb 1 1 1 / 0.08);
+}
+
+.navDropdownLink.active {
+  color: var(--color-ember);
+}

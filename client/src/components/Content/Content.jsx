@@ -4,13 +4,13 @@ import Grid from "../Grid/Grid";
 import styles from "./Content.module.css";
 
 const Content = () => {
-  const [gridWidth, setGridWidth] = useState(700);
+  const [gridWidth, setGridWidth] = useState(750);
   const dragging = useRef(false);
 
   const onMouseMove = useCallback((e) => {
     if (dragging.current) {
       const newWidth = e.clientX;
-      if (newWidth > 500) {
+      if (newWidth > 450) {
         setGridWidth(newWidth);
       }
     }

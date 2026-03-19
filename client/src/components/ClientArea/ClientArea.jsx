@@ -37,6 +37,19 @@ function Livestream({ showId }) {
   );
 }
 
+function Dragonfly({ showId }) {
+  const { threadId, messageId } = useParams();
+  return (
+    <>
+      <div>
+        <b>Dragonflyin'</b> for show ID: {showId}
+      </div>
+      {threadId && <p>Thread ID: {threadId}</p>}
+      {messageId && <p>Message ID: {messageId}</p>}
+    </>
+  );
+}
+
 export default function ClientArea() {
   const { showId } = useParams();
   const isDefault = showId === "default";
@@ -82,6 +95,8 @@ export default function ClientArea() {
           <Route path="build-show" element={<BuildShow showId={showId} />} />
           <Route path="generate-email" element={<GenerateEmail showId={showId} />} />
           <Route path="livestream" element={<Livestream showId={showId} />} />
+          <Route path="dragonfly" element={<Dragonfly />} />
+          <Route path="dragonfly/:threadId/:messageId" element={<Dragonfly />} />
         </Routes>
       </div>
     </div>
