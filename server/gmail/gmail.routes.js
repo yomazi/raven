@@ -31,4 +31,36 @@ router.get(
   Controller.getAttachment
 );
 
+// POST /api/v1/gmail/messages/send
+router.post(
+  "/gmail/messages/send",
+  validate(Schemas.sendMessage),
+  validateApiToken,
+  Controller.sendMessage
+);
+
+// POST /api/v1/gmail/messages/:messageId/reply
+router.post(
+  "/gmail/messages/:messageId/reply",
+  validate(Schemas.replyToMessage),
+  validateApiToken,
+  Controller.replyToMessage
+);
+
+// POST /api/v1/gmail/messages/:messageId/forward
+router.post(
+  "/gmail/messages/:messageId/forward",
+  validate(Schemas.forwardMessage),
+  validateApiToken,
+  Controller.forwardMessage
+);
+
+// POST /api/v1/gmail/messages/:messageId/label
+router.post(
+  "/gmail/messages/:messageId/label",
+  validate(Schemas.labelThread),
+  validateApiToken,
+  Controller.labelThread
+);
+
 export default router;

@@ -1,54 +1,37 @@
 /**
- * Dragonfly.jsx  —  v4
+ * Dragonfly.jsx  —  v5
  *
  * Right-side panel: reads Gmail threads (lazy-loaded per message), surfaces
- * all attachments grouped by message, and uploads to Google Drive with a
- * config-driven naming scheme previewed and editable before each upload.
+ * all attachments grouped by message, uploads to Google Drive with config-driven
+ * naming, and sends smart-routed emails with automatic Gmail labeling.
  *
  * Props:
- *   threadId         string | undefined
- *   messageId        string | undefined
- *   showFolderId     string | undefined
+ *   showFolderId string | undefined   — Drive folder id (the show's folder)
+ *
+ * Route params (via useParams):
+ *   threadId     string | undefined
+ *   messageId    string | undefined
  *
  * ─── API routes ───────────────────────────────────────────────────────────────
- *
- *   GET /api/gmail/threads/:threadId
- *   → { id, messages: [{ id, subject, from, to, date, snippet }] }
- *     (message stubs only — no body or attachments yet)
- *
- *   GET /api/gmail/messages/:messageId
- *   → { id, threadId, subject, from, to, date, snippet, body?,
- *       attachments: [{ attachmentId, filename, mimeType, size }] }
- *
- *   GET /api/gmail/attachments/:messageId/:attachmentId
- *   → binary stream  (set ATTACHMENT_MODE = "signed" to return { url } instead)
- *
- *   POST /api/gmail/messages/:messageId/reply    { body }
- *   POST /api/gmail/messages/:messageId/forward  { to, body }
- *   POST /api/gmail/messages/send                { to, subject, body }
- *
- *   GET  /api/drive/folders/:folderId/files
- *   → { files: [{ id, name, mimeType }] }
- *
- *   POST /api/drive/upload
- *   multipart FormData: file, filename (renamed), mimeType, folderId
- *
- * ─── OAuth scopes ─────────────────────────────────────────────────────────────
- *   https://www.googleapis.com/auth/gmail.readonly
- *   https://www.googleapis.com/auth/gmail.send
- *   https://www.googleapis.com/auth/drive.file
- *
- * ─── Naming logic ─────────────────────────────────────────────────────────────
- *   See DRAGONFLY_CONFIG.js — all taxonomy lives there.
+ *   GET  /api/v1/gmail/threads/:threadId
+ *   GET  /api/v1/gmail/messages/:messageId
+ *   GET  /api/v1/gmail/attachments/:messageId/:attachmentId
+ *   POST /api/v1/gmail/messages/send
+ *   POST /api/v1/gmail/messages/:messageId/reply
+ *   POST /api/v1/gmail/messages/:messageId/forward
+ *   GET  /api/v1/drive/folders/:folderId/files
+ *   POST /api/v1/drive/upload
  */
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import {
   DOCTYPES,
+  SEND_AS_ALIASES,
   TEAMS,
   buildPrefix,
   computeNextVersion,
+  deriveRouting,
   getStageOptions,
 } from "./DRAGONFLY_CONFIG.js";
 
@@ -89,18 +72,16 @@ async function apiFetch(path, opts = {}) {
   });
   if (!res.ok) {
     const e = await res.json().catch(() => ({}));
-    throw new Error(e.message || `HTTP ${res.status}`);
+    throw new Error(e.message || e.error || `HTTP ${res.status}`);
   }
   return res.json();
 }
 
 // ─── NamingForm ───────────────────────────────────────────────────────────────
-// Shown inline in the attachment row when user clicks ↑.
-// Scans the Drive folder, suggests a filename, lets user edit, then uploads.
 
 function NamingForm({ att, messageId, folderId, onUploaded, onCancel }) {
   const [team, setTeam] = useState(TEAMS[0].code);
-  const [doctypeKey, setDoctypeKey] = useState("");
+  const [doctypeKey, setDoctypeKey] = useState(() => (DOCTYPES[TEAMS[0].code] ?? [])[0]?.key ?? "");
   const [subtype, setSubtype] = useState("");
   const [customSubtype, setCustomSubtype] = useState("");
   const [paymentType, setPaymentType] = useState("");
@@ -108,23 +89,19 @@ function NamingForm({ att, messageId, folderId, onUploaded, onCancel }) {
   const [stage, setStage] = useState("");
   const [suggestedName, setSuggestedName] = useState("");
   const [editedName, setEditedName] = useState("");
-  const [folderFiles, setFolderFiles] = useState(null); // null = not loaded yet
+  const [folderFiles, setFolderFiles] = useState(null);
   const [loadingFolder, setLoadingFolder] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [err, setErr] = useState(null);
 
-  // Derived config
   const doctypeOptions = DOCTYPES[team] ?? [];
   const doctypeConfig = doctypeOptions.find((d) => d.key === doctypeKey) ?? null;
   const stageOptions = getStageOptions(doctypeConfig);
   const hasSubtypes = !!doctypeConfig?.subtypes;
   const hasPaymentTypes = !!doctypeConfig?.paymentTypes;
-
   const effectiveSubtype = subtype === "__custom__" ? customSubtype : subtype;
   const effectivePaymentType = paymentType === "__custom__" ? customPaymentType : paymentType;
 
-  // When team changes, reset doctype and everything downstream.
-  // A ref guards against running on the initial render.
   const prevTeam = useRef(team);
   useEffect(() => {
     if (prevTeam.current === team) return;
@@ -141,7 +118,6 @@ function NamingForm({ att, messageId, folderId, onUploaded, onCancel }) {
     setStage(firstStage);
   }, [team]);
 
-  // When doctype changes, reset sub-selections and stage.
   const prevDoctypeKey = useRef(doctypeKey);
   useEffect(() => {
     if (prevDoctypeKey.current === doctypeKey) return;
@@ -154,7 +130,6 @@ function NamingForm({ att, messageId, folderId, onUploaded, onCancel }) {
     setStage(opts[0]?.value ?? "");
   }, [doctypeKey, team]);
 
-  // Fetch folder files once (shared across all NamingForms via prop, but each form fetches independently)
   useEffect(() => {
     if (!folderId) return;
     setLoadingFolder(true);
@@ -164,27 +139,24 @@ function NamingForm({ att, messageId, folderId, onUploaded, onCancel }) {
       .finally(() => setLoadingFolder(false));
   }, [folderId]);
 
-  // Recompute suggested name whenever selections change.
-  // isVersioned/isNumbered are derived inline here rather than as variables above
-  // so the dep array stays complete without phantom dependencies.
   useEffect(() => {
     if (!doctypeKey || folderFiles === null) return;
-
     const config = (DOCTYPES[team] ?? []).find((d) => d.key === doctypeKey) ?? null;
     const stageOpts = getStageOptions(config);
     const stageObj = stageOpts.find((o) => o.value === stage) ?? null;
     const needsVersion = stageObj?.versioned === true || config?.stages === "numbered";
 
+    const prefixNoVersion = buildPrefix({
+      team,
+      doctype: doctypeKey,
+      subtype: effectiveSubtype,
+      paymentType: effectivePaymentType,
+      stage,
+      version: null,
+    });
+
     let name;
     if (needsVersion) {
-      const prefixNoVersion = buildPrefix({
-        team,
-        doctype: doctypeKey,
-        subtype: effectiveSubtype,
-        paymentType: effectivePaymentType,
-        stage,
-        version: null,
-      });
       const version = computeNextVersion(folderFiles, prefixNoVersion);
       const finalPrefix = buildPrefix({
         team,
@@ -196,15 +168,7 @@ function NamingForm({ att, messageId, folderId, onUploaded, onCancel }) {
       });
       name = `${finalPrefix} - ${att.filename}`;
     } else {
-      const basePrefix = buildPrefix({
-        team,
-        doctype: doctypeKey,
-        subtype: effectiveSubtype,
-        paymentType: effectivePaymentType,
-        stage,
-        version: null,
-      });
-      name = `${basePrefix} - ${att.filename}`;
+      name = `${prefixNoVersion} - ${att.filename}`;
     }
 
     setSuggestedName(name);
@@ -244,7 +208,6 @@ function NamingForm({ att, messageId, folderId, onUploaded, onCancel }) {
 
   return (
     <div style={s.namingForm}>
-      {/* Row 1: Team + Doctype */}
       <div style={s.nRow}>
         <div style={s.nField}>
           <span style={s.nLabel}>Team</span>
@@ -281,7 +244,6 @@ function NamingForm({ att, messageId, folderId, onUploaded, onCancel }) {
         </div>
       </div>
 
-      {/* Row 2: Subtype (riders) */}
       {hasSubtypes && (
         <div style={s.nRow}>
           <div style={{ ...s.nField, flex: 1 }}>
@@ -318,7 +280,6 @@ function NamingForm({ att, messageId, folderId, onUploaded, onCancel }) {
         </div>
       )}
 
-      {/* Row 3: Payment type */}
       {hasPaymentTypes && (
         <div style={s.nRow}>
           <div style={{ ...s.nField, flex: 1 }}>
@@ -355,7 +316,6 @@ function NamingForm({ att, messageId, folderId, onUploaded, onCancel }) {
         </div>
       )}
 
-      {/* Row 4: Stage */}
       {stageOptions.length > 0 && (
         <div style={s.nRow}>
           <div style={{ ...s.nField, flex: 1 }}>
@@ -371,7 +331,6 @@ function NamingForm({ att, messageId, folderId, onUploaded, onCancel }) {
         </div>
       )}
 
-      {/* Generated filename preview */}
       <div style={s.nPreviewWrap}>
         <span style={s.nLabel}>Filename</span>
         {loadingFolder ? (
@@ -393,7 +352,6 @@ function NamingForm({ att, messageId, folderId, onUploaded, onCancel }) {
 
       {err && <div style={s.errText}>{err}</div>}
 
-      {/* Actions */}
       <div style={s.nActions}>
         <button style={s.ghostBtn} onClick={onCancel}>
           Cancel
@@ -449,7 +407,6 @@ function AttachmentRow({ att, messageId, folderId, uploadKey, uploadedNames, onU
         )}
         {isDone && <div style={{ ...s.chipBtn, ...s.chipDone }}>✓</div>}
       </div>
-
       {showForm && !isDone && (
         <NamingForm
           att={att}
@@ -463,12 +420,210 @@ function AttachmentRow({ att, messageId, folderId, uploadKey, uploadedNames, onU
   );
 }
 
+// ─── RoutingPreview ────────────────────────────────────────────────────────────
+// Shows derived routing before the user confirms send.
+
+function RoutingPreview({ uploadedNames, mode, onConfirm, onCancel }) {
+  const uploadedFilenames = [...uploadedNames.values()];
+  const routing = deriveRouting(uploadedFilenames);
+
+  // Editable To: — pre-populated from routing, empty if none derived
+  const [to, setTo] = useState(routing.toAddresses.join(", "));
+  const [from, setFrom] = useState(SEND_AS_ALIASES[0].address ?? "");
+  const [subject, setSubject] = useState("");
+  const [body, setBody] = useState("");
+
+  const hasRouting = routing.toAddresses.length > 0;
+
+  return (
+    <div style={s.drawer}>
+      <div style={s.drawerHeader}>
+        <span style={s.drawerTitle}>
+          {mode === "reply" ? "Reply" : mode === "forward" ? "Forward" : "New message"}
+        </span>
+        <button style={s.iconBtn} onClick={onCancel}>
+          ✕
+        </button>
+      </div>
+
+      {/* Routing summary */}
+      {uploadedFilenames.length > 0 && (
+        <div style={s.routingBox}>
+          <div style={s.routingLabel}>Smart routing</div>
+          {hasRouting ? (
+            <div style={s.routingDetail}>
+              Routed from {uploadedFilenames.length} uploaded file
+              {uploadedFilenames.length !== 1 ? "s" : ""}
+            </div>
+          ) : (
+            <div style={{ ...s.routingDetail, color: "#d97706" }}>
+              No team routing — fill in recipients manually
+            </div>
+          )}
+          {routing.receivedLabels.length > 0 && (
+            <div style={s.routingPills}>
+              <span style={s.routingPillHead}>Received thread:</span>
+              {routing.receivedLabels.map((l) => (
+                <span key={l} style={s.routingPill}>
+                  {l}
+                </span>
+              ))}
+            </div>
+          )}
+          {routing.sentLabels.length > 0 && (
+            <div style={s.routingPills}>
+              <span style={s.routingPillHead}>Sent message:</span>
+              {routing.sentLabels.map((l) => (
+                <span key={l} style={s.routingPill}>
+                  {l}
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* From */}
+      <div style={s.field}>
+        <span style={s.fieldLabel}>From</span>
+        <select style={s.fieldSelect} value={from} onChange={(e) => setFrom(e.target.value)}>
+          {SEND_AS_ALIASES.map((a, i) => (
+            <option key={i} value={a.address ?? ""}>
+              {a.label}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      {/* To */}
+      <div style={s.field}>
+        <span style={s.fieldLabel}>To</span>
+        <input
+          style={s.fieldInput}
+          value={to}
+          onChange={(e) => setTo(e.target.value)}
+          placeholder="recipient@example.com"
+        />
+      </div>
+
+      {/* Subject — only for new messages */}
+      {mode === "new" && (
+        <div style={s.field}>
+          <span style={s.fieldLabel}>Subject</span>
+          <input
+            style={s.fieldInput}
+            value={subject}
+            onChange={(e) => setSubject(e.target.value)}
+          />
+        </div>
+      )}
+
+      <textarea
+        style={s.bodyArea}
+        value={body}
+        onChange={(e) => setBody(e.target.value)}
+        placeholder="Write your message…"
+        rows={5}
+        autoFocus
+      />
+
+      <div style={s.drawerActions}>
+        <button style={s.ghostBtn} onClick={onCancel}>
+          Cancel
+        </button>
+        <button
+          style={s.sendBtn}
+          onClick={() =>
+            onConfirm({
+              to: to
+                .split(",")
+                .map((t) => t.trim())
+                .filter(Boolean),
+              from: from || null,
+              subject,
+              body,
+              threadLabels: routing.receivedLabels,
+              sentLabels: routing.sentLabels,
+            })
+          }
+        >
+          Send
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ─── ComposeDrawer ─────────────────────────────────────────────────────────────
+
+function ComposeDrawer({ mode, message, messageId, uploadedNames, onClose, onSent }) {
+  const [state, setState] = useState("idle");
+  const [err, setErr] = useState(null);
+
+  const handleConfirm = useCallback(
+    async ({ to, from, subject, body, threadLabels, sentLabels }) => {
+      setState("busy");
+      setErr(null);
+      try {
+        if (mode === "reply" && message?.id) {
+          await apiFetch(`/gmail/messages/${message.id}/reply`, {
+            method: "POST",
+            body: JSON.stringify({ body, from: from || undefined, threadLabels, sentLabels }),
+          });
+        } else if (mode === "forward" && message?.id) {
+          await apiFetch(`/gmail/messages/${message.id}/forward`, {
+            method: "POST",
+            body: JSON.stringify({ to, body, from: from || undefined, threadLabels, sentLabels }),
+          });
+        } else {
+          // New message: send first, then label the received thread separately
+          await apiFetch(`/gmail/messages/send`, {
+            method: "POST",
+            body: JSON.stringify({ to, subject, body, from: from || undefined, sentLabels }),
+          });
+          if (threadLabels?.length && messageId) {
+            await apiFetch(`/gmail/messages/${messageId}/label`, {
+              method: "POST",
+              body: JSON.stringify({ labels: threadLabels }),
+            });
+          }
+        }
+        setState("done");
+        setTimeout(onSent, 800);
+      } catch (e) {
+        setState("err");
+        setErr(e.message);
+      }
+    },
+    [mode, message, messageId, onSent]
+  );
+
+  if (state === "done") {
+    return (
+      <div style={{ ...s.drawer, alignItems: "center", justifyContent: "center" }}>
+        <div style={{ color: "#166534", fontSize: 13, fontWeight: 600 }}>Sent!</div>
+      </div>
+    );
+  }
+
+  return (
+    <>
+      {err && <div style={{ ...s.errText, margin: "0 14px" }}>{err}</div>}
+      <RoutingPreview
+        uploadedNames={uploadedNames}
+        mode={mode}
+        onConfirm={handleConfirm}
+        onCancel={onClose}
+      />
+    </>
+  );
+}
+
 // ─── MessageGroup ──────────────────────────────────────────────────────────────
-// Lazy-loads full message data on expand.
 
 function MessageGroup({ stub, isFocused, folderId, uploadedNames, onUploaded, defaultOpen }) {
   const [open, setOpen] = useState(defaultOpen);
-  const [msg, setMsg] = useState(null); // full message, loaded on expand
+  const [msg, setMsg] = useState(null);
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState(null);
   const loaded = useRef(false);
@@ -483,19 +638,15 @@ function MessageGroup({ stub, isFocused, folderId, uploadedNames, onUploaded, de
       .finally(() => setLoading(false));
   }, [stub.id]);
 
-  // Auto-expand on mount when defaultOpen is true.
-  // useEffect runs after render; fetchMessage's setState calls are async (.then),
-  // so the setState-in-effect lint rule does not apply here.
   useEffect(() => {
     if (defaultOpen) fetchMessage();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // intentionally empty — we only want this to fire once on mount
+  }, []);
 
   const expand = useCallback(() => {
     setOpen(true);
     fetchMessage();
   }, [fetchMessage]);
-
   const toggle = useCallback(() => {
     if (!open) expand();
     else setOpen(false);
@@ -556,136 +707,28 @@ function MessageGroup({ stub, isFocused, folderId, uploadedNames, onUploaded, de
   );
 }
 
-// ─── ComposeDrawer ─────────────────────────────────────────────────────────────
-
-function ComposeDrawer({ mode, message, onClose, onSent }) {
-  const [to, setTo] = useState(mode === "reply" ? (message?.from ?? "") : "");
-  const [subject, setSubject] = useState(
-    mode === "new"
-      ? ""
-      : mode === "forward"
-        ? `Fwd: ${message?.subject ?? ""}`
-        : `Re: ${message?.subject ?? ""}`
-  );
-  const [body, setBody] = useState(
-    (mode === "reply" || mode === "forward") && message
-      ? `\n\n— ${message.from}, ${formatDate(message.date)} —\n${message.snippet ?? ""}`
-      : ""
-  );
-  const [state, setState] = useState("idle");
-  const [err, setErr] = useState(null);
-  const bodyRef = useRef(null);
-
-  useEffect(() => {
-    bodyRef.current?.focus();
-  }, []);
-
-  const send = useCallback(async () => {
-    setState("busy");
-    setErr(null);
-    try {
-      if (mode === "reply" && message?.id) {
-        await apiFetch(`/gmail/messages/${message.id}/reply`, {
-          method: "POST",
-          body: JSON.stringify({ body }),
-        });
-      } else if (mode === "forward" && message?.id) {
-        await apiFetch(`/gmail/messages/${message.id}/forward`, {
-          method: "POST",
-          body: JSON.stringify({ to, body }),
-        });
-      } else {
-        await apiFetch(`/gmail/messages/send`, {
-          method: "POST",
-          body: JSON.stringify({ to, subject, body }),
-        });
-      }
-      setState("done");
-      setTimeout(onSent, 800);
-    } catch (e) {
-      setState("err");
-      setErr(e.message);
-    }
-  }, [mode, message, to, subject, body, onSent]);
-
-  return (
-    <div style={s.drawer}>
-      <div style={s.drawerHeader}>
-        <span style={s.drawerTitle}>
-          {mode === "reply" ? "Reply" : mode === "forward" ? "Forward" : "New message"}
-        </span>
-        <button style={s.iconBtn} onClick={onClose}>
-          ✕
-        </button>
-      </div>
-      {(mode === "forward" || mode === "new") && (
-        <div style={s.field}>
-          <span style={s.fieldLabel}>To</span>
-          <input
-            style={s.fieldInput}
-            value={to}
-            onChange={(e) => setTo(e.target.value)}
-            placeholder="address@example.com"
-          />
-        </div>
-      )}
-      {mode === "new" && (
-        <div style={s.field}>
-          <span style={s.fieldLabel}>Subject</span>
-          <input
-            style={s.fieldInput}
-            value={subject}
-            onChange={(e) => setSubject(e.target.value)}
-          />
-        </div>
-      )}
-      <textarea
-        ref={bodyRef}
-        style={s.bodyArea}
-        value={body}
-        onChange={(e) => setBody(e.target.value)}
-        placeholder="Write your message…"
-        rows={5}
-      />
-      {err && <div style={s.errText}>{err}</div>}
-      <div style={s.drawerActions}>
-        <button style={s.ghostBtn} onClick={onClose}>
-          Cancel
-        </button>
-        <button
-          style={{
-            ...s.sendBtn,
-            ...(state === "busy" ? s.sendBusy : {}),
-            ...(state === "done" ? s.sendDone : {}),
-          }}
-          onClick={send}
-          disabled={state === "busy" || state === "done"}
-        >
-          {state === "done" ? "Sent!" : state === "busy" ? "Sending…" : "Send"}
-        </button>
-      </div>
-    </div>
-  );
-}
-
 // ─── Dragonfly ────────────────────────────────────────────────────────────────
 
 export default function Dragonfly({ showFolderId }) {
-  const { threadId, messageId } = useParams();
+  const { threadId: rawThreadId, messageId: rawMessageId } = useParams();
 
-  const [stubs, setStubs] = useState([]); // thread message stubs
-  const [soloMsg, setSoloMsg] = useState(null); // fallback when only messageId
+  // Gmail web UI uses decimal IDs (thread-f:NNN / msg-f:NNN)
+  // The Gmail API requires hexadecimal IDs
+  const toHex = (id) => (id ? BigInt(id).toString(16) : undefined);
+
+  const threadId = rawThreadId ? toHex(rawThreadId.replace(/^thread-f:/, "")) : undefined;
+  const messageId = rawMessageId ? toHex(rawMessageId.replace(/^msg-f:/, "")) : undefined;
+
+  const [stubs, setStubs] = useState([]);
+  const [soloMsg, setSoloMsg] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [compose, setCompose] = useState(null);
-  // Map of uploadKey → final uploaded filename
+  const [compose, setCompose] = useState(null); // null | "reply" | "forward" | "new"
   const [uploadedNames, setUploadedNames] = useState(new Map());
 
   useEffect(() => {
     let ignore = false;
 
-    // No props — clear everything. Batched into one setState call via a reducer-style
-    // approach: we set each piece inside a microtask so React can batch them.
     if (!threadId && !messageId) {
       Promise.resolve().then(() => {
         if (ignore) return;
@@ -744,7 +787,6 @@ export default function Dragonfly({ showFolderId }) {
     setUploadedNames((prev) => new Map([...prev, [key, finalName]]));
   }, []);
 
-  // Normalise: always work with an array of stubs
   const messageStubs = stubs.length > 0 ? stubs : soloMsg ? [soloMsg] : [];
   const focusedId = messageId ?? messageStubs[messageStubs.length - 1]?.id;
   const focusedStub = messageStubs.find((m) => m.id === focusedId) ?? null;
@@ -821,6 +863,8 @@ export default function Dragonfly({ showFolderId }) {
         <ComposeDrawer
           mode={compose}
           message={focusedStub}
+          messageId={messageId}
+          uploadedNames={uploadedNames}
           onClose={() => setCompose(null)}
           onSent={() => setCompose(null)}
         />
@@ -998,8 +1042,6 @@ const s = {
   },
   attList: { display: "flex", flexDirection: "column", gap: 6 },
   noAtts: { fontSize: 11, color: "#ccc", textAlign: "center", padding: "6px 0" },
-
-  // Attachment row
   attWrap: { display: "flex", flexDirection: "column", gap: 0 },
   attRow: {
     display: "flex",
@@ -1121,7 +1163,7 @@ const s = {
   },
   nActions: { display: "flex", justifyContent: "flex-end", gap: 6, marginTop: 2 },
 
-  // Compose drawer
+  // Routing preview + compose drawer
   drawer: {
     borderTop: "1px solid #e0e0e0",
     background: "#fff",
@@ -1133,6 +1175,33 @@ const s = {
   },
   drawerHeader: { display: "flex", alignItems: "center", justifyContent: "space-between" },
   drawerTitle: { fontWeight: 600, fontSize: 12, color: "#333" },
+  routingBox: {
+    background: "#f0fdf4",
+    border: "1px solid #bbf7d0",
+    borderRadius: 6,
+    padding: "8px 10px",
+    display: "flex",
+    flexDirection: "column",
+    gap: 4,
+  },
+  routingLabel: {
+    fontSize: 10,
+    fontWeight: 600,
+    color: "#166534",
+    textTransform: "uppercase",
+    letterSpacing: "0.06em",
+  },
+  routingDetail: { fontSize: 11, color: "#444" },
+  routingPills: { display: "flex", alignItems: "center", gap: 4, flexWrap: "wrap", marginTop: 2 },
+  routingPillHead: { fontSize: 10, color: "#888", flexShrink: 0 },
+  routingPill: {
+    fontSize: 10,
+    background: "#dcfce7",
+    color: "#166534",
+    borderRadius: 99,
+    padding: "1px 7px",
+    border: "1px solid #bbf7d0",
+  },
   field: {
     display: "flex",
     alignItems: "center",
@@ -1142,6 +1211,15 @@ const s = {
   },
   fieldLabel: { fontSize: 11, color: "#bbb", width: 44, flexShrink: 0, fontWeight: 500 },
   fieldInput: {
+    flex: 1,
+    border: "none",
+    outline: "none",
+    fontSize: 12,
+    color: "#111",
+    background: "transparent",
+    padding: "2px 0",
+  },
+  fieldSelect: {
     flex: 1,
     border: "none",
     outline: "none",

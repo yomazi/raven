@@ -38,21 +38,6 @@ function Livestream({ showFolderId }) {
   );
 }
 
-/*
-function Dragonfly({ showId }) {
-  const { threadId, messageId } = useParams();
-  return (
-    <>
-      <div>
-        <b>Dragonflyin'</b> for show ID: {showId}
-      </div>
-      {threadId && <p>Thread ID: {threadId}</p>}
-      {messageId && <p>Message ID: {messageId}</p>}
-    </>
-  );
-}
-*/
-
 export default function ClientArea() {
   const { showId } = useParams();
   const isDefault = showId === "default";

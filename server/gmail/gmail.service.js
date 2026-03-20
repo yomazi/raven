@@ -2,21 +2,44 @@ import GmailRepository from "./gmail.repository.js";
 
 class GmailService {
   static async getThread({ threadId }) {
-    const thread = GmailRepository.getThread({ threadId });
-
-    return thread;
+    return GmailRepository.getThread({ threadId });
   }
 
   static async getMessage({ messageId }) {
-    const message = GmailRepository.getMessage({ messageId });
-
-    return message;
+    return GmailRepository.getMessage({ messageId });
   }
 
   static async getAttachment({ messageId, attachmentId }) {
-    const attachment = GmailRepository.getAttachment({ messageId, attachmentId });
+    return GmailRepository.getAttachment({ messageId, attachmentId });
+  }
 
-    return attachment;
+  static async sendMessage({ to, subject, body, from, sentLabels }) {
+    return GmailRepository.sendMessage({ to, subject, body, from, sentLabels });
+  }
+
+  static async replyToMessage({ messageId, body, from, threadLabels, sentLabels }) {
+    return GmailRepository.replyToMessage({
+      messageId,
+      body,
+      from,
+      threadLabels,
+      sentLabels,
+    });
+  }
+
+  static async forwardMessage({ messageId, to, body, from, threadLabels, sentLabels }) {
+    return GmailRepository.forwardMessage({
+      messageId,
+      to,
+      body,
+      from,
+      threadLabels,
+      sentLabels,
+    });
+  }
+
+  static async labelThread({ messageId, labels }) {
+    return GmailRepository.labelThread({ messageId, labels });
   }
 }
 

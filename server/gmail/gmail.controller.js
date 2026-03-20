@@ -31,14 +31,72 @@ class GmailController {
         attachmentId,
       });
 
-      // data is a Buffer — send as binary with appropriate headers
       res.set({
         "Content-Type": mimeType,
         "Content-Length": size,
-        // Triggers a download if opened directly in a browser tab
         "Content-Disposition": `attachment; filename="${encodeURIComponent(filename)}"`,
       });
       res.send(data);
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ success: false, error: err.message });
+    }
+  }
+
+  static async sendMessage(req, res) {
+    try {
+      const { to, subject, body, from, sentLabels } = req.body;
+      const result = await GmailService.sendMessage({ to, subject, body, from, sentLabels });
+      res.json({ success: true, ...result });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ success: false, error: err.message });
+    }
+  }
+
+  static async replyToMessage(req, res) {
+    try {
+      const { messageId } = req.params;
+      const { body, from, threadLabels, sentLabels } = req.body;
+      const result = await GmailService.replyToMessage({
+        messageId,
+        body,
+        from,
+        threadLabels,
+        sentLabels,
+      });
+      res.json({ success: true, ...result });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ success: false, error: err.message });
+    }
+  }
+
+  static async forwardMessage(req, res) {
+    try {
+      const { messageId } = req.params;
+      const { to, body, from, threadLabels, sentLabels } = req.body;
+      const result = await GmailService.forwardMessage({
+        messageId,
+        to,
+        body,
+        from,
+        threadLabels,
+        sentLabels,
+      });
+      res.json({ success: true, ...result });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ success: false, error: err.message });
+    }
+  }
+
+  static async labelThread(req, res) {
+    try {
+      const { messageId } = req.params;
+      const { labels } = req.body;
+      const result = await GmailService.labelThread({ messageId, labels });
+      res.json({ success: true, ...result });
     } catch (err) {
       console.error(err);
       res.status(500).json({ success: false, error: err.message });
