@@ -11,11 +11,19 @@ class ShowsService {
     };
   }
 
-  static async upsertMany(driveShows) {
+  static async upsertMany(driveShows, fromDate = null) {
     const mapped = driveShows.map(ShowsService.#mapDriveShowToDocument);
-    return ShowsRepository.upsertMany(mapped);
-  }
+    const result = await ShowsRepository.upsertMany(mapped);
 
+    const googleFolderIds = mapped.map((s) => s.googleFolderId);
+    const deletedCount = await ShowsRepository.deleteWhereNotIn(googleFolderIds, fromDate);
+
+    return {
+      upsertedCount: result.upsertedCount,
+      modifiedCount: result.modifiedCount,
+      deletedCount,
+    };
+  }
   static async getAll() {
     return ShowsRepository.findAll();
   }

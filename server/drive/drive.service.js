@@ -9,12 +9,13 @@ class DriveService {
       fromDate
     );
 
-    const result = await ShowsService.upsertMany(shows);
+    const result = await ShowsService.upsertMany(shows, fromDate);
 
     return {
       scraped: shows.length,
       upserted: result.upsertedCount,
       modified: result.modifiedCount,
+      deleted: result.deletedCount,
     };
   }
 

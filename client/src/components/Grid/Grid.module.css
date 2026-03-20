@@ -119,6 +119,27 @@
   font-size: 1.1em;
 }
 
+.gridFooter {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 4px 8px;
+  font-size: 12px;
+  color: var(--stone);
+}
+
+.rowCount {
+  color: var(--moonlight);
+}
+
+.statusMessage {
+  color: var(--wyrd);
+}
+
+.statusMessage[data-type="error"] {
+  color: var(--ember);
+}
+
 /* AG Grid style overrides */
 :global(.ag-cell-focus:not(.ag-cell-range-selected):focus-within) {
   border-color: transparent;

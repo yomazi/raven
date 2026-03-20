@@ -7,7 +7,8 @@ export const fetchShows = async () => {
 };
 
 export const syncShows = async (fromDate = null) => {
-  const { data } = await apiClient.post("/drive/sync", { fromDate });
+  const body = fromDate ? { fromDate } : {};
+  const { data } = await apiClient.post("/drive/sync", body);
   return data;
 };
 

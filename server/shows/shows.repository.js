@@ -14,6 +14,15 @@ class ShowsRepository {
     return result;
   }
 
+  static async deleteWhereNotIn(googleFolderIds, fromDate = null) {
+    const filter = {
+      googleFolderId: { $nin: googleFolderIds },
+      ...(fromDate ? { date: { $gte: fromDate } } : {}),
+    };
+    const result = await Show.deleteMany(filter);
+    return result.deletedCount;
+  }
+
   static async findAll() {
     return Show.find().sort({ date: 1 });
   }

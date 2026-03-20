@@ -8,6 +8,7 @@ import { AgGridReact } from "ag-grid-react";
 import { useCallback, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useShows } from "../../hooks/useShows.js";
+import useShowsStore from "../../store/useShowsStore.js";
 import { columnDefs } from "./grid-definitions.js";
 import styles from "./Grid.module.css";
 
@@ -20,31 +21,21 @@ const Grid = () => {
   const filterInputRef = useRef();
   const navigate = useNavigate();
   const { data: shows, isLoading, isError } = useShows();
+  const statusMessage = useShowsStore((s) => s.statusMessage);
 
   const openFolder = (folderId) => {
-    console.log(folderId);
     const url = `https://drive.google.com/drive/folders/${folderId}`;
-
-    window.open(
-      url, // URL
-      "_blank", // open in new tab/window
-      "noopener,noreferrer" // window features (important for security)
-    );
+    window.open(url, "_blank", "noopener,noreferrer");
   };
 
   const routeToShow = (id) => {
-    // Extract the "current action" from the URL
     const currentAction = window.location.pathname.split("/").slice(2).join("/");
-
     navigate(`/${id}/${currentAction}`);
   };
 
   const formatShortDate = (dateString) => {
     if (!dateString) return "";
-
-    const shortDate = dateString.slice(0, 10);
-
-    return shortDate;
+    return dateString.slice(0, 10);
   };
 
   const handleCellClick = (e) => {
@@ -62,11 +53,7 @@ const Grid = () => {
     } else if (isShortText) {
       const shortDate = formatShortDate(date);
       const url = `https://drive.google.com/drive/folders/${googleFolderId}`;
-
-      // 1. Plain text
       const plainText = `${shortDate} ${artist}`;
-
-      // 2. HTML (for Google Sheets and everything else)
       const html = `
         <table>
           <tr>
@@ -75,16 +62,12 @@ const Grid = () => {
           </tr>
         </table>
       `;
-
-      const blobPlain = new Blob([plainText], { type: "text/plain" });
-      const blobHtml = new Blob([html], { type: "text/html" });
-
-      const clipboardItem = new ClipboardItem({
-        "text/plain": blobPlain,
-        "text/html": blobHtml,
-      });
-
-      navigator.clipboard.write([clipboardItem]);
+      navigator.clipboard.write([
+        new ClipboardItem({
+          "text/plain": new Blob([plainText], { type: "text/plain" }),
+          "text/html": new Blob([html], { type: "text/html" }),
+        }),
+      ]);
     } else if (isValidField) {
       googleFolderId
         ? routeToShow(googleFolderId)
@@ -92,7 +75,6 @@ const Grid = () => {
     }
   };
 
-  // Press "/" to jump to the filter input
   useEffect(() => {
     const handleKeyDown = (e) => {
       const tag = document.activeElement?.tagName;
@@ -105,18 +87,15 @@ const Grid = () => {
         filterInputRef.current?.select();
       }
 
-      // Escape clears + blurs
       if (e.key === "Escape") {
         e.preventDefault();
-        e.stopPropagation(); // this keeps AG Grid from taking over and ruining my beautiful workflow!
+        e.stopPropagation();
         filterInputRef.current.value = "";
         gridRef.current.api.setGridOption("quickFilterText", "");
         filterInputRef.current.blur();
       }
     };
 
-    // listen for key events on the capture phase, before they get to AG Grid
-    // (especially "Escape" - it's handled by the grid internally)
     window.addEventListener("keydown", handleKeyDown, { capture: true });
     return () => window.removeEventListener("keydown", handleKeyDown, { capture: true });
   }, []);
@@ -127,6 +106,8 @@ const Grid = () => {
 
   if (isLoading) return <div>Loading...</div>;
   if (isError) return <div>Error loading shows.</div>;
+
+  const totalShows = shows?.length ?? 0;
 
   return (
     <div className={styles.ravenGridContainer}>
@@ -155,6 +136,15 @@ const Grid = () => {
           animateRows={false}
           onCellClicked={handleCellClick}
         />
+      </div>
+
+      <div className={styles.gridFooter}>
+        <span className={styles.rowCount}>{totalShows} shows</span>
+        {statusMessage && (
+          <span className={styles.statusMessage} data-type={statusMessage.type}>
+            {statusMessage.text}
+          </span>
+        )}
       </div>
     </div>
   );
