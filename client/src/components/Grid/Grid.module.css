@@ -83,19 +83,22 @@
   font-size: 0.95em;
 }
 
-.shortTextCell {
+.copyDateAndArtistLinkCell,
+.copyArtistLinkCell {
   position: relative;
   display: inline-block;
-  width: 20px;
+  width: 22px;
   height: 20px;
   align-items: center;
 }
 
-.shortText {
+.copyDateAndArtistLinkCell,
+.copyArtistLinkCell {
   color: #a8b2b8;
 }
 
-.shortText:active {
+.copyDateAndArtistLinkCell:active,
+.copyArtistLinkCell:active {
   color: white;
 }
 
@@ -125,19 +128,19 @@
   gap: 16px;
   padding: 4px 8px;
   font-size: 12px;
-  color: var(--stone);
+  color: var(--color-stone);
 }
 
 .rowCount {
-  color: var(--moonlight);
+  color: var(--color-moonlight);
 }
 
 .statusMessage {
-  color: var(--wyrd);
+  color: var(--color-wyrd);
 }
 
 .statusMessage[data-type="error"] {
-  color: var(--ember);
+  color: var(--color-ember);
 }
 
 /* AG Grid style overrides */
@@ -189,10 +192,12 @@
   color: #fff;
 }
 
-:global(.ag-cell:hover) .shortTextCell {
+:global(.ag-cell:hover) .copyDateAndArtistLinkCell,
+:global(.ag-cell:hover) .copyArtistLinkCell {
   width: 26px;
   height: 26px;
   margin: -2px;
+  padding-top: 1px;
 }
 
 :global(.ag-cell:hover) .checkboxCell {

@@ -14,7 +14,9 @@ import styles from "./Grid.module.css";
 
 ModuleRegistry.registerModules([AllCommunityModule]);
 
-const theme = themeAlpine.withPart(colorSchemeDark);
+const theme = themeAlpine.withPart(colorSchemeDark).withParams({
+  cellHorizontalPadding: 8,
+});
 
 const Grid = () => {
   const gridRef = useRef();
@@ -41,7 +43,8 @@ const Grid = () => {
   const handleCellClick = (e) => {
     const field = e.colDef?.field || "unknown";
     const isFolder = field === "folder";
-    const isShortText = field === "shortText";
+    const isCopyDateAndArtistLink = field === "copyDateAndArtistLink";
+    const isCopyArtistLink = field === "copyArtistLink";
     const isValidField = field !== "unknown";
 
     const { artist, date, googleFolderId } = e.data;
@@ -50,7 +53,7 @@ const Grid = () => {
       googleFolderId
         ? openFolder(googleFolderId)
         : console.warn(`No URL found for "${artist}" on ${date}`);
-    } else if (isShortText) {
+    } else if (isCopyDateAndArtistLink) {
       const shortDate = formatShortDate(date);
       const url = `https://drive.google.com/drive/folders/${googleFolderId}`;
       const plainText = `${shortDate} ${artist}`;
@@ -58,6 +61,22 @@ const Grid = () => {
         <table>
           <tr>
             <td>${shortDate}</td>
+            <td><a href="${url}">${artist}</a></td>
+          </tr>
+        </table>
+      `;
+      navigator.clipboard.write([
+        new ClipboardItem({
+          "text/plain": new Blob([plainText], { type: "text/plain" }),
+          "text/html": new Blob([html], { type: "text/html" }),
+        }),
+      ]);
+    } else if (isCopyArtistLink) {
+      const url = `https://drive.google.com/drive/folders/${googleFolderId}`;
+      const plainText = `${artist}`;
+      const html = `
+        <table>
+          <tr>
             <td><a href="${url}">${artist}</a></td>
           </tr>
         </table>
@@ -131,7 +150,7 @@ const Grid = () => {
           headerHeight={36}
           rowData={shows}
           columnDefs={columnDefs}
-          defaultColDef={{ resizable: true, sortable: true }}
+          defaultColDef={{ resizable: false, suppressMovable: true }}
           suppressColumnMoveAnimation={true}
           animateRows={false}
           onCellClicked={handleCellClick}

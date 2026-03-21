@@ -1,23 +1,31 @@
 import {
   ArtistNameRenderer,
   CheckboxRenderer,
+  CopyArtistLinkRenderer,
+  CopyDateAndArtistLinkRenderer,
   DateRenderer,
   FolderIconRenderer,
-  ShortTextRenderer,
 } from "./renderers.jsx";
 
 export const columnDefs = [
   {
     headerName: "",
-    field: "shortText",
-    cellRenderer: ShortTextRenderer,
-    cellClass: "ag-right-aligned-cell",
+    field: "copyDateAndArtistLink",
+    cellRenderer: CopyDateAndArtistLinkRenderer,
+    cellClass: "ag-center-aligned-cell",
     width: 60,
     minWidth: 60,
     maxWidth: 60,
-    resizable: false,
     suppressAutoSize: true,
-    suppressMovable: true,
+  },
+  {
+    headerName: "",
+    field: "copyArtistLink",
+    cellRenderer: CopyArtistLinkRenderer,
+    width: 50,
+    minWidth: 50,
+    maxWidth: 50,
+    suppressAutoSize: true,
   },
   {
     headerName: "Date",
@@ -26,9 +34,7 @@ export const columnDefs = [
     minWidth: 110,
     maxWidth: 110,
     cellRenderer: DateRenderer,
-    resizable: false,
     suppressAutoSize: true,
-    suppressMovable: true,
     sort: "desc",
   },
   {
@@ -36,8 +42,6 @@ export const columnDefs = [
     field: "artist",
     flex: 1,
     cellRenderer: ArtistNameRenderer,
-    resizable: false,
-    suppressMovable: true,
   },
   {
     headerName: "Multi",
@@ -47,9 +51,7 @@ export const columnDefs = [
     width: 100,
     minWidth: 100,
     maxWidth: 100,
-    resizable: false,
     suppressAutoSize: true,
-    suppressMovable: true,
   },
   {
     headerName: "",
@@ -59,8 +61,6 @@ export const columnDefs = [
     width: 50,
     minWidth: 50,
     maxWidth: 50,
-    resizable: false,
     sortable: false,
-    suppressMovable: true,
   },
 ];
