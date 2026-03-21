@@ -3,6 +3,7 @@ import { blue, bold, green, red, yellow } from "colorette";
 import { google } from "googleapis";
 import { Readable } from "stream";
 import AuthService from "../auth/auth.service.js";
+import { PROGRAMMING_DRIVE } from "../utilities/constants.js";
 
 const PRODUCTION_FOLDER_REGEX = /^(\d{1,2}-\d{1,2}-\d{2,4})\s+(.+?)(\s+\(multiple shows\))?$/i;
 const YEAR_FOLDER_REGEX = /^(\d{4})\s+Program$/;
@@ -174,6 +175,68 @@ class DriveRepository {
       id: response.data.id,
       name: response.data.name,
       webViewLink: response.data.webViewLink,
+    };
+  }
+
+  static async #findFolderByPrefix(drive, parentId, prefix) {
+    const folders = await DriveRepository.#listFolders(drive, parentId);
+    return folders.find((f) => f.name.startsWith(prefix)) ?? null;
+  }
+
+  static async createShowFolder({ artist, date, multipleShows }) {
+    const drive = await DriveRepository.#getDriveClient();
+
+    const year = date.getFullYear();
+    const month = date.getMonth() + 1;
+    const day = date.getDate();
+
+    const mm = String(month).padStart(2, "0");
+    const dd = String(day).padStart(2, "0");
+    const yy = String(year).slice(-2);
+
+    // Find year folder e.g. "2026 Program"
+    const yearFolder = await DriveRepository.#findFolderByPrefix(
+      drive,
+      PROGRAMMING_DRIVE.PERFORMANCE_CONTRACTS_ROOT_FOLDER_ID,
+      `${year} Program`
+    );
+
+    if (!yearFolder) {
+      throw new Error(`Year folder "${year} Program" not found in Drive.`);
+    }
+
+    // Find month folder e.g. "2026-01 January"
+    const monthPrefix = `${year}-${mm}`;
+    const monthFolder = await DriveRepository.#findFolderByPrefix(
+      drive,
+      yearFolder.id,
+      monthPrefix
+    );
+
+    if (!monthFolder) {
+      throw new Error(`Month folder "${monthPrefix}" not found in Drive.`);
+    }
+
+    // Build folder name e.g. "01-09-26 The Pharcyde (multiple shows)"
+    const folderName = `${mm}-${dd}-${yy} ${artist.trim()}${multipleShows ? " (multiple shows)" : ""}`;
+
+    const response = await drive.files.create({
+      requestBody: {
+        name: folderName,
+        mimeType: "application/vnd.google-apps.folder",
+        parents: [monthFolder.id],
+      },
+      fields: "id, name",
+      supportsAllDrives: true,
+    });
+
+    return {
+      driveId: response.data.id,
+      folderName: response.data.name,
+      date,
+      artist: artist.trim(),
+      multipleShows,
+      unparsed: false,
     };
   }
 }

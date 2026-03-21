@@ -32,4 +32,11 @@ router.post(
   Controller.upload
 );
 
+router.post(
+  "/drive/folders/show",
+  validate(Schemas.createShowFolder),
+  validateApiToken,
+  Controller.createShowFolder
+);
+
 export default router;

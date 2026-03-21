@@ -8,9 +8,7 @@ class DriveService {
       PROGRAMMING_DRIVE.PERFORMANCE_CONTRACTS_ROOT_FOLDER_ID,
       fromDate
     );
-
     const result = await ShowsService.upsertMany(shows, fromDate);
-
     return {
       scraped: shows.length,
       upserted: result.upsertedCount,
@@ -25,6 +23,18 @@ class DriveService {
 
   static async uploadFile({ buffer, filename, mimeType, folderId }) {
     return DriveRepository.uploadFile({ buffer, filename, mimeType, folderId });
+  }
+
+  static async createShowFolder({ artist, date, multipleShows }) {
+    const show = await DriveRepository.createShowFolder({ artist, date, multipleShows });
+    await ShowsService.upsertOne({
+      driveId: show.driveId,
+      artist: show.artist,
+      date: show.date,
+      multipleShows: show.multipleShows,
+      unparsed: false,
+    });
+    return show;
   }
 }
 

@@ -49,6 +49,24 @@ class DriveController {
       res.status(500).json({ success: false, error: err.message });
     }
   }
+
+  static async createShowFolder(req, res) {
+    try {
+      const { artist, date, multipleShows } = req.body;
+      const parsedDate = new Date(date);
+
+      const result = await DriveService.createShowFolder({
+        artist,
+        date: parsedDate,
+        multipleShows,
+      });
+
+      res.json({ success: true, ...result });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ success: false, error: err.message });
+    }
+  }
 }
 
 export default DriveController;

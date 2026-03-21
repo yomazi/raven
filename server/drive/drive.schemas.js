@@ -25,6 +25,15 @@ class DriveSchemas {
       folderId: Joi.string().required(),
     }),
   };
+
+  static createShowFolder = {
+    headers: authHeaderSchema,
+    body: Joi.object({
+      artist: Joi.string().required(),
+      date: Joi.string().isoDate().required(),
+      multipleShows: Joi.boolean().default(false),
+    }),
+  };
 }
 
 export default DriveSchemas;

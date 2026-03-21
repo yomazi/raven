@@ -1,0 +1,146 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(3px);
+  z-index: 200;
+  animation: fadeIn 0.2s ease;
+}
+
+.content {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 201;
+  background: var(--color-stone);
+  border: 1px solid color(srgb 1 1 1 / 0.12);
+  border-radius: 8px;
+  padding: 28px 32px;
+  width: 400px;
+  box-shadow: 0 16px 48px rgb(0 0 0 / 0.5);
+  animation: slideIn 0.2s ease;
+}
+
+.title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-moonlight);
+  margin: 0 0 24px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+.fieldInline {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.label {
+  font-size: 13px;
+  color: var(--color-moonlight);
+  opacity: 0.7;
+}
+
+.input {
+  background: var(--color-void);
+  border: 1px solid color(srgb 1 1 1 / 0.12);
+  border-radius: 4px;
+  padding: 8px 10px;
+  font-size: 14px;
+  color: var(--color-moonlight);
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.input:focus {
+  border-color: var(--color-wyrd);
+}
+
+.checkbox {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--color-wyrd);
+  cursor: pointer;
+}
+
+.error {
+  font-size: 13px;
+  color: var(--color-ember);
+  margin: 0 0 16px;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 24px;
+}
+
+.buttonSecondary {
+  padding: 8px 16px;
+  font-size: 14px;
+  border-radius: 4px;
+  border: 1px solid color(srgb 1 1 1 / 0.15);
+  background: none;
+  color: var(--color-moonlight);
+  opacity: 0.7;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.buttonSecondary:hover {
+  opacity: 1;
+}
+
+.buttonSecondary:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.buttonPrimary {
+  padding: 8px 16px;
+  font-size: 14px;
+  border-radius: 4px;
+  border: none;
+  background: var(--color-wyrd);
+  color: #fff;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.buttonPrimary:hover {
+  opacity: 0.85;
+}
+
+.buttonPrimary:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -48%) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}

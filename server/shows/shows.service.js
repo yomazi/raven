@@ -8,7 +8,13 @@ class ShowsService {
       date: driveShow.date,
       isMulti: driveShow.multipleShows,
       unparsed: driveShow.unparsed ?? false,
+      deleted: false,
     };
+  }
+
+  static async upsertOne(driveShow) {
+    const mapped = ShowsService.#mapDriveShowToDocument(driveShow);
+    return ShowsRepository.upsertOne(mapped);
   }
 
   static async upsertMany(driveShows, fromDate = null) {
@@ -16,7 +22,7 @@ class ShowsService {
     const result = await ShowsRepository.upsertMany(mapped);
 
     const googleFolderIds = mapped.map((s) => s.googleFolderId);
-    const deletedCount = await ShowsRepository.deleteWhereNotIn(googleFolderIds, fromDate);
+    const deletedCount = await ShowsRepository.softDeleteWhereNotIn(googleFolderIds, fromDate);
 
     return {
       upsertedCount: result.upsertedCount,
@@ -24,6 +30,7 @@ class ShowsService {
       deletedCount,
     };
   }
+
   static async getAll() {
     return ShowsRepository.findAll();
   }

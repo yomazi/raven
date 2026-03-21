@@ -16,3 +16,12 @@ export const fetchShowById = async (googleFolderId) => {
   const { data } = await apiClient.get(`/shows/${googleFolderId}`);
   return data.show;
 };
+
+export const createShowFolder = async ({ artist, date, multipleShows }) => {
+  const { data } = await apiClient.post("/drive/folders/show", {
+    artist,
+    date: date.toISOString().slice(0, 10),
+    multipleShows,
+  });
+  return data;
+};

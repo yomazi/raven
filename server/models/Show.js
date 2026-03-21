@@ -8,6 +8,7 @@ const showSchema = new mongoose.Schema(
     date: { type: Date, required: true },
     isMulti: { type: Boolean, default: false },
     unparsed: { type: Boolean, default: false },
+    deleted: { type: Boolean, default: false },
   },
   {
     toJSON: {

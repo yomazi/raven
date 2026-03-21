@@ -1,6 +1,14 @@
 import Show from "../models/Show.js";
 
 class ShowsRepository {
+  static async upsertOne(show) {
+    return Show.findOneAndUpdate(
+      { googleFolderId: show.googleFolderId },
+      { $set: show },
+      { upsert: true, new: true }
+    );
+  }
+
   static async upsertMany(shows) {
     const operations = shows.map((show) => ({
       updateOne: {
@@ -9,26 +17,25 @@ class ShowsRepository {
         upsert: true,
       },
     }));
-
     const result = await Show.bulkWrite(operations);
     return result;
   }
 
-  static async deleteWhereNotIn(googleFolderIds, fromDate = null) {
+  static async softDeleteWhereNotIn(googleFolderIds, fromDate = null) {
     const filter = {
       googleFolderId: { $nin: googleFolderIds },
       ...(fromDate ? { date: { $gte: fromDate } } : {}),
     };
-    const result = await Show.deleteMany(filter);
-    return result.deletedCount;
+    const result = await Show.updateMany(filter, { $set: { deleted: true } });
+    return result.modifiedCount;
   }
 
   static async findAll() {
-    return Show.find().sort({ date: 1 });
+    return Show.find({ deleted: { $ne: true } }).sort({ date: 1 });
   }
 
   static async findByGoogleFolderId(googleFolderId) {
-    return Show.findOne({ googleFolderId });
+    return Show.findOne({ googleFolderId, deleted: { $ne: true } });
   }
 }
 
