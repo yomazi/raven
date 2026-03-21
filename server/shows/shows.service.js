@@ -24,6 +24,10 @@ class ShowsService {
     const googleFolderIds = mapped.map((s) => s.googleFolderId);
     const deletedCount = await ShowsRepository.softDeleteWhereNotIn(googleFolderIds, fromDate);
 
+    if (deletedCount > 0) {
+      log.warn("softDelete", `${deletedCount} show(s) soft-deleted`, { fromDate });
+    }
+
     return {
       upsertedCount: result.upsertedCount,
       modifiedCount: result.modifiedCount,
