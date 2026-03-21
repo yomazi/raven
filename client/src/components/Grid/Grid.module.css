@@ -71,6 +71,8 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  font-size: 0.85rem;
+  font-weight: 100;
 }
 
 .artistNameCell:hover {
@@ -80,8 +82,9 @@
 .dateCell {
   width: 100%;
   height: 100%;
-  font-family: "Google Sans Code", monospace;
-  font-size: 0.95em;
+  font-variant-numeric: tabular-nums;
+  font-size: 0.85rem;
+  font-weight: 100;
 }
 
 .copyDateAndArtistLinkCell,
@@ -166,7 +169,7 @@
 }
 
 :global(.ag-header-cell-text) {
-  font-weight: bold;
+  font-weight: 500;
   font-size: 1.15em;
 }
 
