@@ -157,13 +157,11 @@ const Grid = () => {
         />
       </div>
 
-      <div className={styles.gridFooter}>
+      <div className={styles.gridFooter} data-visible={!!statusMessage}>
         <span className={styles.rowCount}>{totalShows} shows</span>
-        {statusMessage && (
-          <span className={styles.statusMessage} data-type={statusMessage.type}>
-            {statusMessage.text}
-          </span>
-        )}
+        <span className={styles.statusMessage} data-type={statusMessage?.type ?? "info"}>
+          {statusMessage?.text ?? ""}
+        </span>
       </div>
     </div>
   );

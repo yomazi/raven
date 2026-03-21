@@ -4,63 +4,51 @@ import { useSyncShows } from "../../hooks/useSyncShows.js";
 import styles from "./Nav.module.css";
 
 const Nav = () => {
-  const { mutate: sync, isPending } = useSyncShows();
+  const { mutate: sync } = useSyncShows();
 
   return (
     <NavigationMenu.Root className={styles.navRoot}>
       <NavigationMenu.List className={styles.navList}>
-        <NavigationMenu.Item>
-          <NavigationMenu.Link asChild>
-            <NavLink to="/" className={styles.navLink}>
-              Home
-            </NavLink>
-          </NavigationMenu.Link>
-        </NavigationMenu.Item>
-
-        {/* Show Folders dropdown — first, replaces Data */}
-        <NavigationMenu.Item>
-          <NavigationMenu.Trigger className={styles.navTrigger}>
-            Show Folders
-          </NavigationMenu.Trigger>
+        <NavigationMenu.Item className={styles.navItem}>
+          <NavigationMenu.Trigger className={styles.navTrigger}>Drive</NavigationMenu.Trigger>
           <NavigationMenu.Content className={styles.navContent}>
             <ul className={styles.navDropdownList}>
               <li>
-                <button
-                  className={styles.navDropdownLink}
-                  onClick={() => sync()}
-                  disabled={isPending}
-                >
-                  {isPending ? "Syncing…" : "Sync from Drive"}
+                <button className={styles.navDropdownButton} onClick={() => sync()}>
+                  Sync from Drive
                 </button>
+              </li>
+              <li className={styles.navSeparator} />
+              <li>
+                <button className={styles.navDropdownButton}>Create a New Show Folder</button>
+              </li>
+              <li className={styles.navSeparator} />
+              <li>
+                <button className={styles.navDropdownButton}>Create Settlement Workbook</button>
+              </li>
+              <li>
+                <button className={styles.navDropdownButton}>Create Marketing Assets Folder</button>
+              </li>
+              <li className={styles.navSeparator} />
+              <li>
+                <button className={styles.navDropdownButton}>Generate Contract</button>
               </li>
             </ul>
           </NavigationMenu.Content>
         </NavigationMenu.Item>
 
-        <NavigationMenu.Item>
-          <NavigationMenu.Trigger className={styles.navTrigger}>Shows</NavigationMenu.Trigger>
+        <NavigationMenu.Item className={styles.navItem}>
+          <NavigationMenu.Trigger className={styles.navTrigger}>Options</NavigationMenu.Trigger>
           <NavigationMenu.Content className={styles.navContent}>
             <ul className={styles.navDropdownList}>
               <li>
-                <NavigationMenu.Link asChild>
-                  <NavLink to="/shows" className={styles.navDropdownLink}>
-                    All Shows
-                  </NavLink>
-                </NavigationMenu.Link>
-              </li>
-              <li>
-                <NavigationMenu.Link asChild>
-                  <NavLink to="/shows/new" className={styles.navDropdownLink}>
-                    New Show
-                  </NavLink>
-                </NavigationMenu.Link>
+                <button className={styles.navDropdownButton}>Current Shows Only</button>
               </li>
             </ul>
           </NavigationMenu.Content>
         </NavigationMenu.Item>
       </NavigationMenu.List>
-
-      <NavigationMenu.Viewport className={styles.navViewport} />
+      {/* No Viewport */}
     </NavigationMenu.Root>
   );
 };

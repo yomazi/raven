@@ -1,11 +1,13 @@
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import AppLayout from "./components/AppLayout/AppLayout";
+import Overlay from "./components/Overlay/Overlay.jsx";
 
 import "./App.css";
 
 function App() {
   return (
     <div id="app">
+      <Overlay />
       <BrowserRouter>
         <Routes>
           {/* Redirect root "/" to default show */}

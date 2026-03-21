@@ -10,6 +10,12 @@ const useShowsStore = create((set) => ({
   clearStatusMessage: () => {
     set({ statusMessage: null });
   },
+
+  // Overlay state
+  syncPhase: null, // null | "syncing" | "loading"
+  statusText: null, // text shown below the loader animation
+  setSyncPhase: (phase, text = null) => set({ syncPhase: phase, statusText: text }),
+  clearSyncPhase: () => set({ syncPhase: null, statusText: null }),
 }));
 
 export default useShowsStore;

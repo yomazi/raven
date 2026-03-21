@@ -6,17 +6,26 @@ const FADE_DELAY_MS = 5000;
 
 export const useSyncShows = () => {
   const queryClient = useQueryClient();
-  const { setStatusMessage, clearStatusMessage } = useShowsStore();
+  const { setSyncPhase, clearSyncPhase, setStatusMessage, clearStatusMessage } = useShowsStore();
 
-  return useMutation({
+  const mutation = useMutation({
     mutationFn: () => syncShows(),
 
-    onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ["shows"] });
+    onMutate: () => {
+      setSyncPhase("syncing", "Syncing from Drive…");
+    },
 
-      const { scraped, upserted, modified } = data;
+    onSuccess: async (data) => {
+      setSyncPhase("loading", "Loading from database…");
+
+      await queryClient.invalidateQueries({ queryKey: ["shows"] });
+
+      clearSyncPhase();
+
+      const { scraped, upserted, modified, deleted } = data;
+      const deletedText = deleted > 0 ? `, ${deleted} removed` : "";
       setStatusMessage(
-        `Sync complete — ${scraped} scraped, ${upserted} added, ${modified} updated`,
+        `${scraped} shows synced — ${upserted} added, ${modified} updated${deletedText}`,
         "success"
       );
 
@@ -24,8 +33,11 @@ export const useSyncShows = () => {
     },
 
     onError: (err) => {
+      clearSyncPhase();
       setStatusMessage(`Sync failed: ${err.message}`, "error");
       setTimeout(clearStatusMessage, FADE_DELAY_MS);
     },
   });
+
+  return mutation;
 };
