@@ -6,25 +6,81 @@
   background-color: var(--color-void);
 }
 
+.filterBar {
+  display: flex;
+  align-items: center;
+  border-left: 1px solid var(--color-wyrd-dim);
+  border-right: 1px solid var(--color-wyrd-dim);
+}
+
 .filterInput {
-  width: 100%;
-  padding: 6px 10px;
-  font-size: 14px;
-  border-left: 1px solid color(srgb 1 1 1 / 0.15);
-  border-right: 1px solid color(srgb 1 1 1 / 0.15);
-  border-bottom: none;
+  flex: 1;
+  padding: 0.4rem 0.7rem;
+  font-size: 0.9rem;
+  border: none;
   box-sizing: border-box;
+  font-weight: 300;
+  background-color: var(--color-void);
+  color: var(--color-moonlight);
+}
+
+.filterInput::-webkit-search-cancel-button {
+  display: none;
+}
+
+.upcomingFilter {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0 0.5rem 0 2rem;
+  font-size: 0.8rem;
+  color: var(--color-fen);
+  text-transform: uppercase;
+  cursor: pointer;
+  white-space: nowrap;
+  user-select: none;
+}
+
+.upcomingFilter input[type="checkbox"] {
+  accent-color: var(--color-fen);
+  cursor: pointer;
 }
 
 .filterInput::placeholder {
   color: var(--color-fen);
+  text-transform: uppercase;
+  font-size: 0.8rem;
+}
+
+.filterInput::-webkit-search-cancel-button {
+  display: none;
 }
 
 .filterInput:focus,
 .filterInput:focus-visible {
   outline-color: var(--color-ember);
+  background-color: var(--color-dusk);
 }
 
+.filterInput:focus::placeholder,
+.filterInput:focus-visible::placeholder {
+  color: var(--color-moss);
+}
+
+/*
+.filterInput {
+  width: 100%;
+  padding: 0.4rem 1rem;
+  font-size: 0.9rem;
+  background-color: var(--color-void);
+  border-left: 1px solid var(--color-wyrd-dim);
+  border-right: 1px solid var(--color-wyrd-dim);
+  border-top: none;
+  border-bottom: none;
+  box-sizing: border-box;
+}
+
+*/
 .ravenGrid {
   flex: 1;
   height: 100%;
@@ -36,7 +92,6 @@
   display: flex;
   width: 22px;
   height: 22px;
-  color: #e3e3e3;
 }
 
 .folderLinkCell:hover .iconFolderClosed {
@@ -169,8 +224,8 @@
 }
 
 :global(.ag-header-cell-text) {
-  font-weight: 500;
-  font-size: 1.15em;
+  font-size: 0.9rem;
+  text-transform: uppercase;
 }
 
 :global(.ag-header-cell[col-id="isMulti"] .ag-header-cell-label) {
@@ -181,10 +236,6 @@
 :global(.ag-center-aligned-cell) {
   /* hack: this class doesn't seem to exist in AG Grid, but it should. */
   text-align: center;
-}
-
-:global(.ag-row:nth-child(even)) {
-  background-color: rgb(48, 48, 48);
 }
 
 :global(.ag-row) {

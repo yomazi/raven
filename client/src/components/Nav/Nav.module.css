@@ -23,6 +23,7 @@
   align-items: center;
   font-family: "Google Sans Flex", Helvetica, sans-serif;
   text-transform: uppercase;
+  letter-spacing: 0.08rem;
   color: var(--color-moonlight);
   opacity: 0.7;
   text-decoration: none;
@@ -32,6 +33,14 @@
     color 0.15s,
     opacity 0.15s,
     background-color 0.15s;
+}
+
+.navLink[aria-disabled="true"],
+.navTrigger:disabled {
+  color: var(--color-wyrd);
+  opacity: 0.4;
+  cursor: default;
+  pointer-events: none;
 }
 
 .navSeparator {
@@ -121,8 +130,8 @@
   font-weight: 400;
   color: var(--color-moonlight);
   opacity: 0.7;
-  text-decoration: none;
   text-transform: none;
+  text-decoration: none;
   border-radius: 4px;
   text-align: left;
   white-space: nowrap;

@@ -5,7 +5,7 @@ import {
   themeAlpine,
 } from "ag-grid-community";
 import { AgGridReact } from "ag-grid-react";
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useShows } from "../../hooks/useShows.js";
 import useShowsStore from "../../store/useShowsStore.js";
@@ -16,6 +16,25 @@ ModuleRegistry.registerModules([AllCommunityModule]);
 
 const theme = themeAlpine.withPart(colorSchemeDark).withParams({
   cellHorizontalPadding: 8,
+
+  // Chrome
+  borderColor: "#3d2f8a", // --color-wyrd-dim
+  rowBorder: { color: "#1d1828", width: 1 }, // --color-dusk
+
+  // Header
+  headerBackgroundColor: "#110e1a", // --color-void
+  headerTextColor: "#f0e8d0", // --color-moonlight
+
+  // Rows
+  oddRowBackgroundColor: "#303030",
+  rowHoverColor: "#2e2648", // --color-stone
+  selectedRowBackgroundColor: "#4a3d78", // --color-wyrd-dim
+
+  // Text
+  foregroundColor: "#e3e3e3",
+
+  // Icons
+  iconColor: "#e3e3e3",
 });
 
 const Grid = () => {
@@ -24,6 +43,21 @@ const Grid = () => {
   const navigate = useNavigate();
   const { data: shows, isLoading, isError } = useShows();
   const statusMessage = useShowsStore((s) => s.statusMessage);
+  const [upcomingOnly, setUpcomingOnly] = useState(true);
+  const isExternalFilterPresent = useCallback(() => upcomingOnly, [upcomingOnly]);
+  const setIsSelectedShowVisible = useShowsStore((s) => s.setIsSelectedShowVisible);
+
+  const doesExternalFilterPass = useCallback(
+    (node) => {
+      if (!upcomingOnly) return true;
+      const date = node.data?.date;
+      if (!date) return false;
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      return new Date(date) >= today;
+    },
+    [upcomingOnly]
+  );
 
   const openFolder = (folderId) => {
     const url = `https://drive.google.com/drive/folders/${folderId}`;
@@ -40,7 +74,22 @@ const Grid = () => {
     return dateString.slice(0, 10);
   };
 
+  const selectedShow = useShowsStore((s) => s.selectedShow);
+  const setSelectedShow = useShowsStore((s) => s.setSelectedShow);
+
+  const onFilterChanged = useCallback(() => {
+    if (!selectedShow) return;
+    const visibleIds = [];
+    gridRef.current.api.forEachNodeAfterFilter((node) => {
+      visibleIds.push(node.data?.googleFolderId);
+    });
+    setIsSelectedShowVisible(visibleIds.includes(selectedShow.googleFolderId));
+  }, [selectedShow, setIsSelectedShowVisible]);
+
   const handleCellClick = (e) => {
+    setSelectedShow(e.data);
+    setIsSelectedShowVisible(true);
+
     const field = e.colDef?.field || "unknown";
     const isFolder = field === "folder";
     const isCopyDateAndArtistLink = field === "copyDateAndArtistLink";
@@ -88,6 +137,7 @@ const Grid = () => {
         }),
       ]);
     } else if (isValidField) {
+      setSelectedShow(e.data);
       googleFolderId
         ? routeToShow(googleFolderId)
         : console.warn(`No URL found for "${artist}" on ${date}`);
@@ -119,6 +169,10 @@ const Grid = () => {
     return () => window.removeEventListener("keydown", handleKeyDown, { capture: true });
   }, []);
 
+  useEffect(() => {
+    gridRef.current?.api?.onFilterChanged();
+  }, [upcomingOnly]);
+
   const onFilterInput = useCallback((e) => {
     gridRef.current.api.setGridOption("quickFilterText", e.target.value);
   }, []);
@@ -130,17 +184,31 @@ const Grid = () => {
 
   return (
     <div className={styles.ravenGridContainer}>
-      <div>
+      <div className={styles.filterBar}>
+        <label className={styles.upcomingFilter}>
+          Upcoming Only:
+          <input
+            type="checkbox"
+            checked={upcomingOnly}
+            onChange={(e) => setUpcomingOnly(e.target.checked)}
+            onKeyDown={(e) => {
+              if (e.key === "/") {
+                e.preventDefault();
+                filterInputRef.current?.focus();
+                filterInputRef.current?.select();
+              }
+            }}
+          />
+        </label>
         <input
           ref={filterInputRef}
           name="raven-grid-filter"
           type="search"
-          placeholder='Filter… (press "/" to focus)'
+          placeholder='(press "/" to filter)'
           onChange={onFilterInput}
           className={styles.filterInput}
         />
       </div>
-
       <div className={styles.ravenGrid} style={{ height: "100%" }}>
         <AgGridReact
           ref={gridRef}
@@ -153,10 +221,13 @@ const Grid = () => {
           defaultColDef={{ resizable: false, suppressMovable: true }}
           suppressColumnMoveAnimation={true}
           animateRows={false}
+          isExternalFilterPresent={isExternalFilterPresent}
+          doesExternalFilterPass={doesExternalFilterPass}
           onCellClicked={handleCellClick}
+          rowSelection={{ mode: "singleRow", enableClickSelection: true, checkboxes: false }}
+          onFilterChanged={onFilterChanged}
         />
       </div>
-
       <div className={styles.gridFooter} data-visible={!!statusMessage}>
         <span className={styles.rowCount}>{totalShows} shows</span>
         <span className={styles.statusMessage} data-type={statusMessage?.type ?? "info"}>
