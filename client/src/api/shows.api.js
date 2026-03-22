@@ -30,3 +30,13 @@ export const createShowFolder = async ({ artist, date, multipleShows }) => {
   });
   return data;
 };
+
+export const createSettlementWorkbook = async ({ googleFolderId }) => {
+  const { data } = await apiClient.post("/drive/settlement-workbook", { googleFolderId });
+  return data;
+};
+
+export const createMarketingAssetsFolder = async ({ googleFolderId }) => {
+  const { data } = await apiClient.post("/drive/marketing-assets-folder", { googleFolderId });
+  return data;
+};

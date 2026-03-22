@@ -1,6 +1,8 @@
 import * as NavigationMenu from "@radix-ui/react-navigation-menu";
 import { useEffect, useRef, useState } from "react";
 import { NavLink } from "react-router-dom";
+import { useCreateMarketingAssetsFolder } from "../../hooks/useCreateMarketingAssetsFolder.js";
+import { useCreateSettlementWorkbook } from "../../hooks/useCreateSettlementWorkbook.js";
 import { useSyncShows } from "../../hooks/useSyncShows.js";
 import useShowsStore from "../../store/useShowsStore.js";
 import CreateShowModal from "../CreateShowModal/CreateShowModal.jsx";
@@ -8,6 +10,9 @@ import styles from "./Nav.module.css";
 
 const Nav = () => {
   const { mutate: sync } = useSyncShows();
+  const { mutate: createWorkbook } = useCreateSettlementWorkbook();
+  const { mutate: createMarketingAssetsFolder } = useCreateMarketingAssetsFolder();
+  const selectedShow = useShowsStore((s) => s.selectedShow);
   const [createShowOpen, setCreateShowOpen] = useState(false);
   const isSelectedShowVisible = useShowsStore((s) => s.isSelectedShowVisible);
   const gridWidth = useShowsStore((s) => s.gridWidth);
@@ -61,10 +66,24 @@ const Nav = () => {
               <NavigationMenu.Content className={styles.navContent}>
                 <ul className={styles.navDropdownList}>
                   <li>
-                    <button className={styles.navDropdownButton}>Create Settlement Workbook</button>
+                    <button
+                      className={styles.navDropdownButton}
+                      onClick={() =>
+                        createWorkbook({ googleFolderId: selectedShow?.googleFolderId })
+                      }
+                    >
+                      Create Settlement Workbook
+                    </button>
                   </li>
                   <li>
-                    <button className={styles.navDropdownButton}>
+                    <button
+                      className={styles.navDropdownButton}
+                      onClick={() =>
+                        createMarketingAssetsFolder({
+                          googleFolderId: selectedShow?.googleFolderId,
+                        })
+                      }
+                    >
                       Create Marketing Assets Folder
                     </button>
                   </li>

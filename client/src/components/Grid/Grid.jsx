@@ -140,8 +140,11 @@ const Grid = () => {
     } else if (isValidField) {
       setSelectedShow(e.data);
       if (googleFolderId) {
-        setClientAreaLoading(true);
-        routeToShow(googleFolderId);
+        const currentShowId = window.location.pathname.split("/")[1];
+        if (currentShowId !== googleFolderId) {
+          setClientAreaLoading(true);
+          routeToShow(googleFolderId);
+        }
       } else {
         console.warn(`No URL found for "${artist}" on ${date}`);
       }

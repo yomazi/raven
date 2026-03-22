@@ -67,6 +67,28 @@ class DriveController {
       res.status(500).json({ success: false, error: err.message });
     }
   }
+
+  static async createSettlementWorkbook(req, res) {
+    try {
+      const { googleFolderId } = req.body;
+      const result = await DriveService.createSettlementWorkbook({ googleFolderId });
+      res.json({ success: true, ...result });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ success: false, error: err.message });
+    }
+  }
+
+  static async createMarketingAssetsFolder(req, res) {
+    try {
+      const { googleFolderId } = req.body;
+      const result = await DriveService.createMarketingAssetsFolder({ googleFolderId });
+      res.json({ success: true, ...result });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ success: false, error: err.message });
+    }
+  }
 }
 
 export default DriveController;

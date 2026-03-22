@@ -1,3 +1,4 @@
+import log from "../logging/log.js";
 import ShowsRepository from "./shows.repository.js";
 
 class ShowsService {
@@ -41,6 +42,10 @@ class ShowsService {
 
   static async getByGoogleFolderId(googleFolderId) {
     return ShowsRepository.findByGoogleFolderId(googleFolderId);
+  }
+
+  static async updateDriveAssets(googleFolderId, driveUpdate) {
+    return ShowsRepository.updateDriveAssets(googleFolderId, driveUpdate);
   }
 }
 

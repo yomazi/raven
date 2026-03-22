@@ -43,15 +43,15 @@ function Livestream({ showFolderId }) {
 export default function ClientArea() {
   const { showId } = useParams();
   const isDefault = showId === "default";
-  const { data: show, isError, error } = useShowById(showId, { retry: false });
+  const { data: show, isLoading, isError, error } = useShowById(showId, { retry: false });
   const navigate = useNavigate();
   const setClientAreaLoading = useShowsStore((s) => s.setClientAreaLoading);
 
   useEffect(() => {
-    if (show || isError || isDefault) {
+    if (show || isError || isDefault || !isLoading) {
       setClientAreaLoading(false);
     }
-  }, [show, isError, isDefault, setClientAreaLoading]);
+  }, [show, isLoading, isError, isDefault, setClientAreaLoading]);
 
   if (!showId) {
     return <Navigate to={`/default/`} replace />;

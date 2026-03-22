@@ -3,7 +3,7 @@ import { blue, bold, green, red, yellow } from "colorette";
 import { google } from "googleapis";
 import { Readable } from "stream";
 import AuthService from "../auth/auth.service.js";
-import { PROGRAMMING_DRIVE } from "../utilities/constants.js";
+import { ProgrammingDrive } from "../utilities/constants.js";
 
 const PRODUCTION_FOLDER_REGEX = /^(\d{1,2}-\d{1,2}-\d{2,4})\s+(.+?)(\s+\(multiple shows\))?$/i;
 const YEAR_FOLDER_REGEX = /^(\d{4})\s+Program$/;
@@ -197,7 +197,7 @@ class DriveRepository {
     // Find year folder e.g. "2026 Program"
     const yearFolder = await DriveRepository.#findFolderByPrefix(
       drive,
-      PROGRAMMING_DRIVE.PERFORMANCE_CONTRACTS_ROOT_FOLDER_ID,
+      ProgrammingDrive.FolderIds.PERFORMANCE_CONTRACTS_ROOT,
       `${year} Program`
     );
 
@@ -237,6 +237,87 @@ class DriveRepository {
       artist: artist.trim(),
       multipleShows,
       unparsed: false,
+    };
+  }
+
+  static async findSheetsInFolder({ folderId }) {
+    const drive = await DriveRepository.#getDriveClient();
+
+    const response = await drive.files.list({
+      q: `'${folderId}' in parents and mimeType = 'application/vnd.google-apps.spreadsheet' and trashed = false`,
+      fields: "files(id, name)",
+      supportsAllDrives: true,
+      includeItemsFromAllDrives: true,
+    });
+
+    return response.data.files ?? [];
+  }
+
+  static async createSettlementWorkbook({ folderId, artist, date, multipleShows }) {
+    const drive = await DriveRepository.#getDriveClient();
+
+    const yy = String(date.getFullYear()).slice(-2);
+    const mm = String(date.getMonth() + 1).padStart(2, "0");
+    const dd = String(date.getDate()).padStart(2, "0");
+    const multipleShowsToken = multipleShows ? " (multiple shows)" : "";
+    const name = `${yy}${mm}${dd} ${artist.trim()}${multipleShowsToken} Settlement Workbook`;
+
+    const response = await drive.files.copy({
+      fileId: ProgrammingDrive.SpreadsheetIds.SETTLEMENT_WORKBOOK_TEMPLATE,
+      requestBody: {
+        name,
+        parents: [folderId],
+      },
+      fields: "id, name, webViewLink",
+      supportsAllDrives: true,
+    });
+
+    return {
+      id: response.data.id,
+      name: response.data.name,
+      webViewLink: response.data.webViewLink,
+    };
+  }
+
+  static async createMarketingAssetsFolder({ folderId, artist, date, multipleShows }) {
+    const drive = await DriveRepository.#getDriveClient();
+
+    const mm = String(date.getMonth() + 1).padStart(2, "0");
+    const dd = String(date.getDate()).padStart(2, "0");
+    const yy = String(date.getFullYear()).slice(-2);
+    const multipleShowsToken = multipleShows ? " (multiple shows)" : "";
+    const docName = `${mm}-${dd}-${yy} ${artist.trim()}${multipleShowsToken}: marketing asset info`;
+
+    // 1. Create the Marketing Assets subfolder
+    const folderResponse = await drive.files.create({
+      requestBody: {
+        name: "Marketing Assets",
+        mimeType: "application/vnd.google-apps.folder",
+        parents: [folderId],
+      },
+      fields: "id, name",
+      supportsAllDrives: true,
+    });
+
+    const marketingAssetsFolderId = folderResponse.data.id;
+
+    // 2. Copy the template doc into the subfolder
+    const docResponse = await drive.files.copy({
+      fileId: ProgrammingDrive.DocumentIds.MARKETING_ASSETS_TEMPLATE,
+      requestBody: {
+        name: docName,
+        parents: [marketingAssetsFolderId],
+      },
+      fields: "id, name, webViewLink",
+      supportsAllDrives: true,
+    });
+
+    return {
+      folderId: marketingAssetsFolderId,
+      folderName: "Marketing Assets",
+      docId: docResponse.data.id,
+      docName: docResponse.data.name,
+      docWebViewLink: docResponse.data.webViewLink,
     };
   }
 }

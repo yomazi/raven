@@ -34,6 +34,20 @@ class DriveSchemas {
       multipleShows: Joi.boolean().default(false),
     }),
   };
+
+  static createSettlementWorkbook = {
+    headers: authHeaderSchema,
+    body: Joi.object({
+      googleFolderId: Joi.string().required(),
+    }),
+  };
+
+  static createMarketingAssetsFolder = {
+    headers: authHeaderSchema,
+    body: Joi.object({
+      googleFolderId: Joi.string().required(),
+    }),
+  };
 }
 
 export default DriveSchemas;

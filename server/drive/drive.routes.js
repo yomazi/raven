@@ -39,4 +39,18 @@ router.post(
   Controller.createShowFolder
 );
 
+router.post(
+  "/drive/settlement-workbook",
+  validate(Schemas.createSettlementWorkbook),
+  validateApiToken,
+  Controller.createSettlementWorkbook
+);
+
+router.post(
+  "/drive/marketing-assets-folder",
+  validate(Schemas.createMarketingAssetsFolder),
+  validateApiToken,
+  Controller.createMarketingAssetsFolder
+);
+
 export default router;

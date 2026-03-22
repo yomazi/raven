@@ -35,7 +35,13 @@ class ShowsRepository {
   }
 
   static async findByGoogleFolderId(googleFolderId) {
-    return Show.findOne({ googleFolderId, deleted: { $ne: true } });
+    const result = await Show.findOne({ googleFolderId, deleted: { $ne: true } });
+
+    return result;
+  }
+
+  static async updateDriveAssets(googleFolderId, driveUpdate) {
+    return Show.findOneAndUpdate({ googleFolderId }, { $set: driveUpdate }, { new: true });
   }
 }
 

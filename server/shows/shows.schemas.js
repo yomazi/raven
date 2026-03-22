@@ -1,3 +1,4 @@
+import Joi from "joi";
 import authHeaderSchema from "../auth/auth.header.schema.js";
 
 class ShowsSchemas {
@@ -7,6 +8,9 @@ class ShowsSchemas {
 
   static getById = {
     headers: authHeaderSchema,
+    params: Joi.object({
+      id: Joi.string().required(),
+    }),
   };
 }
 
