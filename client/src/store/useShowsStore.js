@@ -25,6 +25,9 @@ const useShowsStore = create((set) => ({
 
   isClientAreaLoading: false,
   setClientAreaLoading: (val) => set({ isClientAreaLoading: val }),
+
+  gridWidth: 750,
+  setGridWidth: (width) => set({ gridWidth: width }),
 }));
 
 export default useShowsStore;

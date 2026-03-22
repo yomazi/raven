@@ -35,6 +35,11 @@
     background-color 0.15s;
 }
 
+.leftNavItems {
+  display: flex;
+  flex-shrink: 0;
+}
+
 .navLink[aria-disabled="true"],
 .navTrigger:disabled {
   color: var(--color-wyrd);
@@ -47,6 +52,10 @@
   height: 1px;
   background-color: color(srgb 1 1 1 / 0.08);
   margin: 4px 8px;
+}
+
+.navSpacer {
+  flex-shrink: 0;
 }
 
 .navLink:hover,
