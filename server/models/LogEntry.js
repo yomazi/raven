@@ -9,7 +9,7 @@ const LogEntrySchema = new mongoose.Schema(
     detail: { type: mongoose.Schema.Types.Mixed },
     error: { type: String },
   },
-  { collection: "logs" }
+  { collection: "Logs" }
 );
 
 const LogEntry = mongoose.model("LogEntry", LogEntrySchema);
