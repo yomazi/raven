@@ -10,7 +10,6 @@
   display: flex;
   align-items: center;
   border-left: 1px solid var(--color-wyrd-dim);
-  border-right: 1px solid var(--color-wyrd-dim);
 }
 
 .filterInput {
@@ -67,20 +66,6 @@
   color: var(--color-moss);
 }
 
-/*
-.filterInput {
-  width: 100%;
-  padding: 0.4rem 1rem;
-  font-size: 0.9rem;
-  background-color: var(--color-void);
-  border-left: 1px solid var(--color-wyrd-dim);
-  border-right: 1px solid var(--color-wyrd-dim);
-  border-top: none;
-  border-bottom: none;
-  box-sizing: border-box;
-}
-
-*/
 .ravenGrid {
   flex: 1;
   height: 100%;
@@ -215,6 +200,10 @@
 }
 
 /* AG Grid style overrides */
+:global(.ag-root-wrapper) {
+  border-right: none;
+}
+
 :global(.ag-cell-focus:not(.ag-cell-range-selected):focus-within) {
   border-color: transparent;
 }
