@@ -13,8 +13,13 @@ export const syncShows = async (fromDate = null) => {
 };
 
 export const fetchShowById = async (googleFolderId) => {
-  const { data } = await apiClient.get(`/shows/${googleFolderId}`);
-  return data.show;
+  try {
+    const response = await apiClient.get(`/shows/${googleFolderId}`);
+    return response.data.show;
+  } catch (err) {
+    const status = err.response?.status;
+    throw new Error(status === 404 ? "not found." : `(${status}).`);
+  }
 };
 
 export const createShowFolder = async ({ artist, date, multipleShows }) => {

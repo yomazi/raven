@@ -46,6 +46,7 @@ const Grid = () => {
   const [upcomingOnly, setUpcomingOnly] = useState(true);
   const isExternalFilterPresent = useCallback(() => upcomingOnly, [upcomingOnly]);
   const setIsSelectedShowVisible = useShowsStore((s) => s.setIsSelectedShowVisible);
+  const setClientAreaLoading = useShowsStore((s) => s.setClientAreaLoading);
 
   const doesExternalFilterPass = useCallback(
     (node) => {
@@ -138,9 +139,12 @@ const Grid = () => {
       ]);
     } else if (isValidField) {
       setSelectedShow(e.data);
-      googleFolderId
-        ? routeToShow(googleFolderId)
-        : console.warn(`No URL found for "${artist}" on ${date}`);
+      if (googleFolderId) {
+        setClientAreaLoading(true);
+        routeToShow(googleFolderId);
+      } else {
+        console.warn(`No URL found for "${artist}" on ${date}`);
+      }
     }
   };
 

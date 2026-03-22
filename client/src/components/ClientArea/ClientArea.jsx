@@ -1,6 +1,8 @@
 // ClientArea.jsx
+import { useEffect } from "react";
 import { Navigate, Route, Routes, useNavigate, useParams } from "react-router-dom";
 import { useShowById } from "../../hooks/useShowById.js";
+import useShowsStore from "../../store/useShowsStore.js";
 import Banner from "./Banner/Banner.jsx";
 import styles from "./ClientArea.module.css";
 import Dragonfly from "./Dragonfly/Dragonfly.jsx";
@@ -41,15 +43,19 @@ function Livestream({ showFolderId }) {
 export default function ClientArea() {
   const { showId } = useParams();
   const isDefault = showId === "default";
-  const { data: show, isLoading, isError } = useShowById(showId);
+  const { data: show, isError, error } = useShowById(showId, { retry: false });
   const navigate = useNavigate();
+  const setClientAreaLoading = useShowsStore((s) => s.setClientAreaLoading);
+
+  useEffect(() => {
+    if (show || isError || isDefault) {
+      setClientAreaLoading(false);
+    }
+  }, [show, isError, isDefault, setClientAreaLoading]);
 
   if (!showId) {
     return <Navigate to={`/default/`} replace />;
   }
-
-  if (isLoading) return <div>Loading show...</div>;
-  if (isError) return <div>Error loading show.</div>;
 
   // Button click handler to navigate to a specific action
   const goToAction = (action) => {
@@ -58,20 +64,28 @@ export default function ClientArea() {
 
   return (
     <div className={styles.clientArea}>
-      {!isDefault && <Banner show={show} />}
-      {/* Header buttons */}
-      <div style={{ marginBottom: 16 }}>
-        <button onClick={() => goToAction("show-properties")} style={{ marginRight: 8 }}>
-          Show Properties
-        </button>
-        <button onClick={() => goToAction("build-show")} style={{ marginRight: 8 }}>
-          Build Show
-        </button>
-        <button onClick={() => goToAction("generate-email")} style={{ marginRight: 8 }}>
-          Generate Email
-        </button>
-        <button onClick={() => goToAction("livestream")}>Livestream</button>
-      </div>
+      {isError ? (
+        <div className={styles.errorMessage}>
+          Couldn't load that show: {error?.message ?? "unknown error."}
+        </div>
+      ) : (
+        <>
+          {show && <Banner show={show} />}
+          {/* Header buttons */}
+          <div style={{ marginBottom: 16 }}>
+            <button onClick={() => goToAction("show-properties")} style={{ marginRight: 8 }}>
+              Show Properties
+            </button>
+            <button onClick={() => goToAction("build-show")} style={{ marginRight: 8 }}>
+              Build Show
+            </button>
+            <button onClick={() => goToAction("generate-email")} style={{ marginRight: 8 }}>
+              Generate Email
+            </button>
+            <button onClick={() => goToAction("livestream")}>Livestream</button>
+          </div>{" "}
+        </>
+      )}
 
       {/* Dynamic client content */}
       <div>

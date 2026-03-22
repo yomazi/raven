@@ -22,6 +22,9 @@ const useShowsStore = create((set) => ({
 
   isSelectedShowVisible: false,
   setIsSelectedShowVisible: (val) => set({ isSelectedShowVisible: val }),
+
+  isClientAreaLoading: false,
+  setClientAreaLoading: (val) => set({ isClientAreaLoading: val }),
 }));
 
 export default useShowsStore;

@@ -18,11 +18,18 @@
   pointer-events: all;
 }
 
+.backdrop[data-visible="true"] .content {
+  opacity: 1;
+}
+
 .content {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 24px;
+  transition: opacity 0.2s ease;
+  transition-delay: 150ms;
+  opacity: 0;
 }
 
 .statusText {
