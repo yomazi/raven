@@ -53,8 +53,7 @@ registerAll();
 const Overlay = () => {
   const syncPhase = useShowsStore((s) => s.syncPhase);
   const statusText = useShowsStore((s) => s.statusText);
-  const isClientAreaLoading = useShowsStore((s) => s.isClientAreaLoading);
-  const isVisible = syncPhase !== null || isClientAreaLoading;
+  const isVisible = syncPhase !== null;
 
   // Pick a random loader once per mount, not on every render
   const [loader, setLoader] = useState(() => LOADERS[Math.floor(Math.random() * LOADERS.length)]);

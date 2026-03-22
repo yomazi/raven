@@ -46,7 +46,6 @@ const Grid = () => {
   const [upcomingOnly, setUpcomingOnly] = useState(true);
   const isExternalFilterPresent = useCallback(() => upcomingOnly, [upcomingOnly]);
   const setIsSelectedShowVisible = useShowsStore((s) => s.setIsSelectedShowVisible);
-  const setClientAreaLoading = useShowsStore((s) => s.setClientAreaLoading);
 
   const doesExternalFilterPass = useCallback(
     (node) => {
@@ -87,9 +86,8 @@ const Grid = () => {
     setIsSelectedShowVisible(visibleIds.includes(selectedShow.googleFolderId));
   }, [selectedShow, setIsSelectedShowVisible]);
 
-  const handleCellClick = (e) => {
-    setSelectedShow(e.data);
-    setIsSelectedShowVisible(true);
+  const handleCellClicked = (e) => {
+    if (e.event.button !== 0) return;
 
     const field = e.colDef?.field || "unknown";
     const isFolder = field === "folder";
@@ -139,10 +137,10 @@ const Grid = () => {
       ]);
     } else if (isValidField) {
       setSelectedShow(e.data);
+      setIsSelectedShowVisible(true);
       if (googleFolderId) {
         const currentShowId = window.location.pathname.split("/")[1];
         if (currentShowId !== googleFolderId) {
-          setClientAreaLoading(true);
           routeToShow(googleFolderId);
         }
       } else {
@@ -230,7 +228,7 @@ const Grid = () => {
           animateRows={false}
           isExternalFilterPresent={isExternalFilterPresent}
           doesExternalFilterPass={doesExternalFilterPass}
-          onCellClicked={handleCellClick}
+          onCellClicked={handleCellClicked}
           rowSelection={{ mode: "singleRow", enableClickSelection: true, checkboxes: false }}
           onFilterChanged={onFilterChanged}
         />
