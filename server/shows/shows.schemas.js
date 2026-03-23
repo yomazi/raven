@@ -12,6 +12,14 @@ class ShowsSchemas {
       id: Joi.string().required(),
     }),
   };
+
+  static patch = {
+    headers: authHeaderSchema,
+    params: Joi.object({
+      id: Joi.string().required(),
+    }),
+    body: Joi.object().min(1), // any non-empty object is valid — validation lives in service
+  };
 }
 
 export default ShowsSchemas;

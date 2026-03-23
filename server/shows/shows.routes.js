@@ -8,5 +8,6 @@ const router = express.Router();
 
 router.get("/shows", validate(Schemas.getAll), validateApiToken, Controller.getAll);
 router.get("/shows/:id", validate(Schemas.getById), validateApiToken, Controller.getById);
+router.patch("/shows/:id", validate(Schemas.patch), validateApiToken, Controller.patch);
 
 export default router;

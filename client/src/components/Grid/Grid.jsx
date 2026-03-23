@@ -64,9 +64,9 @@ const Grid = () => {
     window.open(url, "_blank", "noopener,noreferrer");
   };
 
-  const routeToShow = (id) => {
+  const routeToShow = (showFolderId) => {
     const currentAction = window.location.pathname.split("/").slice(2).join("/");
-    navigate(`/${id}/${currentAction}`);
+    navigate(`/${showFolderId}/${currentAction}`);
   };
 
   const formatShortDate = (dateString) => {
@@ -138,6 +138,7 @@ const Grid = () => {
     } else if (isValidField) {
       setSelectedShow(e.data);
       setIsSelectedShowVisible(true);
+
       if (googleFolderId) {
         const currentShowId = window.location.pathname.split("/")[1];
         if (currentShowId !== googleFolderId) {

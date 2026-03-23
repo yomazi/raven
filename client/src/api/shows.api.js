@@ -40,3 +40,8 @@ export const createMarketingAssetsFolder = async ({ googleFolderId }) => {
   const { data } = await apiClient.post("/drive/marketing-assets-folder", { googleFolderId });
   return data;
 };
+
+export const patchShow = async (googleFolderId, updates) => {
+  const { data } = await apiClient.patch(`/shows/${googleFolderId}`, updates);
+  return data.show;
+};

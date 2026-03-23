@@ -99,9 +99,15 @@ const Nav = () => {
           <div className={styles.navSpacer} style={{ width: spacerWidth }} />
 
           <NavigationMenu.Item className={styles.navItem}>
-            <NavigationMenu.Trigger className={styles.navTrigger} disabled={!isSelectedShowVisible}>
-              Test
-            </NavigationMenu.Trigger>
+            <NavigationMenu.Link asChild>
+              <NavLink
+                to={`/${selectedShow?.googleFolderId}/properties`}
+                className={styles.navLink}
+                aria-disabled={!isSelectedShowVisible}
+              >
+                Properties
+              </NavLink>
+            </NavigationMenu.Link>
           </NavigationMenu.Item>
         </NavigationMenu.List>
       </NavigationMenu.Root>

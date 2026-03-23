@@ -71,6 +71,28 @@
   height: 100%;
 }
 
+.ravenGrid :global(.ag-body-vertical-scroll) {
+  position: absolute !important;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.ravenGrid :global(.ag-body-vertical-scroll-viewport) {
+  pointer-events: all;
+}
+
+.ravenGrid :global(.ag-body-vertical-scroll-viewport)::-webkit-scrollbar-thumb {
+  background: color(srgb 0.7 0.7 0.7 / 0.4);
+  border-radius: 3px;
+}
+
+.ravenGrid :global(.ag-body-vertical-scroll-viewport) {
+  scrollbar-color: color(srgb 0.7 0.7 0.7 / 0.4) transparent;
+}
+
 /* folder icons */
 .folderLinkCell {
   position: relative;

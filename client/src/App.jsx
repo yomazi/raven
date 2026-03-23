@@ -14,7 +14,7 @@ function App() {
           <Route path="/" element={<Navigate to={`/default/`} replace />} />
 
           {/* All show-specific routes */}
-          <Route path=":showId/*" element={<AppLayout />} />
+          <Route path=":showFolderId/*" element={<AppLayout />} />
         </Routes>
       </BrowserRouter>
     </div>

@@ -24,6 +24,19 @@ class ShowsController {
       res.status(500).json({ success: false, error: err.message });
     }
   }
+
+  static async patch(req, res) {
+    try {
+      const { id } = req.params;
+      const updates = req.body;
+      const show = await ShowsService.patch(id, updates);
+      if (!show) return res.status(404).json({ success: false, error: "Show not found" });
+      res.json({ success: true, show });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ success: false, error: err.message });
+    }
+  }
 }
 
 export default ShowsController;

@@ -14,7 +14,7 @@
   transform: translate(-50%, -50%);
   z-index: 201;
   background: var(--color-stone);
-  border: 1px solid color(srgb 1 1 1 / 0.12);
+  border: 1px solid var(--color-stone);
   border-radius: 8px;
   padding: 28px 32px;
   width: 400px;
@@ -51,7 +51,7 @@
 
 .input {
   background: var(--color-void);
-  border: 1px solid color(srgb 1 1 1 / 0.12);
+  border: 1px solid var(--color-stone);
   border-radius: 4px;
   padding: 8px 10px;
   font-size: 14px;
@@ -88,7 +88,7 @@
   padding: 8px 16px;
   font-size: 14px;
   border-radius: 4px;
-  border: 1px solid color(srgb 1 1 1 / 0.15);
+  border: 1px solid var(--color-stone);
   background: none;
   color: var(--color-moonlight);
   opacity: 0.7;

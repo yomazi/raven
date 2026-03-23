@@ -43,6 +43,34 @@ class ShowsRepository {
   static async updateDriveAssets(googleFolderId, driveUpdate) {
     return Show.findOneAndUpdate({ googleFolderId }, { $set: driveUpdate }, { new: true });
   }
+
+  static async patch(googleFolderId, updates) {
+    const { _id, __v, googleFolderId: _folderId, createdAt, ...safeUpdates } = updates;
+    const flatUpdates = ShowsRepository.#flatten(safeUpdates);
+
+    return Show.findOneAndUpdate(
+      { googleFolderId },
+      { $set: flatUpdates },
+      { new: true, runValidators: true }
+    );
+  }
+
+  static #flatten(obj, prefix = "", result = {}) {
+    for (const [key, value] of Object.entries(obj)) {
+      const path = prefix ? `${prefix}.${key}` : key;
+      if (
+        value !== null &&
+        typeof value === "object" &&
+        !Array.isArray(value) &&
+        !(value instanceof Date)
+      ) {
+        ShowsRepository.#flatten(value, path, result);
+      } else {
+        result[path] = value;
+      }
+    }
+    return result;
+  }
 }
 
 export default ShowsRepository;

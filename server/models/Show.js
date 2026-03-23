@@ -1,6 +1,63 @@
 import mongoose from "mongoose";
 
-const ShowSchema = new mongoose.Schema(
+const { Schema } = mongoose;
+
+// subdocument schemas
+const presaleSchema = new Schema(
+  {
+    name: { type: String, default: "Donor Presale" },
+    startDateTime: { type: Date },
+    endDateTime: { type: Date },
+  },
+  { _id: false }
+);
+
+const performanceSchema = new Schema(
+  {
+    date: { type: Date },
+    doorTime: { type: Date }, // our epoch date is 2001-01-01 - we use the time potion only
+    showTime: { type: Date }, // our epoch date is 2001-01-01 - we use the time potion only
+    hasLivestream: { type: Boolean, default: false },
+    performanceCode: { type: String },
+  },
+  { _id: false }
+);
+
+const embeddedVideoSchema = new Schema(
+  {
+    provider: { type: String, enum: ["YouTube", "Vimeo"], default: "YouTube" },
+    id: { type: String },
+  },
+  { _id: false }
+);
+
+const contactSchema = new Schema(
+  {
+    name: { type: String },
+    info: { type: String },
+  },
+  { _id: false }
+);
+
+const slidingScaleTierSchema = new Schema(
+  {
+    name: { type: String },
+    min: { type: Number },
+  },
+  { _id: false }
+);
+
+const warningSchema = new Schema(
+  {
+    code: { type: String, required: true },
+    message: { type: String, required: true },
+    sectionAnchor: { type: String },
+  },
+  { _id: false }
+);
+
+// main "Show" schema
+const ShowSchema = new Schema(
   {
     googleFolderId: { type: String, required: true, unique: true },
     artist: { type: String, required: true },
@@ -9,6 +66,17 @@ const ShowSchema = new mongoose.Schema(
     unparsed: { type: Boolean, default: false },
     deleted: { type: Boolean, default: false },
 
+    // billing
+    billing: {
+      main: { type: String },
+      sub1: { type: String },
+      sub2: { type: String },
+    },
+
+    // contact(s)
+    contact: [contactSchema],
+
+    // drive
     drive: {
       folderIds: {
         marketingAssets: { type: String, default: null },
@@ -18,15 +86,142 @@ const ShowSchema = new mongoose.Schema(
         preExistingSheets: [{ id: String, name: String }],
       },
       documentIds: {
-        contract: { type: String, default: null },
         marketingAssetsInfo: { type: String, default: null },
       },
     },
 
-    meta: { type: mongoose.Schema.Types.Mixed, default: {} },
+    // marketing assets
+    marketingAssets: {
+      urlArtistWebsite: { type: String },
+      urlArtistFacebook: { type: String },
+      urlArtistInstagram: { type: String },
+      embeddedVideo: [embeddedVideoSchema],
+    },
+
+    // set length
+    misc: {
+      setLength: { type: String },
+      other: { type: String },
+    },
+
+    // offer
+    offer: {
+      date: { type: Date },
+      expiration: { type: Date },
+    },
+
+    // performances
+    performances: [performanceSchema],
+
+    // production
+    production: {
+      hospitality: {
+        hospitalityType: {
+          type: String,
+          enum: ["light", "normal", "heavy", "see rider", "none"],
+        },
+        totalBuyout: { type: Number },
+      },
+      meals: {
+        numPeople: { type: Number },
+        numDays: { type: Number },
+        dollarsPerPerson: { type: Number },
+        totalBuyout: { type: Number },
+      },
+      accommodations: {
+        numRooms: { type: Number },
+        numNights: { type: Number },
+        totalBuyout: { type: Number },
+      },
+      travel: {
+        totalBuyout: { type: Number },
+      },
+      backline: {
+        backlineType: {
+          type: String,
+          enum: ["no", "if needed", "yes", "in house", "buyout"],
+        },
+        totalBuyout: { type: Number },
+      },
+      merchCut: {
+        type: String,
+        enum: ["85% artist / 15% venue", "no merch commission"],
+        default: "no merch commission",
+      },
+      numGuestListComps: { type: Number },
+    },
+
+    // schedule
+    schedule: {
+      releaseAsap: { type: Boolean, default: false },
+      announceDateTime: { type: Date },
+      onSaleDateTime: { type: Date },
+      presales: [presaleSchema],
+    },
+
+    // terms
+    terms: {
+      main: {
+        guarantee: { type: Number },
+        backendType: {
+          type: String,
+          enum: ["plus", "vs", "none"],
+          default: "none",
+        },
+        percentage: { type: Number, default: 0 },
+        splitPoint: { type: Number, min: 0.01 },
+      },
+      livestream: {
+        hasLivestream: { type: Boolean, default: false },
+        ticketPrice: { type: Number },
+        guarantee: { type: Number },
+        backendType: {
+          type: String,
+          enum: ["plus", "vs", "none"],
+          default: "none",
+        },
+        percentage: { type: Number, default: 0 },
+        splitPoint: { type: Number, min: 0.01 },
+      },
+      educationalEvents: {
+        description: { type: String },
+      },
+    },
+
+    // ticketPrices
+    ticketPrices: {
+      ga: {
+        advance: { type: Number },
+        dos: { type: Number },
+      },
+      slidingScaleTiers: [slidingScaleTierSchema],
+      premium: {
+        advance: { type: Number },
+        dos: { type: Number },
+      },
+      vip: {
+        advance: { type: Number },
+        dos: { type: Number },
+      },
+      details: { type: String },
+    },
+
+    // validation
+    validation: {
+      warnings: [warningSchema],
+    },
   },
-  { timestamps: true }
+  {
+    timestamps: true,
+    collection: "Shows",
+  }
 );
 
+// virtuals
+ShowSchema.virtual("validation.hasWarnings").get(function () {
+  return (this.validation?.warnings?.length ?? 0) > 0;
+});
+
+// model
 const Show = mongoose.model("Show", ShowSchema, "Shows");
 export default Show;
