@@ -53,8 +53,8 @@ class DriveController {
   static async createShowFolder(req, res) {
     try {
       const { artist, date, multipleShows } = req.body;
-      const parsedDate = new Date(date);
-
+      const [year, month, day] = date.split("T")[0].split("-").map(Number);
+      const parsedDate = new Date(year, month - 1, day);
       const result = await DriveService.createShowFolder({
         artist,
         date: parsedDate,

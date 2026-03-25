@@ -96,7 +96,7 @@ class DriveService {
         id: workbook.id,
       });
 
-      // 6. Create marketing assets folder
+      // 5. Create marketing assets folder
       const marketingAssets = await DriveRepository.createMarketingAssetsFolder({
         folderId: show.driveId,
         artist: show.artist,
@@ -109,16 +109,11 @@ class DriveService {
         docName: marketingAssets.docName,
       });
 
-      // 7. Update drive assets with marketing folder IDs
-      await ShowsService.updateDriveAssets(show.driveId, {
-        ...driveUpdate,
-        "drive.folderIds.marketingAssets": marketingAssets.folderId,
-        "drive.documentIds.marketingAssetsInfo": marketingAssets.docId,
-      });
-
-      // 5. Store Drive assets on the show document
+      // 6. Store Drive assets on the show document
       const driveUpdate = {
         "drive.spreadsheetIds.settlementWorkbook": workbook.id,
+        "drive.folderIds.marketingAssets": marketingAssets.folderId,
+        "drive.documentIds.marketingAssetsInfo": marketingAssets.docId,
         ...(preExistingSheets.length > 0 && {
           "drive.spreadsheetIds.preExistingSheets": preExistingSheets.map((s) => ({
             id: s.id,

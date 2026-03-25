@@ -40,17 +40,17 @@ const Nav = () => {
               <NavigationMenu.Content className={styles.navContent}>
                 <ul className={styles.navDropdownList}>
                   <li>
-                    <button className={styles.navDropdownButton} onClick={() => sync()}>
-                      Sync from Drive
-                    </button>
-                  </li>
-                  <li className={styles.navSeparator} />
-                  <li>
                     <button
                       className={styles.navDropdownButton}
                       onClick={() => setCreateShowOpen(true)}
                     >
                       Create a New Show Folder
+                    </button>
+                  </li>
+                  <li className={styles.navSeparator} />
+                  <li>
+                    <button className={styles.navDropdownButton} onClick={() => sync()}>
+                      Sync from Drive
                     </button>
                   </li>
                 </ul>
