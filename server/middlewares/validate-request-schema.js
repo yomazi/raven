@@ -12,7 +12,11 @@ export const validate = (schemas) => (req, res, next) => {
           throw new createError.BadRequest(message);
         }
 
-        req[key] = value;
+        if (key === "body") {
+          req[key] = value;
+        } else {
+          Object.defineProperty(req, key, { value, writable: true, configurable: true });
+        }
       }
     });
 

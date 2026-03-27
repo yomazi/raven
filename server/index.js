@@ -19,6 +19,7 @@ import googleAuthRoutes from "./auth/google.auth.routes.js";
 import driveRoutes from "./drive/drive.routes.js";
 import gmailRoutes from "./gmail/gmail.routes.js";
 import showsRoutes from "./shows/shows.routes.js";
+import tasksRoutes from "./tasks/tasks.routes.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -40,6 +41,7 @@ app.use(routePrefix, authRoutes);
 app.use(routePrefix, driveRoutes);
 app.use(routePrefix, gmailRoutes);
 app.use(routePrefix, showsRoutes);
+app.use(routePrefix, tasksRoutes);
 
 // set up Vite middleware for dev (Raven is local-only)
 
