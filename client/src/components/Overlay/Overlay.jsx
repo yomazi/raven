@@ -54,7 +54,6 @@ const Overlay = () => {
   const statusText = useShowsStore((s) => s.statusText);
   const loaderIndex = useShowsStore((s) => s.loaderIndex);
   const isVisible = syncPhase !== null;
-
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
