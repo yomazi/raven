@@ -11,10 +11,12 @@ function App() {
       <BrowserRouter>
         <Routes>
           {/* Redirect root "/" to default show */}
-          <Route path="/" element={<Navigate to={`/default/`} replace />} />
+          <Route path="/" element={<Navigate to={`/shows/default/`} replace />} />
 
           {/* All show-specific routes */}
-          <Route path=":showFolderId/*" element={<AppLayout />} />
+          <Route path="/shows/:showFolderId/*" element={<AppLayout mode="events" />} />
+          <Route path="/tasks/*" element={<AppLayout mode="tasks" />} />
+          <Route path="/builds/*" element={<AppLayout mode="builds" />} />
         </Routes>
       </BrowserRouter>
     </div>

@@ -101,7 +101,7 @@ const Nav = () => {
           <NavigationMenu.Item className={styles.navItem}>
             <NavigationMenu.Link asChild>
               <NavLink
-                to={`/${selectedShow?.googleFolderId}/properties`}
+                to={`/shows/${selectedShow?.googleFolderId}/properties`}
                 className={styles.navLink}
                 aria-disabled={!isSelectedShowVisible}
               >

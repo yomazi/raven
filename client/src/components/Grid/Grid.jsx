@@ -65,8 +65,10 @@ const Grid = () => {
   };
 
   const routeToShow = (showFolderId) => {
-    const currentAction = window.location.pathname.split("/").slice(2).join("/");
-    navigate(`/${showFolderId}/${currentAction}`);
+    const currentAction = window.location.pathname.split("/").slice(3).join("/");
+    const url = `/shows/${showFolderId}/${currentAction}`;
+
+    navigate(url);
   };
 
   const formatShortDate = (dateString) => {

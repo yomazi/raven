@@ -11,7 +11,7 @@ export default function ClientArea() {
   const { data: show, isError, error } = useShowById(showFolderId, { retry: false });
 
   if (!showFolderId) {
-    return <Navigate to={`/default/`} replace />;
+    return <Navigate to={`/shows/default/`} replace />;
   }
 
   return (

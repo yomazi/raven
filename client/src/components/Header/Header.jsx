@@ -1,8 +1,9 @@
 import RgIcon from "../../assets/svg/rg.svg?react";
 import { useAuthStatus } from "../../hooks/useAuthStatus";
 import styles from "./Header.module.css";
+import Switcher from "./Switcher/Switcher";
 
-const Header = () => {
+const Header = ({ mode }) => {
   const { loggedIn, logout } = useAuthStatus();
 
   const handleLogin = () => {
@@ -17,6 +18,7 @@ const Header = () => {
         </div>
         <p className={styles.appTitle}>raven</p>
       </article>
+      <Switcher mode={mode} />
       <article className={styles.appControls}>
         {loggedIn ? (
           <button onClick={logout}>Logout</button>
