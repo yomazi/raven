@@ -1,5 +1,5 @@
-import SvgFolderClosed from "../../../assets/svg/folder_24dp_E3E3E3_FILL0_wght400_GRAD0_opsz24.svg?react";
-import SvgFolderOpen from "../../../assets/svg/folder_open_24dp_E3E3E3_FILL0_wght400_GRAD0_opsz24.svg?react";
+import SvgFolderClosed from "../../../../../assets/svg/folder_24dp_E3E3E3_FILL0_wght400_GRAD0_opsz24.svg?react";
+import SvgFolderOpen from "../../../../../assets/svg/folder_open_24dp_E3E3E3_FILL0_wght400_GRAD0_opsz24.svg?react";
 import styles from "./Banner.module.css";
 
 const formatDate = (dateString) => {

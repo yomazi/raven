@@ -1,15 +1,15 @@
-import BuildsContent from "../Content/BuildsContent";
-import EventsContent from "../Content/EventsContent";
-import TasksContent from "../Content/TasksContent";
+import Builds from "../Content/Builds/Builds";
+import Events from "../Content/Events/Events";
+import Tasks from "../Content/Tasks/Tasks";
 import Header from "../Header/Header";
 import Nav from "../Nav/Nav";
 import styles from "./AppLayout.module.css";
 
 const AppLayout = ({ mode }) => {
   const contentMap = {
-    events: <EventsContent />,
-    tasks: <TasksContent />,
-    builds: <BuildsContent />,
+    events: <Events />,
+    tasks: <Tasks />,
+    builds: <Builds />,
   };
 
   return (

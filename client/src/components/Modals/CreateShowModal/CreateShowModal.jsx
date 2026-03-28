@@ -1,6 +1,6 @@
 import * as Dialog from "@radix-ui/react-dialog";
 import { useState } from "react";
-import { useCreateShow } from "../../hooks/useCreateShow.js";
+import { useCreateShow } from "../../../hooks/useCreateShow.js";
 import styles from "./CreateShowModal.module.css";
 
 const today = () => new Date().toISOString().slice(0, 10);

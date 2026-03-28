@@ -1,10 +1,10 @@
 import { useCallback, useEffect, useRef } from "react";
-import useShowsStore from "../../store/useShowsStore.js";
-import ClientArea from "../ClientArea/ClientArea.jsx";
-import Grid from "../Grid/Grid.jsx";
-import styles from "./Content.module.css";
+import useShowsStore from "../../../store/useShowsStore.js";
+import styles from "../Content.module.css";
+import ClientArea from "./ClientArea/ClientArea.jsx";
+import Grid from "./Grid/Grid.jsx";
 
-const EventsContent = () => {
+const Events = () => {
   const gridWidth = useShowsStore((s) => s.gridWidth);
   const setGridWidth = useShowsStore((s) => s.setGridWidth);
   const gridWrapperRef = useRef(null);
@@ -57,4 +57,4 @@ const EventsContent = () => {
   );
 };
 
-export default EventsContent;
+export default Events;

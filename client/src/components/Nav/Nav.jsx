@@ -5,7 +5,7 @@ import { useCreateMarketingAssetsFolder } from "../../hooks/useCreateMarketingAs
 import { useCreateSettlementWorkbook } from "../../hooks/useCreateSettlementWorkbook.js";
 import { useSyncShows } from "../../hooks/useSyncShows.js";
 import useShowsStore from "../../store/useShowsStore.js";
-import CreateShowModal from "../CreateShowModal/CreateShowModal.jsx";
+import CreateShowModal from "../Modals/CreateShowModal/CreateShowModal.jsx";
 import styles from "./Nav.module.css";
 
 const Nav = () => {

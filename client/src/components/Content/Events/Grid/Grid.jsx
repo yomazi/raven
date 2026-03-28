@@ -7,8 +7,8 @@ import {
 import { AgGridReact } from "ag-grid-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useShows } from "../../hooks/useShows.js";
-import useShowsStore from "../../store/useShowsStore.js";
+import { useShows } from "../../../../hooks/useShows.js";
+import useShowsStore from "../../../../store/useShowsStore.js";
 import { columnDefs } from "./grid-definitions.js";
 import styles from "./Grid.module.css";
 

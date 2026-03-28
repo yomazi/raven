@@ -1,7 +1,7 @@
 // ClientArea.jsx
 import { Navigate, Route, Routes, useParams } from "react-router-dom";
-import { useShowById } from "../../hooks/useShowById.js";
-import ShowProperties from "../ShowProperties/ShowProperties.jsx";
+import { useShowById } from "../../../../hooks/useShowById.js";
+import ShowProperties from "../../../ShowProperties/ShowProperties.jsx";
 import Banner from "./Banner/Banner.jsx";
 import styles from "./ClientArea.module.css";
 import Dragonfly from "./Dragonfly/Dragonfly.jsx";

@@ -1,8 +1,8 @@
-import SvgCheckboxChecked from "../../assets/svg/check_box_24dp_E3E3E3_FILL0_wght400_GRAD0_opsz24.svg?react";
-import SvgCopyOneCell from "../../assets/svg/copy-one-cell.svg?react";
-import SvgCopyTwoCells from "../../assets/svg/copy-two-cells.svg?react";
-import SvgFolderClosed from "../../assets/svg/folder_24dp_E3E3E3_FILL0_wght400_GRAD0_opsz24.svg?react";
-import SvgFolderOpen from "../../assets/svg/folder_open_24dp_E3E3E3_FILL0_wght400_GRAD0_opsz24.svg?react";
+import SvgCheckboxChecked from "../../../../assets/svg/check_box_24dp_E3E3E3_FILL0_wght400_GRAD0_opsz24.svg?react";
+import SvgCopyOneCell from "../../../../assets/svg/copy-one-cell.svg?react";
+import SvgCopyTwoCells from "../../../../assets/svg/copy-two-cells.svg?react";
+import SvgFolderClosed from "../../../../assets/svg/folder_24dp_E3E3E3_FILL0_wght400_GRAD0_opsz24.svg?react";
+import SvgFolderOpen from "../../../../assets/svg/folder_open_24dp_E3E3E3_FILL0_wght400_GRAD0_opsz24.svg?react";
 import styles from "./Grid.module.css";
 
 export const FolderIconRenderer = () => {
