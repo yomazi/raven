@@ -38,40 +38,35 @@ const LOADERS = [
   { tag: "l-newtons-cradle", props: { size: 80, speed: 1.4 } },
 ];
 
-// Register all ldrs components once
-async function registerAll() {
-  const ldrs = await import("ldrs");
+// Module-level promise — registers all ldrs custom elements once,
+// shared across every render of this component.
+const ldrsReady = import("ldrs").then((ldrs) => {
   LOADERS.forEach(({ tag }) => {
     const fnName = tag.replace(/^l-/, "").replace(/-([a-z])/g, (_, c) => c.toUpperCase());
     if (typeof ldrs[fnName]?.register === "function") {
       ldrs[fnName].register();
     }
   });
-}
-registerAll();
+});
 
 const Overlay = () => {
   const syncPhase = useShowsStore((s) => s.syncPhase);
   const statusText = useShowsStore((s) => s.statusText);
+  const loaderIndex = useShowsStore((s) => s.loaderIndex);
   const isVisible = syncPhase !== null;
 
-  // Pick a random loader once per mount, not on every render
-  const [loader, setLoader] = useState(() => LOADERS[Math.floor(Math.random() * LOADERS.length)]);
+  const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    if (isVisible) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setLoader(LOADERS[Math.floor(Math.random() * LOADERS.length)]);
-    }
-    // deliberately no else branch — loader state never changes on close
-  }, [isVisible]);
+    ldrsReady.then(() => setReady(true));
+  }, []);
 
-  const { tag: Tag, props } = loader;
+  const { tag: Tag, props } = LOADERS[loaderIndex] ?? LOADERS[0];
 
   return (
     <div className={styles.backdrop} data-visible={isVisible} aria-hidden={!isVisible}>
       <div className={styles.content}>
-        <Tag {...props} color="var(--color-wyrd)" stroke="3" />
+        {ready && isVisible && <Tag {...props} color="var(--color-wyrd)" stroke="3" />}
         {statusText && <p className={styles.statusText}>{statusText}</p>}
       </div>
     </div>
