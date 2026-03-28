@@ -1,4 +1,4 @@
-import RgIcon from "../../assets/svg/rg.svg?react";
+import RgIcon from "@svg/rg.svg?react";
 import { useAuthStatus } from "../../hooks/useAuthStatus";
 import styles from "./Header.module.css";
 import Switcher from "./Switcher/Switcher";

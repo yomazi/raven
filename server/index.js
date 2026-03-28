@@ -11,6 +11,7 @@ import { createServer as createViteServer } from "vite";
 
 import { errorHandler } from "./middlewares/error-handler.js";
 import { normalizeAuthHeader } from "./middlewares/normalize-auth-header.js";
+import { VITE_CONFIG_FILE } from "./utilities/constants.js";
 import { connectDb } from "./utilities/db.js";
 
 // routes
@@ -50,6 +51,7 @@ const PORT = process.env.PORT || 3001;
 
 const vite = await createViteServer({
   server: { middlewareMode: true, hmr: { server: httpServer, port: 443, protocol: "wss" } },
+  configFile: VITE_CONFIG_FILE,
   root: path.resolve(__dirname, "../client"), // React project root
 });
 app.use(vite.middlewares);

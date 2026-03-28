@@ -1,7 +1,7 @@
+import ChecklistIcon from "@svg/checklist_google.svg?react";
+import ConstructionIcon from "@svg/construction_google.svg?react";
+import EventIcon from "@svg/events_google.svg?react";
 import { NavLink } from "react-router-dom";
-import ChecklistIcon from "../../../assets/svg/checklist_24dp_E3E3E3_FILL0_wght400_GRAD0_opsz24.svg?react";
-import EventIcon from "../../../assets/svg/event_24dp_E3E3E3_FILL0_wght400_GRAD0_opsz24.svg?react";
-import HandymanIcon from "../../../assets/svg/handyman_24dp_E3E3E3_FILL0_wght400_GRAD0_opsz24.svg?react";
 import styles from "./Switcher.module.css";
 
 const Switcher = ({ mode }) => {
@@ -22,7 +22,7 @@ const Switcher = ({ mode }) => {
       id: "builds",
       route: "/builds/",
       caption: "Builds",
-      component: <HandymanIcon className={styles.icon} />,
+      component: <ConstructionIcon className={styles.icon} />,
     },
   ];
 

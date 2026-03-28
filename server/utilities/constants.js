@@ -13,3 +13,4 @@ export const ProgrammingDrive = {
 };
 export const USER_EMAIL = process.env.USER_EMAIL || "";
 export const API_TOKEN_LENGTH = Number(process.env.API_TOKEN_LENGTH);
+export const VITE_CONFIG_FILE = "../client/vite.config.js";

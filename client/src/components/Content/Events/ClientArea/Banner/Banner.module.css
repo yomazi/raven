@@ -12,6 +12,7 @@
   display: flex;
   justify-content: flex-start;
   align-items: baseline;
+  min-width: 0;
   gap: 0.5rem;
   cursor: pointer;
   transition: all 0.2s ease-in-out;
@@ -77,6 +78,13 @@
   transition: opacity 0.3s;
 }
 
+.truncate {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+
 .artist {
   font-size: 1.5em;
   font-weight: bold;
@@ -95,9 +103,13 @@
   border: none;
   cursor: pointer;
   padding: 0.25rem;
+  margin: 0 1rem 0 0;
   color: var(--color-moonlight);
   opacity: 0.6;
+  width: 1.8rem;
+  height: 1.8rem;
   transition: all 0.2s ease;
+  flex-shrink: 0;
 }
 
 .copyButton:hover {

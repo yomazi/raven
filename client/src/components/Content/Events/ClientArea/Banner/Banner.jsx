@@ -1,5 +1,6 @@
-import SvgFolderClosed from "../../../../../assets/svg/folder_24dp_E3E3E3_FILL0_wght400_GRAD0_opsz24.svg?react";
-import SvgFolderOpen from "../../../../../assets/svg/folder_open_24dp_E3E3E3_FILL0_wght400_GRAD0_opsz24.svg?react";
+import SvgContentCopy from "@svg/content-copy_google.svg?react";
+import SvgFolderClosed from "@svg/folder--closed_google.svg?react";
+import SvgFolderOpen from "@svg/folder--open_google.svg?react";
 import styles from "./Banner.module.css";
 
 const formatDate = (dateString) => {
@@ -13,23 +14,6 @@ const formatDate = (dateString) => {
   });
   return `(${date})`;
 };
-
-const CopyIcon = () => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="16"
-    height="16"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
-    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
-  </svg>
-);
 
 const Banner = ({ show = {} }) => {
   const formattedDate = formatDate(show.date);
@@ -53,11 +37,11 @@ const Banner = ({ show = {} }) => {
             <SvgFolderOpen className={styles.iconFolderOpen} />
           </div>
         </div>
-        <div className={styles.artist}>{show.artist}</div>
-        <div className={styles.date}>{formattedDate}</div>
+        <div className={`${styles.artist} ${styles.truncate}`}>{show.artist}</div>
+        <div className={`${styles.date} ${styles.truncate}`}>{formattedDate}</div>
       </article>
       <button className={styles.copyButton} onClick={handleCopy} title="Copy to clipboard">
-        <CopyIcon />
+        <SvgContentCopy />
       </button>
     </section>
   );
