@@ -20,17 +20,18 @@
 .caption {
   color: var(--color-frost);
   font-size: 0.55rem;
-  margin: 0.4rem 0 0.2rem 0;
+  margin: 0.5rem 0 0.2rem 0;
   opacity: 0;
-  font-size: 0.8rem;
+  font-size: 0.7rem;
   transition: opacity 0.2s ease;
+  text-transform: uppercase;
 }
 
 .icon {
   cursor: pointer;
   width: 24px;
   height: 24px;
-  transition: scale 0.4s ease;
+  transition: scale 0.35s ease;
 }
 
 .iconContainer:hover {
@@ -41,7 +42,6 @@
 
   & .caption {
     opacity: 1;
-    font-size: 0.8rem;
   }
 }
 
@@ -55,7 +55,6 @@
 
   & .caption {
     opacity: 1;
-    font-size: 0.8rem;
     color: var(--color-moonlight);
   }
 }

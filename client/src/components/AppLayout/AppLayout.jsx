@@ -15,7 +15,7 @@ const AppLayout = ({ mode }) => {
   return (
     <div className={styles.appLayout}>
       <Header mode={mode} />
-      <Nav />
+      {mode == "events" && <Nav />}
       {contentMap[mode] ?? null}
     </div>
   );
