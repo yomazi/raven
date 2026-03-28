@@ -14,7 +14,6 @@
   align-items: center;
   justify-content: space-between;
   padding: 0.5rem 2rem 0.5rem 0;
-  border-bottom: 1px solid var(--color-stone);
 }
 
 .warningCount {
@@ -34,6 +33,7 @@
 .tooltip {
   text-transform: uppercase;
   color: var(--color-fen);
+  font-size: 0.8rem;
   margin-right: 0.3rem;
 }
 
@@ -60,6 +60,7 @@
   padding: 0.3rem 0 0 0;
   display: flex;
   flex-direction: column;
+  border-top: 1px solid var(--color-stone);
   gap: 4px;
   max-height: 150px;
   overflow: auto;
