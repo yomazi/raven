@@ -4,7 +4,7 @@ import { NavLink } from "react-router-dom";
 import { useCreateMarketingAssetsFolder } from "../../hooks/useCreateMarketingAssetsFolder.js";
 import { useCreateSettlementWorkbook } from "../../hooks/useCreateSettlementWorkbook.js";
 import { useSyncShows } from "../../hooks/useSyncShows.js";
-import useShowsStore from "../../store/useShowsStore.js";
+import useRavenStore from "../../store/useRavenStore.js";
 import CreateShowModal from "../Modals/CreateShowModal/CreateShowModal.jsx";
 import styles from "./Nav.module.css";
 
@@ -12,14 +12,14 @@ const Nav = () => {
   const { mutate: sync } = useSyncShows();
   const { mutate: createWorkbook } = useCreateSettlementWorkbook();
   const { mutate: createMarketingAssetsFolder } = useCreateMarketingAssetsFolder();
-  const selectedShow = useShowsStore((s) => s.selectedShow);
+  const selectedShow = useRavenStore((s) => s.selectedShow);
   const [createShowOpen, setCreateShowOpen] = useState(false);
-  const isSelectedShowVisible = useShowsStore((s) => s.isSelectedShowVisible);
-  const gridWidth = useShowsStore((s) => s.gridWidth);
+  const isSelectedShowVisible = useRavenStore((s) => s.isSelectedShowVisible);
+  const leftPaneWidth = useRavenStore((s) => s.leftPaneWidth);
   const leftNavRef = useRef(null);
   const [leftNavWidth, setLeftNavWidth] = useState(0);
   const oneRem = parseFloat(getComputedStyle(document.documentElement).fontSize);
-  const spacerWidth = Math.max(0, gridWidth - leftNavWidth - oneRem);
+  const spacerWidth = Math.max(0, leftPaneWidth - leftNavWidth - oneRem);
 
   useEffect(() => {
     if (!leftNavRef.current) return;

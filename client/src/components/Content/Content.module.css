@@ -6,19 +6,29 @@
   overflow: hidden;
 }
 
-.gridWrapper {
-  width: 750px; /* initial width of grid */
+.leftPaneWrapper {
+  width: 300px; /* fixed width */
   height: 100%;
+  min-width: 300px; /* this is what makes "auto" work */
+  overflow: auto;
+}
+
+.leftPaneWrapperResizable {
+  width: 750px; /* initial width of left pane */
   min-width: 450px;
   max-width: 75%;
-  overflow: auto;
+}
+
+.splitter {
+  width: 1px;
+  flex-shrink: 0;
+  user-select: none;
+  background-color: var(--color-wyrd-dim);
 }
 
 .dragHandle {
   width: 5px;
   cursor: col-resize;
-  flex-shrink: 0;
-  user-select: none;
   background-image: radial-gradient(circle, var(--color-wyrd) 1px, transparent 1px);
   background-size: 5px 6px;
   background-position: center;

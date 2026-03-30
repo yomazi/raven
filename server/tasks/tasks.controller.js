@@ -1,3 +1,4 @@
+import TasksEvents from "./tasks.events.js";
 import TasksService from "./tasks.service.js";
 
 class TasksController {
@@ -31,6 +32,7 @@ class TasksController {
       const params = { ...req.body };
       const task = await TasksService.addTask(params);
 
+      TasksEvents.notifyTaskChange("created", task);
       res.status(201).json({ success: true, task });
     } catch (err) {
       console.error(err);
@@ -45,6 +47,7 @@ class TasksController {
       const task = await TasksService.updateTask(id, params);
 
       if (!task) return res.status(404).json({ success: false, error: "Task not found" });
+      TasksEvents.notifyTaskChange("updated", task);
       res.json({ success: true, task });
     } catch (err) {
       console.error(err);
@@ -55,9 +58,10 @@ class TasksController {
   static async deleteTask(req, res) {
     try {
       const { id } = req.params;
-
       const result = await TasksService.deleteTask(id);
+
       if (!result) return res.status(404).json({ success: false, error: "Task not found" });
+      TasksEvents.notifyTaskChange("deleted", { id });
       res.json({ success: true });
     } catch (err) {
       console.error(err);

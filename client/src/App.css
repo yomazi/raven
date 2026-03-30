@@ -43,6 +43,40 @@
   --color-ember-dim: #8a5a1a; /* ember borders */
   --color-moss: #2a7a5f;
   --color-fen: #3fa882;
+
+  /* Status */
+  --status-open-fg: #4a9eff;
+  --status-open-bg: #0d2a4a;
+  --status-open-bd: #1a4a8a;
+
+  --status-resolved-fg: #4ecf8a;
+  --status-resolved-bg: #0d2e20;
+  --status-resolved-bd: #1a5a3a;
+
+  --status-blocked-fg: #ff5252;
+  --status-blocked-bg: #3a0d0d;
+  --status-blocked-bd: #7a1a1a;
+
+  --status-shrug-fg: #8a8a9a;
+  --status-shrug-bg: #1e1c2a;
+  --status-shrug-bd: #3a3650;
+
+  /* Priority */
+  --priority-urgent-fg: #ff4d4d;
+  --priority-urgent-bg: #3a0d0d;
+  --priority-urgent-bd: #8a1818;
+
+  --priority-high-fg: #ff8c00;
+  --priority-high-bg: #2e1800;
+  --priority-high-bd: #7a4000;
+
+  --priority-medium-fg: #c9b800;
+  --priority-medium-bg: #252200;
+  --priority-medium-bd: #5a5000;
+
+  --priority-low-fg: #6a5fa8;
+  --priority-low-bg: #1e1c2a;
+  --priority-low-bd: #3a3650;
 }
 
 #app {
@@ -64,6 +98,9 @@ h1 {
 }
 
 button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
   border-radius: 0.25rem;
   border: 1px solid transparent;
   padding: 0.7rem 0.9rem;
@@ -91,6 +128,19 @@ button:active {
 button:focus,
 button:focus-visible {
   outline: none;
+}
+
+button.primary {
+  background: var(--color-wyrd);
+}
+
+button.primary:hover {
+  background-color: var(--color-void);
+}
+
+button svg {
+  width: 1.2rem;
+  height: 1.2rem;
 }
 
 a {

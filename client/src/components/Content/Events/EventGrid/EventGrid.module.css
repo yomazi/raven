@@ -154,17 +154,27 @@
   position: relative;
   display: inline-block;
   width: 22px;
-  height: 20px;
+  height: 22px;
   align-items: center;
-}
-
-.copyDateAndArtistLinkCell,
-.copyArtistLinkCell {
   color: #a8b2b8;
 }
 
 .copyDateAndArtistLinkCell:active,
 .copyArtistLinkCell:active {
+  color: white;
+}
+
+.addTaskCell {
+  position: relative;
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  align-items: center;
+  color: #a8b2b8;
+  top: 3px;
+}
+
+.addTaskCell:active {
   color: white;
 }
 
@@ -276,6 +286,15 @@
   height: 26px;
   margin: -2px;
   padding-top: 1px;
+  color: #fff;
+}
+
+:global(.ag-cell:hover) .addTaskCell {
+  width: 26px;
+  height: 26px;
+  margin: -4px;
+  padding-top: 1px;
+  color: #fff;
 }
 
 :global(.ag-cell:hover) .checkboxCell {

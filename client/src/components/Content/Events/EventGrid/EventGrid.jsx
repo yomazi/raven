@@ -1,3 +1,5 @@
+import { useShows } from "@hooks/useShows.js";
+import useRavenStore from "@store/useRavenStore.js";
 import {
   AllCommunityModule,
   colorSchemeDark,
@@ -7,10 +9,8 @@ import {
 import { AgGridReact } from "ag-grid-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useShows } from "../../../../hooks/useShows.js";
-import useShowsStore from "../../../../store/useShowsStore.js";
+import styles from "./EventGrid.module.css";
 import { columnDefs } from "./grid-definitions.js";
-import styles from "./Grid.module.css";
 
 ModuleRegistry.registerModules([AllCommunityModule]);
 
@@ -37,15 +37,15 @@ const theme = themeAlpine.withPart(colorSchemeDark).withParams({
   iconColor: "#e3e3e3",
 });
 
-const Grid = () => {
+const EventGrid = () => {
   const gridRef = useRef();
   const filterInputRef = useRef();
   const navigate = useNavigate();
   const { data: shows, isLoading, isError } = useShows();
-  const statusMessage = useShowsStore((s) => s.statusMessage);
+  const statusMessage = useRavenStore((s) => s.statusMessage);
   const [upcomingOnly, setUpcomingOnly] = useState(true);
   const isExternalFilterPresent = useCallback(() => upcomingOnly, [upcomingOnly]);
-  const setIsSelectedShowVisible = useShowsStore((s) => s.setIsSelectedShowVisible);
+  const setIsSelectedShowVisible = useRavenStore((s) => s.setIsSelectedShowVisible);
 
   const doesExternalFilterPass = useCallback(
     (node) => {
@@ -76,8 +76,8 @@ const Grid = () => {
     return dateString.slice(0, 10);
   };
 
-  const selectedShow = useShowsStore((s) => s.selectedShow);
-  const setSelectedShow = useShowsStore((s) => s.setSelectedShow);
+  const selectedShow = useRavenStore((s) => s.selectedShow);
+  const setSelectedShow = useRavenStore((s) => s.setSelectedShow);
 
   const onFilterChanged = useCallback(() => {
     if (!selectedShow) return;
@@ -225,10 +225,9 @@ const Grid = () => {
           rowHeight={28}
           headerHeight={36}
           rowData={shows}
+          animateRows={false}
           columnDefs={columnDefs}
           defaultColDef={{ resizable: false, suppressMovable: true }}
-          suppressColumnMoveAnimation={true}
-          animateRows={false}
           isExternalFilterPresent={isExternalFilterPresent}
           doesExternalFilterPass={doesExternalFilterPass}
           onCellClicked={handleCellClicked}
@@ -246,4 +245,4 @@ const Grid = () => {
   );
 };
 
-export default Grid;
+export default EventGrid;

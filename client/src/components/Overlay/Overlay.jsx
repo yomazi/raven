@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import useShowsStore from "../../store/useShowsStore.js";
+import useRavenStore from "../../store/useRavenStore.js";
 import styles from "./Overlay.module.css";
 
 const LOADERS = [
@@ -50,9 +50,9 @@ const ldrsReady = import("ldrs").then((ldrs) => {
 });
 
 const Overlay = () => {
-  const syncPhase = useShowsStore((s) => s.syncPhase);
-  const statusText = useShowsStore((s) => s.statusText);
-  const loaderIndex = useShowsStore((s) => s.loaderIndex);
+  const syncPhase = useRavenStore((s) => s.syncPhase);
+  const statusText = useRavenStore((s) => s.statusText);
+  const loaderIndex = useRavenStore((s) => s.loaderIndex);
   const isVisible = syncPhase !== null;
   const [ready, setReady] = useState(false);
 

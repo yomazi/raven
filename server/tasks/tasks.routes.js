@@ -1,11 +1,13 @@
 import validateApiToken from "../middlewares/validate-api-token.js";
 import { validate } from "../middlewares/validate-request-schema.js";
 import Controller from "./tasks.controller.js";
+import Events from "./tasks.events.js";
 import Schemas from "./tasks.schemas.js";
 
 import express from "express";
 const router = express.Router();
 
+router.get("/tasks/events", Events.sseHandler);
 router.get("/tasks", validate(Schemas.getAllTasks), validateApiToken, Controller.getAllTasks);
 router.get("/tasks/:id", validate(Schemas.getTask), validateApiToken, Controller.getTask);
 router.post("/tasks", validate(Schemas.addTask), validateApiToken, Controller.addTask);

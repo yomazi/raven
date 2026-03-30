@@ -1,12 +1,12 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { syncShows } from "../api/shows.api.js";
-import useShowsStore from "../store/useShowsStore.js";
+import useRavenStore from "../store/useRavenStore.js";
 
 const FADE_DELAY_MS = 5000;
 
 export const useSyncShows = () => {
   const queryClient = useQueryClient();
-  const { setSyncPhase, clearSyncPhase, setStatusMessage, clearStatusMessage } = useShowsStore();
+  const { setSyncPhase, clearSyncPhase, setStatusMessage, clearStatusMessage } = useRavenStore();
 
   const mutation = useMutation({
     mutationFn: () => syncShows(),

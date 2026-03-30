@@ -1,4 +1,5 @@
 import {
+  AddTaskIconRenderer,
   ArtistNameRenderer,
   CheckboxRenderer,
   CopyArtistLinkRenderer,
@@ -22,6 +23,14 @@ export const columnDefs = [
     headerName: "",
     field: "copyArtistLink",
     cellRenderer: CopyArtistLinkRenderer,
+    width: 50,
+    minWidth: 50,
+    maxWidth: 50,
+    suppressAutoSize: true,
+  },
+  {
+    headerName: "",
+    cellRenderer: AddTaskIconRenderer,
     width: 50,
     minWidth: 50,
     maxWidth: 50,

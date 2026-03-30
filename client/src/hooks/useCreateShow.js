@@ -1,12 +1,12 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createShowFolder } from "../api/shows.api.js";
-import useShowsStore from "../store/useShowsStore.js";
+import useRavenStore from "../store/useRavenStore.js";
 
 const FADE_DELAY_MS = 5000;
 
 export const useCreateShow = ({ onSuccess, onError } = {}) => {
   const queryClient = useQueryClient();
-  const { setSyncPhase, clearSyncPhase, setStatusMessage, clearStatusMessage } = useShowsStore();
+  const { setSyncPhase, clearSyncPhase, setStatusMessage, clearStatusMessage } = useRavenStore();
 
   return useMutation({
     mutationFn: createShowFolder,

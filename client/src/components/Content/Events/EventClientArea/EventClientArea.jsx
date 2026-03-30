@@ -1,12 +1,12 @@
 // ClientArea.jsx
+import ShowProperties from "@components/ShowProperties/ShowProperties.jsx";
+import { useShowById } from "@hooks/useShowById.js";
 import { Navigate, Route, Routes, useParams } from "react-router-dom";
-import { useShowById } from "../../../../hooks/useShowById.js";
-import ShowProperties from "../../../ShowProperties/ShowProperties.jsx";
 import Banner from "./Banner/Banner.jsx";
-import styles from "./ClientArea.module.css";
 import Dragonfly from "./Dragonfly/Dragonfly.jsx";
+import styles from "./EventClientArea.module.css";
 
-export default function ClientArea() {
+const EventClientArea = () => {
   const { showFolderId } = useParams();
   const { data: show, isError, error } = useShowById(showFolderId, { retry: false });
 
@@ -40,4 +40,6 @@ export default function ClientArea() {
       )}
     </div>
   );
-}
+};
+
+export default EventClientArea;

@@ -1,14 +1,18 @@
-import Builds from "../Content/Builds/Builds";
-import Events from "../Content/Events/Events";
-import Tasks from "../Content/Tasks/Tasks";
-import Header from "../Header/Header";
-import Nav from "../Nav/Nav";
+import Builds from "@components/Content/Builds/Builds";
+import SplitPane from "@components/Content/SplitPane";
+import Header from "@components/Header/Header";
+import Nav from "@components/Nav/Nav";
 import styles from "./AppLayout.module.css";
+
+import EventClientArea from "@components/Content/Events/EventClientArea/EventClientArea.jsx";
+import EventGrid from "@components/Content/Events/EventGrid/EventGrid.jsx";
+import TasksFilter from "@components/Content/Tasks/TasksFilter/TasksFilter.jsx";
+import TasksView from "@components/Content/Tasks/TasksView/TasksView.jsx";
 
 const AppLayout = ({ mode }) => {
   const contentMap = {
-    events: <Events />,
-    tasks: <Tasks />,
+    events: <SplitPane resizable={true} leftPane={<EventGrid />} rightPane={<EventClientArea />} />,
+    tasks: <SplitPane resizable={false} leftPane={<TasksFilter />} rightPane={<TasksView />} />,
     builds: <Builds />,
   };
 

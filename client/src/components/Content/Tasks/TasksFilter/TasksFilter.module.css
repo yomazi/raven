@@ -1,0 +1,24 @@
+.tasksFilter {
+  padding: 0.9rem 1rem 1rem 1.65rem;
+}
+
+.filterSection {
+  margin-bottom: 2rem;
+}
+
+.filterSection h1 {
+  font-size: 0.9rem;
+  font-weight: normal;
+  padding: 0;
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-rune);
+}
+
+.filterSection ul {
+  font-size: 0.9rem;
+  list-style: none;
+  padding-left: 0;
+  color: var(--color-frost);
+}
