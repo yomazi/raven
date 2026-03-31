@@ -89,6 +89,10 @@ const DescriptionCell = ({ value, context }) => {
   );
 };
 
+const NotesCell = ({ value }) => {
+  return <div className={`${styles.notesCell}`}>{value}</div>;
+};
+
 const UpdatedDateCell = ({ value }) => {
   if (!value) return <div className={styles.dateCell} />;
   const date = new Date(value);
@@ -136,7 +140,7 @@ function buildShowLabel(show) {
 
   const date = show.date ? formatDate(show.date) : "";
   const artist = show.artist ?? show.billing?.mainBilling ?? "";
-  return [date, artist].filter(Boolean).join(" - ");
+  return [date, artist].filter(Boolean).join(" ");
 }
 
 // ─── TasksView ───────────────────────────────────────────────────────────────
@@ -279,6 +283,16 @@ export default function TasksView() {
         width: 130,
       },
       {
+        field: "notes",
+        headerName: "Notes",
+        flex: 1,
+        minWidth: 220,
+        cellRenderer: NotesCell,
+        resizable: resizableInFlatMode,
+        autoHeight: true,
+        wrapText: true,
+      },
+      {
         field: "_updatedLabel",
         headerName: "Last Updated",
         width: 190,
@@ -312,7 +326,7 @@ export default function TasksView() {
           resizable: true,
           flex: 2,
           minWidth: 150,
-          maxWidth: 400,
+          maxWidth: 300,
         },
         ...shared,
       ];

@@ -7,9 +7,9 @@
 }
 
 .leftPaneWrapper {
-  width: 300px; /* fixed width */
+  width: 200px; /* fixed width */
   height: 100%;
-  min-width: 300px; /* this is what makes "auto" work */
+  min-width: 200px; /* this is what makes "auto" work */
   overflow: auto;
 }
 

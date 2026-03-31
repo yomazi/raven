@@ -134,13 +134,14 @@
   opacity: 0.5;
 }
 
-.descriptionCell {
+.descriptionCell,
+.notesCell {
   display: flex;
   align-items: center;
-  padding: 0.5rem 0;
+  padding: 0.6rem 0;
   width: 100%;
   font-variant-numeric: tabular-nums;
-  font-size: 0.9rem;
+  font-size: 0.8rem;
   font-weight: 100;
   white-space: normal;
   word-break: break-word;
@@ -150,12 +151,21 @@
 .descriptionCellGrouped {
   padding-left: 1rem;
 }
+
 .dateCell {
   width: 100%;
-  height: 100%;
   font-variant-numeric: tabular-nums;
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   font-weight: 100;
+}
+
+.artistCell {
+  width: 100%;
+  font-size: 0.9rem;
+  font-weight: 100;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 .taskBadge {
@@ -165,9 +175,11 @@
   font-size: 0.8rem;
   padding: 0 1rem;
   border-radius: 0.3rem;
+  font-size: 0.73rem;
   border: 1px solid;
   white-space: nowrap;
   height: 1.8rem; /* was max-height */
+  text-transform: uppercase;
 }
 
 /* status badges */
@@ -255,6 +267,11 @@
 }
 
 /* AG Grid overrides again */
+:global(.ag-cell) {
+  display: flex;
+  align-items: center;
+}
+
 :global(.ag-center-aligned-cell) {
   /* hack: this class doesn't seem to exist in AG Grid, but it should. */
   display: flex;
@@ -265,13 +282,6 @@
   justify-content: center;
 }
 
-:global(.ag-row .ag-cell:has(.descriptionCell)) {
-  display: flex;
-  align-items: center;
-}
-
 :global(.ag-row .ag-cell:has([class*="taskBadge"])) {
-  display: flex;
-  align-items: center;
   justify-content: center;
 }
