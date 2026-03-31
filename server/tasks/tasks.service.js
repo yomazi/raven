@@ -13,8 +13,15 @@ class TasksService {
       filter.showFolderId = null;
     }
 
-    if (status) filter.status = status;
-    if (priority) filter.priority = priority;
+    if (status) {
+      const statuses = status.split(",").map((s) => s.trim());
+      filter.status = statuses.length === 1 ? statuses[0] : { $in: statuses };
+    }
+
+    if (priority) {
+      const priorities = priority.split(",").map((p) => p.trim());
+      filter.priority = priorities.length === 1 ? priorities[0] : { $in: priorities };
+    }
 
     const tasks = await TasksRepository.findAll(filter, sort, order);
 

@@ -7,9 +7,13 @@ import {
   useDeleteTask,
   useTaskEvents,
   useTasks,
+  useUpdateTask,
 } from "@hooks/useTasks";
 import AddTaskModal from "@modals/AddTaskModal/AddTaskModal";
+import ConfirmModal from "@modals/ConfirmModal/ConfirmModal";
+import useRavenStore from "@store/useRavenStore";
 import SvgAddTask from "@svg/add-task_google.svg?react";
+import SvgDelete from "@svg/delete_google.svg?react";
 import {
   AllCommunityModule,
   colorSchemeDark,
@@ -18,7 +22,9 @@ import {
 } from "ag-grid-community";
 import { AgGridReact } from "ag-grid-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import BadgeSelectEditor from "./BadgeSelectEditor/BadgeSelectEditor";
 import styles from "./TasksView.module.css";
+import TextEditor from "./TextEditor/TextEditor";
 
 ModuleRegistry.registerModules([AllCommunityModule]);
 
@@ -113,16 +119,13 @@ const ActionsCell = ({ data, context }) => {
   if (data?._isGroupHeader) return null;
   return (
     <div className={styles.actions}>
-      <button className={styles.actionBtn} onClick={() => context.onEdit(data)} title="Edit">
-        ✎
-      </button>
       <button
         className={styles.actionBtn}
         data-danger
         onClick={() => context.onDelete(data)}
         title="Delete"
       >
-        ✕
+        <SvgDelete />
       </button>
     </div>
   );
@@ -147,14 +150,15 @@ function buildShowLabel(show) {
 
 export default function TasksView() {
   useTaskEvents();
+  const updateTask = useUpdateTask();
 
   const gridRef = useRef();
 
+  // filters from global store
+  const { filterStatus, filterPriority, filterLinked } = useRavenStore();
+
   // ── view state
   const [viewMode, setViewMode] = useState("grouped"); // 'flat' | 'grouped'
-  const [filterLinked, setFilterLinked] = useState("all"); // 'all' | 'true' | 'false'
-  const [filterStatus, setFilterStatus] = useState("");
-  const [filterPriority, setFilterPriority] = useState("");
   const sortField = "updatedAt"; // default sort field is "updatedAt"
 
   // ── modal state
@@ -162,16 +166,21 @@ export default function TasksView() {
   const [editingTask, setEditingTask] = useState(null);
   const [preloadFolderId, setPreloadFolderId] = useState(null);
 
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [pendingDelete, setPendingDelete] = useState(null);
+
   // ── data
   const { data: shows = [] } = useShows();
   const deleteTask = useDeleteTask();
 
+  const linkedParam = { all: undefined, linked: "true", general: "false" }[filterLinked];
+
   const queryParams = {
     sort: sortField,
     order: "desc",
-    linked: filterLinked === "all" ? undefined : filterLinked,
-    status: filterStatus || undefined,
-    priority: filterPriority || undefined,
+    linked: linkedParam,
+    status: filterStatus.length > 0 ? filterStatus.join(",") : undefined,
+    priority: filterPriority.length > 0 ? filterPriority.join(",") : undefined,
   };
 
   const { data: tasks = [], isLoading } = useTasks(queryParams);
@@ -262,6 +271,13 @@ export default function TasksView() {
         flex: 1,
         minWidth: 220,
         cellRenderer: DescriptionCell,
+        cellEditor: TextEditor,
+        cellEditorParams: (params) => ({
+          onSave: (newVal) => updateTask.mutateAsync({ id: params.data._id, description: newVal }),
+        }),
+        editable: true,
+        singleClickEdit: true,
+        sortable: true,
         resizable: resizableInFlatMode,
         autoHeight: true,
         wrapText: true,
@@ -272,15 +288,21 @@ export default function TasksView() {
         headerClass: "ag-header-cell-center",
         cellClass: "ag-center-aligned-cell",
         cellRenderer: PriorityCell,
+        cellEditor: BadgeSelectEditor,
+        cellEditorParams: (params) => ({
+          options: TASK_PRIORITY,
+          labels: PRIORITY_LABEL,
+          badgeClass: (val) => styles[`priority--${val}`] + " " + styles.taskBadge,
+          onSelect: (newVal) => updateTask.mutateAsync({ id: params.data._id, priority: newVal }),
+        }),
+        comparator: (valueA, valueB) => {
+          const order = TASK_PRIORITY; // ["urgent", "high", "medium", "low"]
+          return order.indexOf(valueA) - order.indexOf(valueB);
+        },
+        editable: true,
+        singleClickEdit: true,
+        sortable: true,
         width: 110,
-      },
-      {
-        field: "status",
-        headerName: "Status",
-        headerClass: "ag-header-cell-center",
-        cellClass: "ag-center-aligned-cell",
-        cellRenderer: StatusCell,
-        width: 130,
       },
       {
         field: "notes",
@@ -288,20 +310,48 @@ export default function TasksView() {
         flex: 1,
         minWidth: 220,
         cellRenderer: NotesCell,
+        cellEditor: TextEditor,
+        cellEditorParams: (params) => ({
+          onSave: (newVal) => updateTask.mutateAsync({ id: params.data._id, notes: newVal }),
+        }),
+        editable: true,
+        singleClickEdit: true,
         resizable: resizableInFlatMode,
         autoHeight: true,
         wrapText: true,
       },
       {
+        field: "status",
+        headerName: "Status",
+        headerClass: "ag-header-cell-center",
+        cellClass: "ag-center-aligned-cell",
+        cellRenderer: StatusCell,
+        cellEditor: BadgeSelectEditor,
+        cellEditorParams: (params) => ({
+          options: TASK_STATUS,
+          labels: STATUS_LABEL,
+          badgeClass: (val) => styles[`status--${val}`] + " " + styles.taskBadge,
+          onSelect: (newVal) => updateTask.mutateAsync({ id: params.data._id, status: newVal }),
+        }),
+        comparator: (valueA, valueB) => {
+          const order = TASK_STATUS;
+          return order.indexOf(valueA) - order.indexOf(valueB);
+        },
+        editable: true,
+        singleClickEdit: true,
+        sortable: true,
+        width: 130,
+      },
+      {
         field: "_updatedLabel",
         headerName: "Last Updated",
-        width: 190,
+        width: 160,
         cellRenderer: UpdatedDateCell,
       },
       {
         headerName: "",
         cellRenderer: ActionsCell,
-        width: 80,
+        width: 60,
         pinned: "right",
         suppressMovable: true,
       },
@@ -333,7 +383,7 @@ export default function TasksView() {
     }
 
     return shared;
-  }, [viewMode]);
+  }, [viewMode, updateTask]);
 
   const defaultColDef = useMemo(
     () => ({
@@ -371,23 +421,20 @@ export default function TasksView() {
     setModalOpen(true);
   }, []);
 
-  const openEdit = useCallback((task) => {
-    setEditingTask(task);
-    setPreloadFolderId(null);
-    setModalOpen(true);
+  const handleDelete = useCallback((task) => {
+    setPendingDelete(task);
+    setConfirmOpen(true);
   }, []);
 
-  const handleDelete = useCallback(
-    async (task) => {
-      if (!window.confirm(`Delete task: "${task.description}"?`)) return;
-      await deleteTask.mutateAsync(task._id);
-    },
-    [deleteTask]
-  );
+  const handleConfirmDelete = useCallback(async () => {
+    if (!pendingDelete) return;
+    await deleteTask.mutateAsync(pendingDelete._id);
+    setPendingDelete(null);
+  }, [pendingDelete, deleteTask]);
 
   const context = useMemo(
-    () => ({ viewMode: viewMode, onEdit: openEdit, onDelete: handleDelete }),
-    [viewMode, openEdit, handleDelete]
+    () => ({ viewMode: viewMode, onDelete: handleDelete }),
+    [viewMode, handleDelete]
   );
 
   // ── show label for modal
@@ -409,71 +456,27 @@ export default function TasksView() {
     <div className={styles.root}>
       {/* ── toolbar */}
       <div className={styles.toolbar}>
-        <div className={styles.toolbarLeft}>
-          {/* view mode toggle */}
-          <div className={styles.segmented}>
-            <button
-              className={styles.segment}
-              data-active={viewMode === "flat" || undefined}
-              onClick={() => setViewMode("flat")}
-            >
-              Flat
-            </button>
-            <button
-              className={styles.segment}
-              data-active={viewMode === "grouped" || undefined}
-              onClick={() => setViewMode("grouped")}
-            >
-              By Show
-            </button>
-          </div>
-
-          {/* task type filter */}
-          <select
-            className={styles.filter}
-            value={filterLinked}
-            onChange={(e) => setFilterLinked(e.target.value)}
+        {/* view mode toggle */}
+        <div className={styles.segmented}>
+          <button
+            className={styles.segment}
+            data-active={viewMode === "flat" || undefined}
+            onClick={() => setViewMode("flat")}
           >
-            <option value="all">All tasks</option>
-            <option value="true">Show-linked</option>
-            <option value="false">General</option>
-          </select>
-
-          {/* status filter */}
-          <select
-            className={styles.filter}
-            value={filterStatus}
-            onChange={(e) => setFilterStatus(e.target.value)}
+            Flat
+          </button>
+          <button
+            className={styles.segment}
+            data-active={viewMode === "grouped" || undefined}
+            onClick={() => setViewMode("grouped")}
           >
-            <option value="">All statuses</option>
-            {TASK_STATUS.map((s) => (
-              <option key={s} value={s}>
-                {STATUS_LABEL[s]}
-              </option>
-            ))}
-          </select>
-
-          {/* priority filter */}
-          <select
-            className={styles.filter}
-            value={filterPriority}
-            onChange={(e) => setFilterPriority(e.target.value)}
-          >
-            <option value="">All priorities</option>
-            {TASK_PRIORITY.map((p) => (
-              <option key={p} value={p}>
-                {PRIORITY_LABEL[p]}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div className={styles.toolbarRight}>
-          <button className="primary" onClick={() => openCreate()}>
-            <SvgAddTask />
-            New Task
+            By Show
           </button>
         </div>
+        <button className="primary" onClick={() => openCreate()}>
+          <SvgAddTask />
+          New Task
+        </button>
       </div>
 
       {/* ── grid */}
@@ -498,13 +501,24 @@ export default function TasksView() {
         </div>
       )}
 
-      {/* ── modal */}
+      {/* ── modals */}
       <AddTaskModal
         open={modalOpen}
         onOpenChange={setModalOpen}
         task={editingTask}
         showFolderId={editingTask?.showFolderId ?? preloadFolderId}
         showLabel={modalShowLabel}
+      />
+
+      <ConfirmModal
+        open={confirmOpen}
+        onOpenChange={setConfirmOpen}
+        title="Delete task?"
+        message={pendingDelete ? `"${pendingDelete.description}"` : ""}
+        confirmLabel="Delete"
+        cancelLabel="Cancel"
+        onConfirm={handleConfirmDelete}
+        danger
       />
     </div>
   );

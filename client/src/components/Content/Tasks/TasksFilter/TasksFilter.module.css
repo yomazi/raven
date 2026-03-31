@@ -1,24 +1,139 @@
-.tasksFilter {
-  padding: 0.9rem 1rem 1rem 1.65rem;
+.root {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 1rem 0.75rem;
+  background: var(--color-void);
+  border-right: 1px solid var(--color-stone);
+  gap: 0.25rem;
+  overflow-y: auto;
 }
 
-.filterSection {
-  margin-bottom: 2rem;
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
 }
 
-.filterSection h1 {
+.heading {
+  font-family: var(--font-ui);
   font-size: 0.9rem;
-  font-weight: normal;
-  padding: 0;
-  margin: 0;
+  font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: var(--color-rune);
 }
 
-.filterSection ul {
+.clearBtn {
+  font-family: var(--font-ui);
+  font-size: 0.72rem;
+  color: var(--color-wyrd);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: opacity 100ms ease;
+}
+
+.clearBtn:hover {
+  opacity: 0.75;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  margin-bottom: 1rem;
+}
+
+.sectionLabel {
+  font-family: var(--font-ui);
   font-size: 0.9rem;
-  list-style: none;
-  padding-left: 0;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--color-rune);
+  opacity: 0.6;
+  padding: 0.25rem 0.25rem 0.4rem;
+}
+
+.radioBtn {
+  padding-left: 2rem !important;
+}
+
+.radioBtn,
+.checkBtn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.3rem 0.5rem;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 5px;
+  cursor: pointer;
+  font-family: var(--font-ui);
+  font-size: 0.82rem;
+  color: var(--color-rune);
+  text-align: left;
+  transition:
+    background 100ms ease,
+    border-color 100ms ease;
+}
+
+.radioBtn:hover,
+.checkBtn:hover {
+  background: var(--color-stone);
   color: var(--color-frost);
+}
+
+.radioBtn[data-active] {
+  background: var(--color-stone);
+  border-color: var(--color-wyrd);
+  color: var(--color-frost);
+}
+
+.checkBtn[data-active] {
+  background: color-mix(in srgb, var(--color-wyrd) 15%, transparent);
+  border-color: var(--color-wyrd);
+}
+
+.check {
+  width: 0.9rem;
+  font-size: 0.75rem;
+  color: var(--color-wyrd);
+  flex-shrink: 0;
+}
+
+.badgeLabel {
+  font-size: 0.8rem;
+}
+
+/* status colors */
+.status--open {
+  color: var(--status-open-fg);
+}
+.status--resolved {
+  color: var(--status-resolved-fg);
+}
+.status--blocked {
+  color: var(--status-blocked-fg);
+}
+.status--shrug {
+  color: var(--status-shrug-fg);
+}
+
+/* priority colors */
+.priority--urgent {
+  color: var(--priority-urgent-fg);
+}
+.priority--high {
+  color: var(--priority-high-fg);
+}
+.priority--medium {
+  color: var(--priority-medium-fg);
+}
+.priority--low {
+  color: var(--priority-low-fg);
 }

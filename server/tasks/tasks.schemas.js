@@ -6,14 +6,24 @@ const VALID_STATUSES = ["open", "resolved", "blocked", "shrug"];
 const VALID_SORT_FIELDS = ["createdAt", "updatedAt"];
 const VALID_SORT_ORDERS = ["asc", "desc"];
 
+const commaSeparatedValid = (validValues) =>
+  Joi.string().custom((value, helpers) => {
+    const parts = value.split(",").map((v) => v.trim());
+    const invalid = parts.filter((p) => !validValues.includes(p));
+    if (invalid.length > 0) {
+      return helpers.error("any.invalid");
+    }
+    return value;
+  });
+
 class TasksSchemas {
   static getAllTasks = {
     headers: authHeaderSchema,
     query: Joi.object({
       showFolderId: Joi.string(),
       linked: Joi.boolean(),
-      status: Joi.string().valid(...VALID_STATUSES),
-      priority: Joi.string().valid(...VALID_PRIORITIES),
+      status: commaSeparatedValid(VALID_STATUSES),
+      priority: commaSeparatedValid(VALID_PRIORITIES),
       sort: Joi.string().valid(...VALID_SORT_FIELDS),
       order: Joi.string().valid(...VALID_SORT_ORDERS),
     }),
