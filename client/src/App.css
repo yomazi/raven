@@ -77,6 +77,8 @@
   --priority-low-fg: #6a5fa8;
   --priority-low-bg: #1e1c2a;
   --priority-low-bd: #3a3650;
+
+  --alert: #c0392b;
 }
 
 #app {

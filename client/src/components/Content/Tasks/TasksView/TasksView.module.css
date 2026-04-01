@@ -209,26 +209,29 @@
 }
 
 .actionBtn {
+  position: relative;
   background: transparent;
   border: none;
-  color: var(--priority-urgent-fg);
+  color: var(--status-shrug-fg);
   cursor: pointer;
   transition: border-color 100ms ease;
 }
 
 .actionBtn svg {
-  width: 1rem;
-  height: 1rem;
-  border: 1px solid var(--priority-urgent-bd);
-  border-radius: 50%;
+  position: relative;
+  width: 1.2rem;
+  height: 1.2rem;
 }
 
 .actionBtn:hover {
   background: transparent;
   border-color: none;
+  color: var(--alert);
 
   & svg {
-    border-color: var(--priority-urgent-fg);
+    width: 1.6rem;
+    height: 1.6rem;
+    margin-left: -0.2rem;
   }
 }
 

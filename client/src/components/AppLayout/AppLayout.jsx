@@ -1,4 +1,5 @@
 import Builds from "@components/Content/Builds/Builds";
+import SinglePane from "@components/Content/SinglePane";
 import SplitPane from "@components/Content/SplitPane";
 import Header from "@components/Header/Header";
 import Nav from "@components/Nav/Nav";
@@ -13,7 +14,7 @@ const AppLayout = ({ mode }) => {
   const contentMap = {
     events: <SplitPane resizable={true} leftPane={<EventGrid />} rightPane={<EventClientArea />} />,
     tasks: <SplitPane resizable={false} leftPane={<TasksFilter />} rightPane={<TasksView />} />,
-    builds: <Builds />,
+    builds: <SinglePane pane={<Builds />} />,
   };
 
   return (
