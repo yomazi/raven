@@ -10,6 +10,7 @@ class ShowsService {
       isMulti: driveShow.multipleShows,
       unparsed: driveShow.unparsed ?? false,
       deleted: false,
+      ...(driveShow.build !== undefined && { build: driveShow.build }),
     };
   }
 

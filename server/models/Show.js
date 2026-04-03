@@ -3,6 +3,13 @@ import mongoose from "mongoose";
 const { Schema } = mongoose;
 
 // subdocument schemas
+const buildSchema = new Schema(
+  {
+    shouldShowInRoster: { type: Boolean, default: false },
+  },
+  { _id: false }
+);
+
 const presaleSchema = new Schema(
   {
     name: { type: String, default: "Donor Presale" },
@@ -65,6 +72,8 @@ const ShowSchema = new Schema(
     isMulti: { type: Boolean, default: false },
     unparsed: { type: Boolean, default: false },
     deleted: { type: Boolean, default: false },
+
+    build: { type: buildSchema, default: () => ({}) },
 
     // billing
     billing: {

@@ -8,6 +8,10 @@ export const usePatchShow = (googleFolderId, onSaved) => {
     mutationFn: (updates) => patchShow(googleFolderId, updates),
     onSuccess: (updatedShow) => {
       queryClient.setQueryData(["show", googleFolderId], updatedShow);
+      queryClient.setQueryData(["shows"], (prev) => {
+        if (!prev) return prev;
+        return prev.map((s) => (s.googleFolderId === googleFolderId ? updatedShow : s));
+      });
       onSaved?.(updatedShow);
     },
   });

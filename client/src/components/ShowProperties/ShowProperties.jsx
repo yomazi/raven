@@ -63,7 +63,7 @@ export default function ShowProperties({ showFolderId }) {
       {/* Scrollable content */}
       <div className={styles.content}>
         <div ref={(el) => (sectionRefs.current.core = el)}>
-          <CoreSection show={form} />
+          <CoreSection show={form} setField={setField} />
         </div>
         <div ref={(el) => (sectionRefs.current.billing = el)}>
           <BillingSection show={form} setField={setField} />
