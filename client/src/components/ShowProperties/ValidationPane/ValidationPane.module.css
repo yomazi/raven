@@ -38,7 +38,7 @@
 }
 
 .saveButton {
-  background-color: var(--color-wyrd-muted);
+  background-color: var(--color-wyrd);
 }
 
 .saveButton:hover:not(:disabled) {

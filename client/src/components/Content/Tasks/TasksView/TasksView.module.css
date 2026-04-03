@@ -80,13 +80,17 @@
 }
 
 .groupHeader {
-  color: var(--color-moonlight);
+  color: var(--color-frost);
   opacity: 0.9;
   font-weight: 400;
   padding: 0 1rem 0 0.5rem;
   display: flex;
   align-items: center;
   height: 100%;
+}
+
+.groupHeader:hover {
+  text-decoration: underline;
 }
 
 .groupHeaderUnlinked {
@@ -133,6 +137,10 @@
   white-space: nowrap;
   color: var(--color-frost);
   text-overflow: ellipsis;
+}
+
+.artistCell:hover {
+  text-decoration: underline;
 }
 
 .taskBadge {
@@ -235,6 +243,15 @@
   }
 }
 
+.rightActions {
+  display: flex;
+  align-items: center;
+
+  & button {
+    margin-left: 1rem;
+  }
+}
+
 /* AG Grid overrides again */
 :global(.ag-cell) {
   display: flex;
@@ -286,4 +303,8 @@
 
 :global(.ag-cell.ag-pinned-right) {
   border-left: none !important;
+}
+
+.grid :global(.ag-root-wrapper.ag-layout-normal) {
+  border-left: none;
 }

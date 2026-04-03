@@ -1,3 +1,4 @@
+import SvgSave from "@svg/save_google.svg?react";
 import styles from "./ValidationPane.module.css";
 
 export default function ValidationPane({ warnings, onSave, isPending, scrollToSection }) {
@@ -17,6 +18,7 @@ export default function ValidationPane({ warnings, onSave, isPending, scrollToSe
             disabled={isPending}
             data-saving={isPending}
           >
+            <SvgSave />
             Save
           </button>
         </div>

@@ -35,7 +35,7 @@ const useRavenStore = create(
       setLeftPaneWidth: (width) => set({ leftPaneWidth: width }),
 
       // ── task filters
-      filterStatus: [],
+      filterStatus: ["open", "blocked", "shrug"],
       filterPriority: [],
       filterLinked: "all",
 

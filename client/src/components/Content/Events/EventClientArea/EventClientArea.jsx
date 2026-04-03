@@ -28,7 +28,10 @@ const EventClientArea = () => {
               {/* Default route */}
               <Route index element={<Navigate to="properties" replace />} />
               {/* Routes for different actions */}
-              <Route path="properties" element={<ShowProperties showFolderId={showFolderId} />} />
+              <Route
+                path="properties"
+                element={<ShowProperties key={showFolderId} showFolderId={showFolderId} />}
+              />
               <Route path="dragonfly" element={<Dragonfly showFolderId={showFolderId} />} />
               <Route
                 path="dragonfly/:threadId/:messageId"

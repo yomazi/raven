@@ -14,6 +14,7 @@ import ConfirmModal from "@modals/ConfirmModal/ConfirmModal";
 import useRavenStore from "@store/useRavenStore";
 import SvgAddTask from "@svg/add-task_google.svg?react";
 import SvgDelete from "@svg/delete_google.svg?react";
+import SvgRefresh from "@svg/refresh_google.svg?react";
 import {
   AllCommunityModule,
   colorSchemeDark,
@@ -183,7 +184,7 @@ export default function TasksView() {
     priority: filterPriority.length > 0 ? filterPriority.join(",") : undefined,
   };
 
-  const { data: tasks = [], isLoading } = useTasks(queryParams);
+  const { data: tasks = [], isLoading, refetch } = useTasks(queryParams);
 
   // ── show lookup map
   const showMap = useMemo(() => {
@@ -199,6 +200,7 @@ export default function TasksView() {
     if (viewMode === "flat") {
       return tasks.map((t) => ({
         ...t,
+        googleFolderId: t.showFolderId,
         _showDate: t.showFolderId
           ? showMap[t.showFolderId]?.date
             ? new Date(showMap[t.showFolderId].date).toLocaleDateString("en-US", {
@@ -237,7 +239,12 @@ export default function TasksView() {
     for (const folderId of sortedFolderIds) {
       const show = showMap[folderId];
       const label = buildShowLabel(show) ?? "Unknown Show";
-      rows.push({ _isGroupHeader: true, _groupLabel: label, _id: `header-${folderId}` });
+      rows.push({
+        _isGroupHeader: true,
+        _groupLabel: label,
+        _folderId: folderId,
+        _id: `header-${folderId}`,
+      });
       for (const t of groups[folderId]) {
         rows.push({
           ...t,
@@ -403,16 +410,26 @@ export default function TasksView() {
 
   const isFullWidthRow = useCallback(({ rowNode }) => !!rowNode.data?._isGroupHeader, []);
 
-  const fullWidthCellRenderer = useCallback(
-    ({ data }) => (
+  const fullWidthCellRenderer = useCallback(({ data }) => {
+    const handleClick = () => {
+      if (data._folderId) {
+        window.open(
+          `https://drive.google.com/drive/folders/${data._folderId}`,
+          "_blank",
+          "noopener,noreferrer"
+        );
+      }
+    };
+
+    return (
       <div
         className={`${styles.groupHeader} ${data._groupLabel === "" ? styles.groupHeaderUnlinked : ""}`}
+        onClick={handleClick}
       >
         {data._groupLabel}
       </div>
-    ),
-    []
-  );
+    );
+  }, []);
 
   // ── modal handlers
   const openCreate = useCallback((showFolderId = null) => {
@@ -452,6 +469,17 @@ export default function TasksView() {
     }
   }, [viewMode]);
 
+  const handleCellClicked = useCallback((e) => {
+    console.log(`field: ${e.colDef.field}, folderId: ${e.data.googleFolderId}`);
+    if (e.colDef.field === "_showArtist" && e.data?.googleFolderId) {
+      window.open(
+        `https://drive.google.com/drive/folders/${e.data.googleFolderId}`,
+        "_blank",
+        "noopener,noreferrer"
+      );
+    }
+  }, []);
+
   return (
     <div className={styles.root}>
       {/* ── toolbar */}
@@ -473,10 +501,16 @@ export default function TasksView() {
             By Show
           </button>
         </div>
-        <button className="primary" onClick={() => openCreate()}>
-          <SvgAddTask />
-          New Task
-        </button>
+        <div className={styles.rightActions}>
+          <button className="primary" onClick={() => openCreate()}>
+            <SvgAddTask />
+            New Task
+          </button>
+          <button className="primary" onClick={() => refetch()}>
+            <SvgRefresh />
+            Reload
+          </button>
+        </div>
       </div>
 
       {/* ── grid */}
@@ -490,6 +524,7 @@ export default function TasksView() {
             rowData={rowData}
             columnDefs={columnDefs}
             defaultColDef={defaultColDef}
+            onCellClicked={handleCellClicked}
             getRowId={getRowId}
             getRowClass={getRowClass}
             isFullWidthRow={isFullWidthRow}
