@@ -64,12 +64,14 @@ const EventGrid = () => {
     window.open(url, "_blank", "noopener,noreferrer");
   };
 
-  const routeToShow = (showFolderId) => {
-    const currentAction = window.location.pathname.split("/").slice(3).join("/");
-    const url = `/shows/${showFolderId}/${currentAction}`;
-
-    navigate(url);
-  };
+  const routeToShow = useCallback(
+    (showFolderId) => {
+      const currentAction = window.location.pathname.split("/").slice(3).join("/");
+      const url = `/shows/${showFolderId}/${currentAction}`;
+      navigate(url);
+    },
+    [navigate]
+  );
 
   const formatShortDate = (dateString) => {
     if (!dateString) return "";
@@ -78,6 +80,11 @@ const EventGrid = () => {
 
   const selectedShow = useRavenStore((s) => s.selectedShow);
   const setSelectedShow = useRavenStore((s) => s.setSelectedShow);
+  const selectedShowRef = useRef(selectedShow);
+
+  useEffect(() => {
+    selectedShowRef.current = selectedShow;
+  }, [selectedShow]);
 
   const onFilterChanged = useCallback(() => {
     if (!selectedShow) return;
@@ -158,12 +165,28 @@ const EventGrid = () => {
       const isTyping =
         tag === "INPUT" || tag === "TEXTAREA" || document.activeElement?.isContentEditable;
 
+      // the "/" key focuses the filter input, even if you're currently typing in another input
       if (e.key === "/" && !isTyping) {
         e.preventDefault();
         filterInputRef.current?.focus();
         filterInputRef.current?.select();
       }
 
+      // Ctrl+U toggles the "upcoming only" filter
+      if ((e.ctrlKey || e.metaKey) && e.key === "u") {
+        e.preventDefault();
+        setUpcomingOnly((prev) => !prev);
+      }
+
+      // Cmd+Ctrl+O opens the selected show's folder in Google Drive
+      if (e.ctrlKey && e.metaKey && e.key === "o") {
+        e.preventDefault();
+        if (selectedShowRef.current?.googleFolderId) {
+          openFolder(selectedShowRef.current.googleFolderId);
+        }
+      }
+
+      // the "Escape" key clears the filter input and removes the quick filter, even if you're currently typing in the filter input
       if (e.key === "Escape") {
         e.preventDefault();
         e.stopPropagation();
@@ -172,7 +195,11 @@ const EventGrid = () => {
         filterInputRef.current.blur();
       }
     };
-
+    /*
+    window.addEventListener("keydown", (e) => {
+      console.log("key:", e.key, "ctrl:", e.ctrlKey, "meta:", e.metaKey);
+    });
+    */
     window.addEventListener("keydown", handleKeyDown, { capture: true });
     return () => window.removeEventListener("keydown", handleKeyDown, { capture: true });
   }, []);
@@ -184,6 +211,25 @@ const EventGrid = () => {
   const onFilterInput = useCallback((e) => {
     gridRef.current.api.setGridOption("quickFilterText", e.target.value);
   }, []);
+
+  const onFilterKeyDown = useCallback(
+    (e) => {
+      if (e.key !== "Enter") return;
+
+      const firstNode = gridRef.current?.api?.getRenderedNodes().find((node) => node.data);
+
+      if (!firstNode?.data) return;
+
+      const { googleFolderId } = firstNode.data;
+
+      firstNode.setSelected(true, true); // (selected, clearOthers)
+      setSelectedShow(firstNode.data);
+      setIsSelectedShowVisible(true);
+      if (googleFolderId) routeToShow(googleFolderId);
+      filterInputRef.current?.blur();
+    },
+    [setSelectedShow, setIsSelectedShowVisible, routeToShow]
+  );
 
   if (isLoading) return <div>Loading...</div>;
   if (isError) return <div>Error loading shows.</div>;
@@ -214,6 +260,7 @@ const EventGrid = () => {
           type="search"
           placeholder='(press "/" to filter)'
           onChange={onFilterInput}
+          onKeyDown={onFilterKeyDown}
           className={styles.filterInput}
         />
       </div>
