@@ -1,12 +1,11 @@
+import { useCreateTask, useUpdateTask } from "@hooks/useTasks";
+import * as Dialog from "@radix-ui/react-dialog";
 import {
   PRIORITY_LABEL,
   STATUS_LABEL,
   TASK_PRIORITY,
   TASK_STATUS,
-  useCreateTask,
-  useUpdateTask,
-} from "@hooks/useTasks";
-import * as Dialog from "@radix-ui/react-dialog";
+} from "@shared/constants/tasks.js";
 import { useEffect, useRef, useState } from "react";
 import styles from "./AddTaskModal.module.css";
 

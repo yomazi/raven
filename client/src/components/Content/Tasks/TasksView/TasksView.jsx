@@ -1,16 +1,13 @@
 import { useShows } from "@hooks/useShows";
+import { useDeleteTask, useTaskEvents, useTasks, useUpdateTask } from "@hooks/useTasks";
+import AddTaskModal from "@modals/AddTaskModal/AddTaskModal";
+import ConfirmModal from "@modals/ConfirmModal/ConfirmModal";
 import {
   PRIORITY_LABEL,
   STATUS_LABEL,
   TASK_PRIORITY,
   TASK_STATUS,
-  useDeleteTask,
-  useTaskEvents,
-  useTasks,
-  useUpdateTask,
-} from "@hooks/useTasks";
-import AddTaskModal from "@modals/AddTaskModal/AddTaskModal";
-import ConfirmModal from "@modals/ConfirmModal/ConfirmModal";
+} from "@shared/constants/tasks.js";
 import useRavenStore from "@store/useRavenStore";
 import SvgAddTask from "@svg/add-task_google.svg?react";
 import SvgDelete from "@svg/delete_google.svg?react";
@@ -22,7 +19,7 @@ import {
   themeAlpine,
 } from "ag-grid-community";
 import { AgGridReact } from "ag-grid-react";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import BadgeSelectEditor from "./BadgeSelectEditor/BadgeSelectEditor";
 import styles from "./TasksView.module.css";
 import TextEditor from "./TextEditor/TextEditor";
@@ -31,27 +28,18 @@ ModuleRegistry.registerModules([AllCommunityModule]);
 
 const theme = themeAlpine.withPart(colorSchemeDark).withParams({
   cellHorizontalPadding: 8,
-
-  // Chrome
-  borderColor: "#3d2f8a", // --color-wyrd-dim
-  rowBorder: { color: "#1d1828", width: 1 }, // --color-dusk
-
-  // Header
-  headerBackgroundColor: "#110e1a", // --color-void
-  headerTextColor: "#f0e8d0", // --color-moonlight
-
-  // Rows
+  borderColor: "#3d2f8a",
+  rowBorder: { color: "#1d1828", width: 1 },
+  headerBackgroundColor: "#110e1a",
+  headerTextColor: "#f0e8d0",
   oddRowBackgroundColor: "#303030",
-  rowHoverColor: "#2e2648", // --color-stone
-  selectedRowBackgroundColor: "#4a3d78", // --color-wyrd-dim
-
-  // Text
+  rowHoverColor: "#2e2648",
+  selectedRowBackgroundColor: "#4a3d78",
   foregroundColor: "#e3e3e3",
-
-  // Icons
   iconColor: "#e3e3e3",
 });
-// ─── cell renderers ──────────────────────────────────────────────────────────
+
+// ─── cell renderers ───────────────────────────────────────────────────────────
 
 export function StatusCell({ value }) {
   if (!value) return null;
@@ -62,7 +50,6 @@ export function StatusCell({ value }) {
   );
 }
 
-// PriorityBadge.jsx
 export function PriorityCell({ value }) {
   if (!value) return null;
   return (
@@ -78,7 +65,6 @@ const ShowDateCell = ({ value }) => {
     const date = new Date(dateString);
     return date.toISOString().split("T")[0];
   };
-
   return <div className={styles.dateCell}>{formatDate(value)}</div>;
 };
 
@@ -86,18 +72,12 @@ const ShowArtistCell = ({ value }) => {
   return <div className={styles.artistCell}>{value}</div>;
 };
 
-const DescriptionCell = ({ value, context }) => {
-  const isGrouped = context?.viewMode === "grouped";
-
-  return (
-    <div className={`${styles.descriptionCell} ${isGrouped ? styles.descriptionCellGrouped : ""}`}>
-      {value}
-    </div>
-  );
+const DescriptionCell = ({ value }) => {
+  return <div className={styles.descriptionCell}>{value}</div>;
 };
 
 const NotesCell = ({ value }) => {
-  return <div className={`${styles.notesCell}`}>{value}</div>;
+  return <div className={styles.notesCell}>{value}</div>;
 };
 
 const UpdatedDateCell = ({ value }) => {
@@ -117,7 +97,6 @@ const UpdatedDateCell = ({ value }) => {
 };
 
 const ActionsCell = ({ data, context }) => {
-  if (data?._isGroupHeader) return null;
   return (
     <div className={styles.actions}>
       <button
@@ -131,36 +110,15 @@ const ActionsCell = ({ data, context }) => {
     </div>
   );
 };
-// ─── helpers ─────────────────────────────────────────────────────────────────
 
-function buildShowLabel(show) {
-  if (!show) return null;
-
-  const formatDate = (dateString) => {
-    if (!dateString) return "";
-    const date = new Date(dateString);
-    return date.toISOString().split("T")[0];
-  };
-
-  const date = show.date ? formatDate(show.date) : "";
-  const artist = show.artist ?? show.billing?.mainBilling ?? "";
-  return [date, artist].filter(Boolean).join(" ");
-}
-
-// ─── TasksView ───────────────────────────────────────────────────────────────
+// ─── TasksView ────────────────────────────────────────────────────────────────
 
 export default function TasksView() {
   useTaskEvents();
   const updateTask = useUpdateTask();
-
   const gridRef = useRef();
 
-  // filters from global store
   const { filterStatus, filterPriority, filterLinked } = useRavenStore();
-
-  // ── view state
-  const [viewMode, setViewMode] = useState("grouped"); // 'flat' | 'grouped'
-  const sortField = "updatedAt"; // default sort field is "updatedAt"
 
   // ── modal state
   const [modalOpen, setModalOpen] = useState(false);
@@ -177,8 +135,6 @@ export default function TasksView() {
   const linkedParam = { all: undefined, linked: "true", general: "false" }[filterLinked];
 
   const queryParams = {
-    sort: sortField,
-    order: "desc",
     linked: linkedParam,
     status: filterStatus.length > 0 ? filterStatus.join(",") : undefined,
     priority: filterPriority.length > 0 ? filterPriority.join(",") : undefined,
@@ -195,83 +151,77 @@ export default function TasksView() {
     return map;
   }, [shows]);
 
-  // ── row data: flat or grouped
+  // ── row data
   const rowData = useMemo(() => {
-    if (viewMode === "flat") {
-      return tasks.map((t) => ({
-        ...t,
-        googleFolderId: t.showFolderId,
-        _showDate: t.showFolderId
-          ? showMap[t.showFolderId]?.date
-            ? new Date(showMap[t.showFolderId].date).toLocaleDateString("en-US", {
-                year: "numeric",
-                month: "2-digit",
-                day: "2-digit",
-              })
-            : ""
-          : "",
-        _showArtist: t.showFolderId
-          ? (showMap[t.showFolderId]?.artist ?? showMap[t.showFolderId]?.billing?.mainBilling ?? "")
-          : "",
-        _updatedLabel: t.updatedAt,
-      }));
+    return tasks.map((t) => ({
+      ...t,
+      googleFolderId: t.showFolderId,
+      _showDate: t.showFolderId
+        ? showMap[t.showFolderId]?.date
+          ? new Date(showMap[t.showFolderId].date).toLocaleDateString("en-US", {
+              year: "numeric",
+              month: "2-digit",
+              day: "2-digit",
+            })
+          : ""
+        : "",
+      _showArtist: t.showFolderId
+        ? (showMap[t.showFolderId]?.artist ?? showMap[t.showFolderId]?.billing?.mainBilling ?? "")
+        : "",
+      _updatedLabel: t.updatedAt,
+    }));
+  }, [tasks, showMap]);
+
+  // ── modal handlers
+  const openCreate = useCallback((showFolderId = null) => {
+    setEditingTask(null);
+    setPreloadFolderId(showFolderId);
+    setModalOpen(true);
+  }, []);
+
+  const handleDelete = useCallback((task) => {
+    setPendingDelete(task);
+    setConfirmOpen(true);
+  }, []);
+
+  const handleConfirmDelete = useCallback(async () => {
+    if (!pendingDelete) return;
+    await deleteTask.mutateAsync(pendingDelete._id);
+    setPendingDelete(null);
+  }, [pendingDelete, deleteTask]);
+
+  const handleCellClicked = useCallback((e) => {
+    if (e.colDef.field === "_showArtist" && e.data?.googleFolderId) {
+      window.open(
+        `https://drive.google.com/drive/folders/${e.data.googleFolderId}`,
+        "_blank",
+        "noopener,noreferrer"
+      );
     }
-
-    // Grouped mode: inject show-header rows, unlinked at bottom
-    const linked = tasks.filter((t) => t.showFolderId);
-    const unlinked = tasks.filter((t) => !t.showFolderId);
-
-    // Group linked tasks by show, ordered by show performance date asc
-    const groups = {};
-    for (const t of linked) {
-      if (!groups[t.showFolderId]) groups[t.showFolderId] = [];
-      groups[t.showFolderId].push(t);
-    }
-
-    const sortedFolderIds = Object.keys(groups).sort((a, b) => {
-      const dateA = showMap[a]?.date ? new Date(showMap[a].date) : new Date(0);
-      const dateB = showMap[b]?.date ? new Date(showMap[b].date) : new Date(0);
-      return dateA - dateB;
-    });
-
-    const rows = [];
-
-    for (const folderId of sortedFolderIds) {
-      const show = showMap[folderId];
-      const label = buildShowLabel(show) ?? "Unknown Show";
-      rows.push({
-        _isGroupHeader: true,
-        _groupLabel: label,
-        _folderId: folderId,
-        _id: `header-${folderId}`,
-      });
-      for (const t of groups[folderId]) {
-        rows.push({
-          ...t,
-          _showLabel: label,
-          _updatedLabel: t.updatedAt,
-        });
-      }
-    }
-
-    if (unlinked.length) {
-      rows.push({ _isGroupHeader: true, _groupLabel: "", _id: "header-general" });
-      for (const t of unlinked) {
-        rows.push({
-          ...t,
-          _showLabel: null,
-          _updatedLabel: t.updatedAt,
-        });
-      }
-    }
-
-    return rows;
-  }, [tasks, viewMode, showMap]);
+  }, []);
 
   // ── column defs
-  const columnDefs = useMemo(() => {
-    const resizableInFlatMode = viewMode === "flat";
-    const shared = [
+  const columnDefs = useMemo(
+    () => [
+      {
+        field: "_showDate",
+        headerName: "Date",
+        cellRenderer: ShowDateCell,
+        sortable: true,
+        width: 100,
+        minWidth: 100,
+        maxWidth: 100,
+      },
+      {
+        field: "_showArtist",
+        headerName: "Artist",
+        cellRenderer: ShowArtistCell,
+        sortable: true,
+        resizable: true,
+        flex: 2,
+        minWidth: 150,
+        maxWidth: 300,
+      },
       {
         field: "description",
         headerName: "Description",
@@ -285,7 +235,7 @@ export default function TasksView() {
         editable: true,
         singleClickEdit: true,
         sortable: true,
-        resizable: resizableInFlatMode,
+        resizable: true,
         autoHeight: true,
         wrapText: true,
       },
@@ -303,7 +253,7 @@ export default function TasksView() {
           onSelect: (newVal) => updateTask.mutateAsync({ id: params.data._id, priority: newVal }),
         }),
         comparator: (valueA, valueB) => {
-          const order = TASK_PRIORITY; // ["urgent", "high", "medium", "low"]
+          const order = TASK_PRIORITY;
           return order.indexOf(valueA) - order.indexOf(valueB);
         },
         editable: true,
@@ -323,7 +273,7 @@ export default function TasksView() {
         }),
         editable: true,
         singleClickEdit: true,
-        resizable: resizableInFlatMode,
+        resizable: true,
         autoHeight: true,
         wrapText: true,
       },
@@ -362,145 +312,31 @@ export default function TasksView() {
         pinned: "right",
         suppressMovable: true,
       },
-    ];
-
-    if (viewMode === "flat") {
-      return [
-        {
-          field: "_showDate",
-          headerName: "Date",
-          cellRenderer: ShowDateCell,
-          sortable: true,
-          width: 100,
-          minWidth: 100,
-          maxWidth: 100,
-        },
-        {
-          field: "_showArtist",
-          headerName: "Artist",
-          cellRenderer: ShowArtistCell,
-          sortable: true,
-          resizable: true,
-          flex: 2,
-          minWidth: 150,
-          maxWidth: 300,
-        },
-        ...shared,
-      ];
-    }
-
-    return shared;
-  }, [viewMode, updateTask]);
-
-  const defaultColDef = useMemo(
-    () => ({
-      resizable: false,
-      filter: false,
-      sortable: viewMode === "flat",
-    }),
-    [viewMode]
+    ],
+    [updateTask]
   );
 
-  const getRowId = useCallback(({ data }) => data._id ?? data._id, []);
+  const defaultColDef = useMemo(() => ({ resizable: false, filter: false, sortable: true }), []);
 
-  const getRowClass = useCallback(({ data }) => {
-    if (data?._isGroupHeader) return styles.groupHeaderRow;
-    return "";
-  }, []);
+  const getRowId = useCallback(({ data }) => data._id, []);
 
-  const isFullWidthRow = useCallback(({ rowNode }) => !!rowNode.data?._isGroupHeader, []);
-
-  const fullWidthCellRenderer = useCallback(({ data }) => {
-    const handleClick = () => {
-      if (data._folderId) {
-        window.open(
-          `https://drive.google.com/drive/folders/${data._folderId}`,
-          "_blank",
-          "noopener,noreferrer"
-        );
-      }
-    };
-
-    return (
-      <div
-        className={`${styles.groupHeader} ${data._groupLabel === "" ? styles.groupHeaderUnlinked : ""}`}
-        onClick={handleClick}
-      >
-        {data._groupLabel}
-      </div>
-    );
-  }, []);
-
-  // ── modal handlers
-  const openCreate = useCallback((showFolderId = null) => {
-    setEditingTask(null);
-    setPreloadFolderId(showFolderId);
-    setModalOpen(true);
-  }, []);
-
-  const handleDelete = useCallback((task) => {
-    setPendingDelete(task);
-    setConfirmOpen(true);
-  }, []);
-
-  const handleConfirmDelete = useCallback(async () => {
-    if (!pendingDelete) return;
-    await deleteTask.mutateAsync(pendingDelete._id);
-    setPendingDelete(null);
-  }, [pendingDelete, deleteTask]);
-
-  const context = useMemo(
-    () => ({ viewMode: viewMode, onDelete: handleDelete }),
-    [viewMode, handleDelete]
-  );
+  const context = useMemo(() => ({ onDelete: handleDelete }), [handleDelete]);
 
   // ── show label for modal
   const modalShowLabel = useMemo(() => {
     const folderId = editingTask?.showFolderId ?? preloadFolderId;
     if (!folderId) return null;
-    return buildShowLabel(showMap[folderId]) ?? folderId;
+    const show = showMap[folderId];
+    if (!show) return folderId;
+    const date = show.date ? new Date(show.date).toISOString().split("T")[0] : "";
+    const artist = show.artist ?? show.billing?.mainBilling ?? "";
+    return [date, artist].filter(Boolean).join(" ") || folderId;
   }, [editingTask, preloadFolderId, showMap]);
-
-  useEffect(() => {
-    if (viewMode === "grouped" && gridRef.current?.api) {
-      gridRef.current.api.applyColumnState({
-        defaultState: { sort: null },
-      });
-    }
-  }, [viewMode]);
-
-  const handleCellClicked = useCallback((e) => {
-    console.log(`field: ${e.colDef.field}, folderId: ${e.data.googleFolderId}`);
-    if (e.colDef.field === "_showArtist" && e.data?.googleFolderId) {
-      window.open(
-        `https://drive.google.com/drive/folders/${e.data.googleFolderId}`,
-        "_blank",
-        "noopener,noreferrer"
-      );
-    }
-  }, []);
 
   return (
     <div className={styles.root}>
       {/* ── toolbar */}
       <div className={styles.toolbar}>
-        {/* view mode toggle */}
-        <div className={styles.segmented}>
-          <button
-            className={styles.segment}
-            data-active={viewMode === "flat" || undefined}
-            onClick={() => setViewMode("flat")}
-          >
-            Flat
-          </button>
-          <button
-            className={styles.segment}
-            data-active={viewMode === "grouped" || undefined}
-            onClick={() => setViewMode("grouped")}
-          >
-            By Show
-          </button>
-        </div>
         <div className={styles.rightActions}>
           <button className="primary" onClick={() => openCreate()}>
             <SvgAddTask />
@@ -526,10 +362,12 @@ export default function TasksView() {
             defaultColDef={defaultColDef}
             onCellClicked={handleCellClicked}
             getRowId={getRowId}
-            getRowClass={getRowClass}
-            isFullWidthRow={isFullWidthRow}
-            fullWidthCellRenderer={fullWidthCellRenderer}
             context={context}
+            initialState={{
+              sort: {
+                sortModel: [{ colId: "priority", sort: "asc" }],
+              },
+            }}
             animateRows
             suppressCellFocus
           />

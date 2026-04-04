@@ -110,9 +110,15 @@
 }
 
 /* status colors */
-.status--open {
-  color: var(--status-open-fg);
+
+.status--todo {
+  color: var(--status-todo-fg);
 }
+
+.status--in_progress {
+  color: var(--status-in_progress-fg);
+}
+
 .status--resolved {
   color: var(--status-resolved-fg);
 }

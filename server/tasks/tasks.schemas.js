@@ -1,9 +1,8 @@
 import Joi from "joi";
 import authHeaderSchema from "../auth/auth.header.schema.js";
 
-const VALID_PRIORITIES = ["urgent", "high", "medium", "low"];
-const VALID_STATUSES = ["open", "resolved", "blocked", "shrug"];
-const VALID_SORT_FIELDS = ["createdAt", "updatedAt"];
+import { TASK_PRIORITY, TASK_STATUS } from "../../shared/constants/tasks.js";
+//const VALID_SORT_FIELDS = ["createdAt", "updatedAt"];
 const VALID_SORT_ORDERS = ["asc", "desc"];
 
 const commaSeparatedValid = (validValues) =>
@@ -22,9 +21,9 @@ class TasksSchemas {
     query: Joi.object({
       showFolderId: Joi.string(),
       linked: Joi.boolean(),
-      status: commaSeparatedValid(VALID_STATUSES),
-      priority: commaSeparatedValid(VALID_PRIORITIES),
-      sort: Joi.string().valid(...VALID_SORT_FIELDS),
+      status: commaSeparatedValid(TASK_STATUS),
+      priority: commaSeparatedValid(TASK_PRIORITY),
+      //      sort: Joi.string().valid(...VALID_SORT_FIELDS),
       order: Joi.string().valid(...VALID_SORT_ORDERS),
     }),
   };
@@ -42,10 +41,10 @@ class TasksSchemas {
       showFolderId: Joi.string().allow(null, ""),
       description: Joi.string().trim().min(1).required(),
       priority: Joi.string()
-        .valid(...VALID_PRIORITIES)
+        .valid(...TASK_PRIORITY)
         .default("medium"),
       status: Joi.string()
-        .valid(...VALID_STATUSES)
+        .valid(...TASK_STATUS)
         .default("open"),
       notes: Joi.string().allow("").default(""),
     }),
@@ -59,8 +58,8 @@ class TasksSchemas {
     body: Joi.object({
       showFolderId: Joi.string().allow(null, ""),
       description: Joi.string().trim().min(1),
-      priority: Joi.string().valid(...VALID_PRIORITIES),
-      status: Joi.string().valid(...VALID_STATUSES),
+      priority: Joi.string().valid(...TASK_PRIORITY),
+      status: Joi.string().valid(...TASK_STATUS),
       notes: Joi.string().allow(""),
     }).min(1), // require at least one field
   };

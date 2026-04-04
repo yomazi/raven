@@ -45,9 +45,13 @@
   --color-fen: #3fa882;
 
   /* Status */
-  --status-open-fg: #4a9eff;
-  --status-open-bg: #0d2a4a;
-  --status-open-bd: #1a4a8a;
+  --status-todo-fg: #a0a0a8;
+  --status-todo-bg: #1e1e24;
+  --status-todo-bd: #3a3a44;
+
+  --status-in_progress-fg: #4a9eff;
+  --status-in_progress-bg: #0d2a4a;
+  --status-in_progress-bd: #1a4a8a;
 
   --status-resolved-fg: #4ecf8a;
   --status-resolved-bg: #0d2e20;

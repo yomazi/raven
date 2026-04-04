@@ -1,7 +1,5 @@
 import mongoose from "mongoose";
-
-const PRIORITY = ["urgent", "high", "medium", "low"];
-const STATUS = ["open", "resolved", "blocked", "shrug"];
+import { TASK_PRIORITY, TASK_STATUS } from "../../shared/constants/tasks.js";
 
 const TaskSchema = new mongoose.Schema(
   {
@@ -17,15 +15,15 @@ const TaskSchema = new mongoose.Schema(
     },
     priority: {
       type: String,
-      enum: PRIORITY,
+      enum: TASK_PRIORITY,
       required: true,
       default: "medium",
     },
     status: {
       type: String,
-      enum: STATUS,
+      enum: TASK_STATUS,
       required: true,
-      default: "open",
+      default: "todo",
     },
     notes: {
       type: String,
@@ -37,9 +35,6 @@ const TaskSchema = new mongoose.Schema(
     timestamps: true, // createdAt + updatedAt
   }
 );
-
-export const TASK_PRIORITY = PRIORITY;
-export const TASK_STATUS = STATUS;
 
 const Task = mongoose.model("Task", TaskSchema, "Tasks");
 export default Task;

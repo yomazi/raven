@@ -4,22 +4,12 @@ import { createTask, deleteTask, fetchTask, fetchTasks, updateTask } from "../ap
 
 // ─── constants ───────────────────────────────────────────────────────────────
 
-export const TASK_PRIORITY = ["urgent", "high", "medium", "low"];
-export const TASK_STATUS = ["open", "resolved", "blocked", "shrug"];
-
-export const STATUS_LABEL = {
-  open: "Open",
-  resolved: "Resolved",
-  blocked: "Blocked",
-  shrug: "¯\\_(ツ)_/¯",
-};
-
-export const PRIORITY_LABEL = {
-  urgent: "Urgent",
-  high: "High",
-  medium: "Medium",
-  low: "Low",
-};
+import {
+  PRIORITY_LABEL,
+  STATUS_LABEL,
+  TASK_PRIORITY,
+  TASK_STATUS,
+} from "@shared/constants/tasks.js";
 
 // ─── query key factory ───────────────────────────────────────────────────────
 

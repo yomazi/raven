@@ -1,4 +1,10 @@
-import { PRIORITY_LABEL, STATUS_LABEL, TASK_PRIORITY, TASK_STATUS } from "@hooks/useTasks";
+import {
+  PRIORITY_LABEL,
+  STATUS_LABEL,
+  TASK_PRIORITY,
+  TASK_STATUS,
+} from "@shared/constants/tasks.js";
+
 import useRavenStore from "@store/useRavenStore";
 import styles from "./TasksFilter.module.css";
 
