@@ -3,6 +3,7 @@ import { usePatchShow } from "./usePatchShow.js";
 
 export const useShowProperties = (show) => {
   const [form, setForm] = useState(show ?? {});
+  const [isDirty, setIsDirty] = useState(false);
   const initializedRef = useRef(false);
 
   const { mutate: patch, isPending } = usePatchShow(show?.googleFolderId, (updatedShow) => {
@@ -12,6 +13,7 @@ export const useShowProperties = (show) => {
         ...prev,
         validation: updatedShow.validation,
       }));
+      setIsDirty(false);
     }, 0);
   });
 
@@ -26,10 +28,13 @@ export const useShowProperties = (show) => {
 
   const setField = useCallback((path, value) => {
     setForm((prev) => setNestedValue(prev, path, value));
+    setIsDirty(true);
   }, []);
 
   const save = useCallback(() => {
     patch(form);
+    // isDirty clears in the patch success callback, not here,
+    // so a failed save does not falsely clear the dirty state.
   }, [form, patch]);
 
   // EFFECT 2: Cmd+S / Ctrl+S
@@ -44,7 +49,7 @@ export const useShowProperties = (show) => {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [save]);
 
-  return { form, setField, save, isPending };
+  return { form, setField, save, isPending, isDirty };
 };
 
 function setNestedValue(obj, path, value) {

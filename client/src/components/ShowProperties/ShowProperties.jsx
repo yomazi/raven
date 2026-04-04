@@ -35,7 +35,7 @@ const SECTIONS = [
 
 export default function ShowProperties({ showFolderId }) {
   const { data: show } = useShowById(showFolderId);
-  const { form, setField, save, isPending } = useShowProperties(show);
+  const { form, setField, save, isPending, isDirty } = useShowProperties(show);
   const sectionRefs = useRef({});
   const navRef = useRef(null);
 
@@ -61,7 +61,7 @@ export default function ShowProperties({ showFolderId }) {
       </nav>
 
       {/* Scrollable content */}
-      <div className={styles.content}>
+      <div className={styles.content} data-dirty={isDirty}>
         <div ref={(el) => (sectionRefs.current.core = el)}>
           <CoreSection show={form} setField={setField} />
         </div>
@@ -108,6 +108,7 @@ export default function ShowProperties({ showFolderId }) {
         scrollToSection={scrollToSection}
         onSave={save}
         isPending={isPending}
+        isDirty={isDirty}
       />
     </div>
   );

@@ -60,3 +60,7 @@
   overflow: auto;
   gap: 32px;
 }
+
+.content[data-dirty="true"] {
+  outline: 1px solid var(--color-ember);
+}
