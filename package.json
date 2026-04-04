@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "A sanity-inducing tool for Google Workspaces.",
   "main": "index.js",
+  "type": "module",
   "scripts": {
     "dev": "npm run dev:server",
     "dev:server": "npm --prefix server run dev",
@@ -17,15 +18,11 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs",
   "bugs": {
     "url": "https://github.com/yomazi/raven/issues"
   },
   "homepage": "https://github.com/yomazi/raven#readme",
   "devDependencies": {
     "prettier-plugin-organize-imports": "^4.3.0"
-  },
-  "dependencies": {
-    "cookie-parser": "^1.4.7"
   }
 }
