@@ -5,6 +5,11 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
+    "migrate": "npm run migrate --prefix server",
+    "migrate:list": "npm run migrate:list --prefix server",
+    "migrate:dry": "npm run migrate:dry --prefix server",
+    "migrate:down": "npm run migrate:down --prefix server",
+    "migrate:new": "npm run migrate:new --prefix server",
     "dev": "npm run dev:server",
     "dev:server": "npm --prefix server run dev",
     "start": "npm run start:server",

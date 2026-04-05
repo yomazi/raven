@@ -7,6 +7,11 @@
   "type": "module",
   "main": "index.js",
   "scripts": {
+    "migrate": "node migrations/runner.js",
+    "migrate:list": "node migrations/runner.js --list",
+    "migrate:dry": "node migrations/runner.js --dry-run",
+    "migrate:down": "node migrations/runner.js --down",
+    "migrate:new": "node migrations/new-migration.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "nodemon index.js",
     "start": "node index.js"
