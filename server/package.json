@@ -7,6 +7,8 @@
   "type": "module",
   "main": "index.js",
   "scripts": {
+    "logs": "FORCE_COLOR=1 node logviewer.js",
+    "logs:pick": "FORCE_COLOR=1 node logviewer.js --pick",
     "migrate": "node migrations/runner.js",
     "migrate:list": "node migrations/runner.js --list",
     "migrate:dry": "node migrations/runner.js --dry-run",
@@ -32,6 +34,7 @@
     "winston-daily-rotate-file": "^5.0.0"
   },
   "devDependencies": {
+    "@inquirer/select": "^5.1.2",
     "nodemon": "^3.1.11",
     "vite": "^7.3.1"
   }
