@@ -2,13 +2,21 @@ import {
   AddTaskIconRenderer,
   ArtistNameRenderer,
   CheckboxRenderer,
-  CopyArtistLinkRenderer,
-  CopyDateAndArtistLinkRenderer,
   DateRenderer,
   FolderIconRenderer,
+  RowNumberRenderer,
 } from "@components/Content/shared/grid/renderers.jsx";
 
 export const columnDefs = [
+  {
+    headerName: "",
+    valueGetter: (params) => params.node.rowIndex + 1,
+    width: 20,
+    pinned: "left", // Keep it visible while scrolling horizontally
+    suppressMovable: true, // Prevents users from dragging it away
+    cellRenderer: RowNumberRenderer,
+    filter: false,
+  },
   {
     headerName: "",
     cellRenderer: AddTaskIconRenderer,

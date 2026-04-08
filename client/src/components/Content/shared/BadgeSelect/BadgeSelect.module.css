@@ -39,8 +39,8 @@
 
 /* ── Status colors ─────────────────────────────────────────────────────────── */
 
-.badge[data-status="na"],
-.option[data-status="na"] {
+.badge[data-status="n/a"],
+.option[data-status="n/a"] {
   color: var(--status-na-fg);
   background: var(--status-na-bg);
   border-color: var(--status-na-bd);

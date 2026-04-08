@@ -8,6 +8,10 @@ import SvgFolderOpen from "@svg/folder--open_google.svg?react";
 import { useState } from "react";
 import gridStyles from "./Grid.module.css";
 
+export const RowNumberRenderer = (params) => {
+  return <div className={gridStyles.rowNumberCell}>{params.value}</div>;
+};
+
 export const FolderIconRenderer = () => {
   return (
     <div className={gridStyles.folderLinkCell}>

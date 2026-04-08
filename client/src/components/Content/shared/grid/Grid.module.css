@@ -126,6 +126,14 @@
   transition: opacity 0.3s;
 }
 
+.rowNumberCell {
+  font-size: 0.75rem;
+  font-weight: 100;
+  font-variant-numeric: tabular-nums;
+  width: 100%;
+  text-align: right;
+}
+
 .artistNameCell {
   width: 100%;
   height: 100%;
@@ -257,6 +265,11 @@
 :global(.ag-center-aligned-cell) {
   /* hack: this class doesn't seem to exist in AG Grid, but it should. */
   text-align: center;
+}
+
+:global(.ag-right-aligned-cell) {
+  /* hack: this class doesn't seem to exist in AG Grid, but it should. */
+  text-align: right;
 }
 
 :global(.ag-row) {
