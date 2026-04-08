@@ -90,10 +90,10 @@
 }
 
 /* status badges */
-.status--todo {
-  color: var(--status-todo-fg);
-  background-color: var(--status-todo-bg);
-  border: 1px solid var(--status-todo-bd);
+.status--to_do {
+  color: var(--status-to_do-fg);
+  background-color: var(--status-to_do-bg);
+  border: 1px solid var(--status-to_do-bd);
 }
 .status--in_progress {
   color: var(--status-in_progress-fg);

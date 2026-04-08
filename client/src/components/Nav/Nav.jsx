@@ -109,6 +109,17 @@ const Nav = () => {
               </NavLink>
             </NavigationMenu.Link>
           </NavigationMenu.Item>
+          <NavigationMenu.Item className={styles.navItem}>
+            <NavigationMenu.Link asChild>
+              <NavLink
+                to={`/shows/${selectedShow?.googleFolderId}/build`}
+                className={styles.navLink}
+                aria-disabled={!isSelectedShowVisible}
+              >
+                Build
+              </NavLink>
+            </NavigationMenu.Link>
+          </NavigationMenu.Item>
         </NavigationMenu.List>
       </NavigationMenu.Root>
 

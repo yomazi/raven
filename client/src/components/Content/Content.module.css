@@ -40,3 +40,10 @@
   width: 7px;
   background-size: 7px 6px;
 }
+
+.rightPaneWrapper {
+  flex: 1;
+  height: 100%;
+  overflow: auto;
+  min-width: 0; /* prevents flex blowout */
+}

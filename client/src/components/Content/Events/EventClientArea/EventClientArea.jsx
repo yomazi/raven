@@ -1,8 +1,9 @@
 // ClientArea.jsx
+import Banner from "@components/Content/shared/Banner/Banner.jsx";
+import BuildProperties from "@components/Content/shared/BuildProperties/BuildProperties.jsx";
 import ShowProperties from "@components/ShowProperties/ShowProperties.jsx";
 import { useShowById } from "@hooks/useShowById.js";
 import { Navigate, Route, Routes, useParams } from "react-router-dom";
-import Banner from "./Banner/Banner.jsx";
 import Dragonfly from "./Dragonfly/Dragonfly.jsx";
 import styles from "./EventClientArea.module.css";
 
@@ -32,6 +33,7 @@ const EventClientArea = () => {
                 path="properties"
                 element={<ShowProperties key={showFolderId} showFolderId={showFolderId} />}
               />
+              <Route path="build" element={<BuildProperties show={show} />} />
               <Route path="dragonfly" element={<Dragonfly showFolderId={showFolderId} />} />
               <Route
                 path="dragonfly/:threadId/:messageId"

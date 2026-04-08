@@ -23,7 +23,7 @@ const TaskSchema = new mongoose.Schema(
       type: String,
       enum: TASK_STATUS,
       required: true,
-      default: "todo",
+      default: "to_do",
     },
     notes: {
       type: String,

@@ -47,20 +47,6 @@
   font-size: 14px;
 }
 
-.dateCell {
-  font-family: var(--font-ui);
-  font-size: 13px;
-  color: var(--color-frost);
-  line-height: 1;
-}
-
-.artistCell {
-  font-family: var(--font-ui);
-  font-size: 13px;
-  color: var(--color-moonlight);
-  font-weight: 500;
-}
-
 .multiCell {
   font-family: var(--font-ui);
   font-size: 13px;

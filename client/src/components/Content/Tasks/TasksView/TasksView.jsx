@@ -1,3 +1,5 @@
+import BadgeSelect from "@components/Content/shared/BadgeSelect/BadgeSelect.jsx";
+import BadgeSelectAdapter from "@components/Content/shared/BadgeSelect/BadgeSelectAdapter.jsx";
 import { useShows } from "@hooks/useShows";
 import { useDeleteTask, useTaskEvents, useTasks, useUpdateTask } from "@hooks/useTasks";
 import AddTaskModal from "@modals/AddTaskModal/AddTaskModal";
@@ -44,18 +46,26 @@ const theme = themeAlpine.withPart(colorSchemeDark).withParams({
 export function StatusCell({ value }) {
   if (!value) return null;
   return (
-    <div className={`${styles.taskBadge} ${styles[`status--${value}`]}`}>
-      {STATUS_LABEL[value] ?? value}
-    </div>
+    <BadgeSelect
+      value={value}
+      options={TASK_STATUS}
+      labels={STATUS_LABEL}
+      variant="status"
+      readonly
+    />
   );
 }
 
 export function PriorityCell({ value }) {
   if (!value) return null;
   return (
-    <div className={`${styles.taskBadge} ${styles[`priority--${value}`]}`}>
-      {PRIORITY_LABEL[value] ?? value}
-    </div>
+    <BadgeSelect
+      value={value}
+      options={TASK_PRIORITY}
+      labels={PRIORITY_LABEL}
+      variant="priority"
+      readonly
+    />
   );
 }
 
@@ -245,11 +255,11 @@ export default function TasksView() {
         headerClass: "ag-header-cell-center",
         cellClass: "ag-center-aligned-cell",
         cellRenderer: PriorityCell,
-        cellEditor: BadgeSelectEditor,
+        cellEditor: BadgeSelectAdapter,
         cellEditorParams: (params) => ({
           options: TASK_PRIORITY,
           labels: PRIORITY_LABEL,
-          badgeClass: (val) => styles[`priority--${val}`] + " " + styles.taskBadge,
+          variant: "priority",
           onSelect: (newVal) => updateTask.mutateAsync({ id: params.data._id, priority: newVal }),
         }),
         comparator: (valueA, valueB) => {
@@ -283,11 +293,11 @@ export default function TasksView() {
         headerClass: "ag-header-cell-center",
         cellClass: "ag-center-aligned-cell",
         cellRenderer: StatusCell,
-        cellEditor: BadgeSelectEditor,
+        cellEditor: BadgeSelectAdapter,
         cellEditorParams: (params) => ({
           options: TASK_STATUS,
           labels: STATUS_LABEL,
-          badgeClass: (val) => styles[`status--${val}`] + " " + styles.taskBadge,
+          variant: "status",
           onSelect: (newVal) => updateTask.mutateAsync({ id: params.data._id, status: newVal }),
         }),
         comparator: (valueA, valueB) => {

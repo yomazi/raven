@@ -2,15 +2,6 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef } from "react";
 import { createTask, deleteTask, fetchTask, fetchTasks, updateTask } from "../api/tasks.api.js";
 
-// ─── constants ───────────────────────────────────────────────────────────────
-
-import {
-  PRIORITY_LABEL,
-  STATUS_LABEL,
-  TASK_PRIORITY,
-  TASK_STATUS,
-} from "@shared/constants/tasks.js";
-
 // ─── query key factory ───────────────────────────────────────────────────────
 
 export const taskKeys = {
@@ -49,11 +40,25 @@ export function useCreateTask() {
   });
 }
 
+/*
 export function useUpdateTask() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: updateTask,
     onSuccess: () => qc.invalidateQueries({ queryKey: taskKeys.all }),
+  });
+}
+*/
+export function useUpdateTask() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: updateTask,
+    onSuccess: (updatedTask) => {
+      qc.setQueriesData({ queryKey: taskKeys.all }, (prev) => {
+        if (!Array.isArray(prev)) return prev;
+        return prev.map((t) => (t._id === updatedTask._id ? updatedTask : t));
+      });
+    },
   });
 }
 

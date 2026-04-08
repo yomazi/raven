@@ -1,0 +1,99 @@
+/* client/src/components/Toast/ToastProvider.module.css */
+
+.viewport {
+  position: fixed;
+  bottom: 1.5rem;
+  left: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: 360px;
+  max-width: 100vw;
+  z-index: 9999;
+  outline: none;
+}
+
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  background: var(--color-stone);
+  border: 1px solid var(--color-wyrd);
+  border-radius: 6px;
+  padding: 0.75rem 1rem;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  position: relative;
+
+  &[data-state="open"] {
+    animation: slideIn 150ms ease-out;
+  }
+  &[data-state="closed"] {
+    animation: slideOut 150ms ease-in forwards;
+  }
+}
+
+.title {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-moonlight);
+}
+
+.description {
+  font-size: 0.8125rem;
+  color: var(--color-moonlight);
+}
+
+.undoBtn {
+  align-self: flex-start;
+  margin-top: 0.25rem;
+  padding: 0.2rem 0.6rem;
+  font-size: 0.85rem;
+  background: transparent;
+  border: 1px solid var(--color-rune);
+  border-radius: 4px;
+  color: var(--color-moonlight);
+  cursor: pointer;
+
+  &:hover {
+    background: var(--color-wyrd);
+  }
+}
+
+.closeBtn {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  background: transparent;
+  border: none;
+  color: var(--color-moonlight);
+  cursor: pointer;
+  font-size: 0.9rem;
+  line-height: 1;
+  padding: 0.2rem;
+
+  &:hover {
+    color: var(--color-ember);
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideOut {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}

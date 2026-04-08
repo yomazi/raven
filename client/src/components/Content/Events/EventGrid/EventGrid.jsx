@@ -1,3 +1,4 @@
+import gridThemeParams from "@components/Content/shared/grid/grid-theme-params.js";
 import { useShows } from "@hooks/useShows.js";
 import useRavenStore from "@store/useRavenStore.js";
 import {
@@ -14,28 +15,7 @@ import { columnDefs } from "./grid-definitions.js";
 
 ModuleRegistry.registerModules([AllCommunityModule]);
 
-const theme = themeAlpine.withPart(colorSchemeDark).withParams({
-  cellHorizontalPadding: 8,
-
-  // Chrome
-  borderColor: "#3d2f8a", // --color-wyrd-dim
-  rowBorder: { color: "#1d1828", width: 1 }, // --color-dusk
-
-  // Header
-  headerBackgroundColor: "#110e1a", // --color-void
-  headerTextColor: "#f0e8d0", // --color-moonlight
-
-  // Rows
-  oddRowBackgroundColor: "#303030",
-  rowHoverColor: "#2e2648", // --color-stone
-  selectedRowBackgroundColor: "#4a3d78", // --color-wyrd-dim
-
-  // Text
-  foregroundColor: "#e3e3e3",
-
-  // Icons
-  iconColor: "#e3e3e3",
-});
+const theme = themeAlpine.withPart(colorSchemeDark).withParams(gridThemeParams);
 
 const EventGrid = () => {
   const gridRef = useRef();
@@ -85,6 +65,8 @@ const EventGrid = () => {
   useEffect(() => {
     selectedShowRef.current = selectedShow;
   }, [selectedShow]);
+
+  const getRowId = useCallback(({ data }) => data.googleFolderId, []);
 
   const onFilterChanged = useCallback(() => {
     if (!selectedShow) return;
@@ -275,6 +257,7 @@ const EventGrid = () => {
           animateRows={false}
           columnDefs={columnDefs}
           defaultColDef={{ resizable: false, suppressMovable: true }}
+          getRowId={getRowId}
           isExternalFilterPresent={isExternalFilterPresent}
           doesExternalFilterPass={doesExternalFilterPass}
           onCellClicked={handleCellClicked}

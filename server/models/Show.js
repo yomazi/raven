@@ -1,11 +1,74 @@
 import mongoose from "mongoose";
+import { BASE_STATUS, CONTRACT_STATUS } from "../../shared/constants/builds.js";
 
 const { Schema } = mongoose;
 
 // subdocument schemas
+const buildEventSchema = new Schema(
+  {
+    type: {
+      type: String,
+      enum: [
+        "phase_completed",
+        "phase_reopened",
+        "contract_status_changed",
+        "sis_released",
+        "roster_changed",
+      ],
+      required: true,
+    },
+    date: { type: Date, required: true },
+    phase: { type: String, enum: ["setup", "build", "close"] },
+    triggeredBy: { type: String },
+    previousCompletionDate: { type: Date },
+    from: { type: String },
+    to: { type: String },
+    value: { type: Schema.Types.Mixed },
+    note: { type: String },
+  },
+  { _id: false }
+);
+
 const buildSchema = new Schema(
   {
-    shouldShowInRoster: { type: Boolean, default: false },
+    shouldShowInRoster: { type: Boolean, default: true },
+
+    // --- Context ---
+    notes: { type: String },
+    gmailLinks: [{ type: String }],
+    announceOnSaleNotes: { type: String },
+    dateConfirmed: { type: Date, default: Date.now }, // automatically set to the date the show was created; can be updated
+
+    // --- Setup ---
+    showFolder: { type: String, enum: BASE_STATUS, default: "done" },
+    calendarUpdated: { type: String, enum: BASE_STATUS, default: "to do" },
+    bookingSpreadsheet: { type: String, enum: BASE_STATUS, default: "to do" },
+    offerInFolder: { type: String, enum: BASE_STATUS, default: "to do" },
+    packetSent: { type: String, enum: BASE_STATUS, default: "to do" },
+    sisPopulated: { type: String, enum: BASE_STATUS, default: "to do" },
+    dateSetupComplete: { type: Date }, // auto-set when Setup rollup hits 'done'
+
+    // --- Build ---
+    tessitura: { type: String, enum: BASE_STATUS, default: "to do" },
+    tnew: { type: String, enum: BASE_STATUS, default: "to do" },
+    marketingAssetsCompiled: { type: String, enum: BASE_STATUS, default: "to do" },
+    marketingAssetsLastCheckin: { type: Date },
+    sisReleased: { type: String, enum: BASE_STATUS, default: "to do" },
+    dateBuildComplete: { type: Date }, // auto-set when Build rollup hits 'done'
+
+    // --- Close ---
+    contract: { type: String, enum: CONTRACT_STATUS, default: "to do" },
+    contractLastCheckin: { type: Date },
+    weDraftedContract: { type: Boolean },
+    dateDrafted: { type: Date }, // auto-set on contract status change
+    dateSigned: { type: Date }, // auto-set on contract status change
+    dateFEC: { type: Date }, // auto-set when contract is 'done'
+    livestream: { type: String, enum: BASE_STATUS, default: "n/a" },
+    workbook: { type: String, enum: BASE_STATUS, default: "to do" },
+    dateCloseComplete: { type: Date }, // auto-set when Close rollup hits 'done'
+
+    // --- Audit log ---
+    events: { type: [buildEventSchema], default: [] },
   },
   { _id: false }
 );

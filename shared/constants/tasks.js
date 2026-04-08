@@ -1,12 +1,12 @@
 // shared/constants/taskEnums.js
 
-export const TASK_STATUS = ["todo", "in_progress", "resolved", "blocked", "shrug"];
+export const TASK_STATUS = ["to_do", "in_progress", "blocked", "done", "shrug"];
 export const TASK_PRIORITY = ["urgent", "high", "medium", "low"];
 
 export const STATUS_LABEL = {
-  todo: "To Do",
+  to_do: "To Do",
   in_progress: "In Progress",
-  resolved: "Resolved",
+  done: "Done",
   blocked: "Blocked",
   shrug: "¯\\_(ツ)_/¯",
 };

@@ -2,7 +2,7 @@ import Joi from "joi";
 import authHeaderSchema from "../auth/auth.header.schema.js";
 
 import { TASK_PRIORITY, TASK_STATUS } from "../../shared/constants/tasks.js";
-//const VALID_SORT_FIELDS = ["createdAt", "updatedAt"];
+
 const VALID_SORT_ORDERS = ["asc", "desc"];
 
 const commaSeparatedValid = (validValues) =>
@@ -45,7 +45,7 @@ class TasksSchemas {
         .default("medium"),
       status: Joi.string()
         .valid(...TASK_STATUS)
-        .default("open"),
+        .default("to_do"),
       notes: Joi.string().allow("").default(""),
     }),
   };

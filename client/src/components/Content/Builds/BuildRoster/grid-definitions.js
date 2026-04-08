@@ -11,26 +11,8 @@ import {
 export const columnDefs = [
   {
     headerName: "",
-    field: "copyDateAndArtistLink",
-    cellRenderer: CopyDateAndArtistLinkRenderer,
-    cellClass: "ag-center-aligned-cell",
-    width: 60,
-    minWidth: 60,
-    maxWidth: 60,
-    suppressAutoSize: true,
-  },
-  {
-    headerName: "",
-    field: "copyArtistLink",
-    cellRenderer: CopyArtistLinkRenderer,
-    width: 50,
-    minWidth: 50,
-    maxWidth: 50,
-    suppressAutoSize: true,
-  },
-  {
-    headerName: "",
     cellRenderer: AddTaskIconRenderer,
+    cellClass: "ag-center-aligned-cell",
     width: 50,
     minWidth: 50,
     maxWidth: 50,

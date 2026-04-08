@@ -111,20 +111,22 @@
 
 /* status colors */
 
-.status--todo {
-  color: var(--status-todo-fg);
+.status--to_do {
+  color: var(--status-to_do-fg);
 }
 
 .status--in_progress {
   color: var(--status-in_progress-fg);
 }
 
-.status--resolved {
-  color: var(--status-resolved-fg);
-}
 .status--blocked {
   color: var(--status-blocked-fg);
 }
+
+.status--done {
+  color: var(--status-done-fg);
+}
+
 .status--shrug {
   color: var(--status-shrug-fg);
 }

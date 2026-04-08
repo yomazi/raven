@@ -12,7 +12,7 @@ import styles from "./AddTaskModal.module.css";
 const EMPTY_FORM = {
   description: "",
   priority: "medium",
-  status: "open",
+  status: "to_do",
   notes: "",
   showFolderId: null,
 };
@@ -53,7 +53,7 @@ export default function TaskModal({
       setForm({
         description: task.description ?? "",
         priority: task.priority ?? "medium",
-        status: task.status ?? "open",
+        status: task.status ?? "to_do",
         notes: task.notes ?? "",
         showFolderId: task.showFolderId ?? null,
       });

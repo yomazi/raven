@@ -1,0 +1,21 @@
+.clientArea {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  padding: 1rem 0 0 1rem;
+  background-color: var(--color-void);
+  color: var(--color-ember);
+  box-sizing: border-box;
+}
+
+.routeContainer {
+  flex: 1;
+  overflow: hidden;
+  min-height: 0;
+}
+
+.empty {
+  margin: 1rem;
+}

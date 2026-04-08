@@ -1,5 +1,6 @@
 import log from "../logging/log.js";
 import ShowsRepository from "./shows.repository.js";
+import { flatten, processBuildSideEffects, processPhaseCompletions } from "./shows.utilities.js";
 
 class ShowsService {
   static #mapDriveShowToDocument(driveShow) {
@@ -10,7 +11,6 @@ class ShowsService {
       isMulti: driveShow.multipleShows,
       unparsed: driveShow.unparsed ?? false,
       deleted: false,
-      ...(driveShow.build !== undefined && { build: driveShow.build }),
     };
   }
 
@@ -190,18 +190,70 @@ class ShowsService {
   }
 
   static async patch(googleFolderId, updates) {
-    // Apply updates
-    const show = await ShowsRepository.patch(googleFolderId, updates);
+    // 1. Fetch current show for side-effect comparisons
+    const current = await ShowsRepository.findByGoogleFolderId(googleFolderId);
+    if (!current) return null;
+
+    const previousBuild = current.build?.toObject?.() ?? current.build ?? {};
+
+    // 2. Flatten updates so all checks use dot-notation keys consistently
+    const flatUpdates = flatten(updates);
+
+    // 3. Compute build side effects (extra fields + pre-patch events)
+    const { extra: preExtra, events: preEvents } = processBuildSideEffects(
+      flatUpdates,
+      previousBuild
+    );
+
+    const mergedUpdates = { ...flatUpdates, ...preExtra };
+
+    // 4. Write the patch
+    const show = await ShowsRepository.patch(googleFolderId, mergedUpdates);
     if (!show) return null;
 
-    // Recompute warnings on every save
+    const updatedBuild = show.build?.toObject?.() ?? show.build ?? {};
+
+    // 5. Compute phase completion side effects (extra fields + post-patch events)
+    const { extra: postExtra, events: postEvents } = processPhaseCompletions(
+      updatedBuild,
+      previousBuild
+    );
+
+    const allEvents = [...preEvents, ...postEvents];
+
+    // 6. Recompute warnings
     const warnings = ShowsService.#computeWarnings(show);
-    const updated = await ShowsRepository.patch(googleFolderId, {
-      "validation.warnings": warnings,
+
+    // 7. Write second patch if needed (phase dates + warnings)
+    const needsSecondPatch =
+      Object.keys(postExtra).length > 0 ||
+      warnings.length !== (current.validation?.warnings?.length ?? 0);
+
+    let finalShow = show;
+
+    if (needsSecondPatch) {
+      finalShow = await ShowsRepository.patch(googleFolderId, {
+        ...postExtra,
+        "validation.warnings": warnings,
+      });
+    } else {
+      await ShowsRepository.patch(googleFolderId, {
+        "validation.warnings": warnings,
+      });
+    }
+
+    // 8. Push events separately via $push to avoid clobbering the array
+    if (allEvents.length > 0) {
+      await ShowsRepository.pushBuildEvents(googleFolderId, allEvents);
+    }
+
+    log.info("patch", "Show patched", {
+      googleFolderId,
+      warnings: warnings.length,
+      events: allEvents.length,
     });
 
-    log.info("patch", "Show patched", { googleFolderId, warnings: warnings.length });
-    return updated;
+    return finalShow;
   }
 }
 

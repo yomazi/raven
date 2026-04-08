@@ -60,7 +60,7 @@ const SplitPane = ({ resizable, leftPane, rightPane }) => {
         className={`${styles.splitter}${resizable ? ` ${styles.dragHandle}` : ""}`}
         onMouseDown={onMouseDown}
       ></div>
-      {rightPane}
+      <div className={styles.rightPaneWrapper}>{rightPane}</div>
     </main>
   );
 };

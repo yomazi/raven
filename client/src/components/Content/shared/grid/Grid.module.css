@@ -1,0 +1,308 @@
+.ravenGridContainer {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background-color: var(--color-void);
+}
+
+.filterBar {
+  display: flex;
+  align-items: center;
+  border-left: 1px solid var(--color-wyrd-dim);
+}
+
+.filterInput {
+  flex: 1;
+  padding: 0.4rem 0.7rem;
+  font-size: 0.9rem;
+  border: none;
+  box-sizing: border-box;
+  font-weight: 300;
+  background-color: var(--color-void);
+  color: var(--color-moonlight);
+}
+
+.filterInput::-webkit-search-cancel-button {
+  display: none;
+}
+
+.upcomingFilter {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0 0.5rem 0 2rem;
+  font-size: 0.8rem;
+  color: var(--color-fen);
+  text-transform: uppercase;
+  cursor: pointer;
+  white-space: nowrap;
+  user-select: none;
+}
+
+.upcomingFilter input[type="checkbox"] {
+  accent-color: var(--color-fen);
+  cursor: pointer;
+}
+
+.filterInput::placeholder {
+  color: var(--color-fen);
+  text-transform: uppercase;
+  font-size: 0.8rem;
+}
+
+.filterInput::-webkit-search-cancel-button {
+  display: none;
+}
+
+.filterInput:focus,
+.filterInput:focus-visible {
+  outline-color: var(--color-ember);
+  background-color: var(--color-dusk);
+}
+
+.filterInput:focus::placeholder,
+.filterInput:focus-visible::placeholder {
+  color: var(--color-moss);
+}
+
+.ravenGrid {
+  flex: 1;
+  height: 100%;
+}
+
+.ravenGrid :global(.ag-body-vertical-scroll) {
+  position: absolute !important;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.ravenGrid :global(.ag-body-vertical-scroll-viewport) {
+  pointer-events: all;
+}
+
+.ravenGrid :global(.ag-body-vertical-scroll-viewport)::-webkit-scrollbar-thumb {
+  background: color(srgb 0.7 0.7 0.7 / 0.4);
+  border-radius: 3px;
+}
+
+.ravenGrid :global(.ag-body-vertical-scroll-viewport) {
+  scrollbar-color: color(srgb 0.7 0.7 0.7 / 0.4) transparent;
+}
+
+/* folder icons */
+.folderLinkCell {
+  position: relative;
+  display: flex;
+  width: 22px;
+  height: 22px;
+}
+
+.folderLinkCell:hover .iconFolderClosed {
+  opacity: 0;
+}
+
+.folderLinkCell:hover .iconFolderOpen {
+  opacity: 1;
+}
+
+.iconFolderOpen {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.iconFolderClosed {
+  width: 100%;
+  height: 100%;
+  transition: opacity 0.3s;
+}
+
+.artistNameCell {
+  width: 100%;
+  height: 100%;
+  align-items: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 0.85rem;
+  font-weight: 100;
+}
+
+.artistNameCell:hover {
+  text-decoration: underline;
+}
+
+.dateCell {
+  width: 100%;
+  height: 100%;
+  font-variant-numeric: tabular-nums;
+  font-size: 0.85rem;
+  font-weight: 100;
+}
+
+.copyDateAndArtistLinkCell,
+.copyArtistLinkCell {
+  position: relative;
+  display: inline-block;
+  width: 22px;
+  height: 22px;
+  align-items: center;
+  color: #a8b2b8;
+}
+
+.copyDateAndArtistLinkCell:active,
+.copyArtistLinkCell:active {
+  color: white;
+}
+
+.addTaskCell {
+  position: relative;
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  align-items: center;
+  color: #a8b2b8;
+  top: 0;
+}
+
+.addTaskCell:active {
+  color: white;
+}
+
+.checkboxCell {
+  position: relative;
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  align-items: center;
+}
+
+.checkboxChecked {
+  color: #a8b2b8;
+}
+
+.textCell {
+  transition: all 0.1s ease-in-out;
+}
+
+.textCell:hover {
+  font-size: 1.1em;
+}
+
+.gridFooter {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 4px 8px;
+  font-size: 12px;
+  background: var(--color-void);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.5s ease;
+}
+
+.gridFooter[data-visible="true"] {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.rowCount {
+  color: var(--color-moonlight);
+}
+
+.statusMessage {
+  color: var(--color-wyrd);
+}
+
+.statusMessage[data-type="error"] {
+  color: var(--color-ember);
+}
+
+/* AG Grid style overrides */
+:global(.ag-root-wrapper) {
+  border-right: none;
+}
+
+:global(.ag-cell-focus:not(.ag-cell-range-selected):focus-within) {
+  border-color: transparent;
+}
+
+:global(.ag-cell-last-left-pinned) {
+  font-size: 0.8em;
+}
+
+:global(.ag-header-cell-text) {
+  font-size: 0.9rem;
+  text-transform: uppercase;
+}
+
+:global(.ag-header-cell[col-id="isMulti"] .ag-header-cell-label) {
+  justify-content: center;
+  text-align: center;
+}
+
+:global(.ag-center-aligned-cell) {
+  /* hack: this class doesn't seem to exist in AG Grid, but it should. */
+  text-align: center;
+}
+
+:global(.ag-row) {
+  cursor: pointer;
+}
+
+:global(.ag-cell[col-id="isMulti"]) {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+:global(.ag-cell) * {
+  transition: all 0.1s ease-in-out;
+}
+
+:global(.ag-cell:hover) .folderLinkCell {
+  width: 26px;
+  height: 26px;
+  margin: -2px; /* pulls the element outward equally on all sides */
+  color: #fff;
+}
+
+:global(.ag-cell:hover) .copyDateAndArtistLinkCell,
+:global(.ag-cell:hover) .copyArtistLinkCell {
+  width: 26px;
+  height: 26px;
+  margin: -2px;
+  padding-top: 0;
+  color: #fff;
+}
+
+:global(.ag-cell:hover) .addTaskCell {
+  width: 26px;
+  height: 26px;
+  margin: -4px;
+  padding-top: 1px;
+  color: #fff;
+}
+
+:global(.ag-cell:hover) .checkboxCell {
+  width: 22px;
+  height: 22px;
+}
+
+:global(.ag-cell:hover) .artistNameCell,
+:global(.ag-cell:hover) .dateCell {
+  font-size: 1.1em;
+}

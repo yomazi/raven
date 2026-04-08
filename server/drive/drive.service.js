@@ -64,9 +64,6 @@ class DriveService {
         date: show.date,
         multipleShows: show.multipleShows,
         unparsed: false,
-        build: {
-          shouldShowInRoster: true,
-        },
       });
 
       log.info("createShowFolder", "Show folder created", {

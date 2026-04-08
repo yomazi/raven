@@ -1,0 +1,182 @@
+/* client/src/components/Content/BadgeSelect/BadgeSelect.module.css */
+
+/* ── Shared badge base ─────────────────────────────────────────────────────── */
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0 1rem;
+  border-radius: 0.3rem;
+  font-size: 0.75rem;
+  font-weight: 400;
+  text-transform: uppercase;
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+  border: 1px solid transparent;
+  transition: opacity 100ms ease;
+  height: 1.8rem;
+  width: fit-content;
+
+  &:hover:not(.disabled) {
+    opacity: 0.8;
+  }
+  &:focus-visible {
+    outline: none;
+  }
+}
+
+.badge.readonly {
+  cursor: default;
+  pointer-events: none;
+}
+
+.badge.disabled {
+  cursor: default;
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+/* ── Status colors ─────────────────────────────────────────────────────────── */
+
+.badge[data-status="na"],
+.option[data-status="na"] {
+  color: var(--status-na-fg);
+  background: var(--status-na-bg);
+  border-color: var(--status-na-bd);
+}
+
+.badge[data-status="to_do"],
+.option[data-status="to_do"] {
+  color: var(--status-to_do-fg);
+  background: var(--status-to_do-bg);
+  border-color: var(--status-to_do-bd);
+}
+
+.badge[data-status="in_progress"],
+.option[data-status="in_progress"] {
+  color: var(--status-in_progress-fg);
+  background: var(--status-in_progress-bg);
+  border-color: var(--status-in_progress-bd);
+}
+
+.badge[data-status="blocked"],
+.option[data-status="blocked"] {
+  color: var(--status-blocked-fg);
+  background: var(--status-blocked-bg);
+  border-color: var(--status-blocked-bd);
+}
+
+.badge[data-status="done"],
+.option[data-status="done"] {
+  color: var(--status-done-fg);
+  background: var(--status-done-bg);
+  border-color: var(--status-done-bd);
+}
+
+.badge[data-status="resolved"],
+.option[data-status="resolved"] {
+  color: var(--status-resolved-fg);
+  background: var(--status-resolved-bg);
+  border-color: var(--status-resolved-bd);
+}
+
+.badge[data-status="shrug"],
+.option[data-status="shrug"] {
+  color: var(--status-shrug-fg);
+  background: var(--status-shrug-bg);
+  border-color: var(--status-shrug-bd);
+}
+
+/* Contract-specific status values — mapped to existing color families */
+
+.badge[data-status="drafted_by_us"],
+.option[data-status="drafted_by_us"],
+.badge[data-status="drafted_by_them"],
+.option[data-status="drafted_by_them"] {
+  color: var(--status-in_progress-fg);
+  background: var(--status-in_progress-bg);
+  border-color: var(--status-in_progress-bd);
+}
+
+.badge[data-status="waiting_for_them"],
+.option[data-status="waiting_for_them"],
+.badge[data-status="waiting_for_Par"],
+.option[data-status="waiting_for_Par"] {
+  color: var(--status-to_do-fg);
+  background: var(--status-to_do-bg);
+  border-color: var(--status-to_do-bd);
+}
+
+/* ── Priority colors ───────────────────────────────────────────────────────── */
+
+.badge[data-priority="urgent"],
+.option[data-priority="urgent"] {
+  color: var(--priority-urgent-fg);
+  background: var(--priority-urgent-bg);
+  border-color: var(--priority-urgent-bd);
+}
+
+.badge[data-priority="high"],
+.option[data-priority="high"] {
+  color: var(--priority-high-fg);
+  background: var(--priority-high-bg);
+  border-color: var(--priority-high-bd);
+}
+
+.badge[data-priority="medium"],
+.option[data-priority="medium"] {
+  color: var(--priority-medium-fg);
+  background: var(--priority-medium-bg);
+  border-color: var(--priority-medium-bd);
+}
+
+.badge[data-priority="low"],
+.option[data-priority="low"] {
+  color: var(--priority-low-fg);
+  background: var(--priority-low-bg);
+  border-color: var(--priority-low-bd);
+}
+
+/* ── Dropdown ──────────────────────────────────────────────────────────────── */
+
+.dropdown {
+  z-index: 9998;
+  background: var(--color-dusk);
+  border: 1px solid var(--color-wyrd-muted);
+  border-radius: 6px;
+  padding: 0.2rem 0.2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 160px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+}
+
+/* ── Option base ───────────────────────────────────────────────────────────── */
+
+.option {
+  display: block;
+  width: 100%;
+  text-align: center;
+  padding: 0.2rem 1rem;
+  border-radius: 0.3rem;
+  font-size: 0.75rem;
+  font-weight: 400;
+  cursor: pointer;
+  border: 1px solid transparent;
+  text-transform: uppercase;
+  font-weight: 300;
+  transition: opacity 80ms ease;
+  user-select: none;
+  white-space: nowrap;
+  height: 1.8rem;
+  &:hover {
+    opacity: 0.8;
+  }
+}
+
+.option.selected {
+  outline: 1px solid var(--color-frost);
+  outline-offset: -1px;
+}

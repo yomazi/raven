@@ -1,4 +1,5 @@
 import Show from "../models/Show.js";
+import { flatten } from "./shows.utilities.js";
 
 class ShowsRepository {
   static async upsertOne(show) {
@@ -46,7 +47,7 @@ class ShowsRepository {
 
   static async patch(googleFolderId, updates) {
     const { _id, __v, googleFolderId: _folderId, createdAt, ...safeUpdates } = updates;
-    const flatUpdates = ShowsRepository.#flatten(safeUpdates);
+    const flatUpdates = flatten(safeUpdates);
 
     return Show.findOneAndUpdate(
       { googleFolderId },
@@ -55,21 +56,12 @@ class ShowsRepository {
     );
   }
 
-  static #flatten(obj, prefix = "", result = {}) {
-    for (const [key, value] of Object.entries(obj)) {
-      const path = prefix ? `${prefix}.${key}` : key;
-      if (
-        value !== null &&
-        typeof value === "object" &&
-        !Array.isArray(value) &&
-        !(value instanceof Date)
-      ) {
-        ShowsRepository.#flatten(value, path, result);
-      } else {
-        result[path] = value;
-      }
-    }
-    return result;
+  static async pushBuildEvents(googleFolderId, events) {
+    return Show.findOneAndUpdate(
+      { googleFolderId },
+      { $push: { "build.events": { $each: events } } },
+      { new: true }
+    );
   }
 }
 
