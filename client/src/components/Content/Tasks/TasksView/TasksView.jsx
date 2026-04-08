@@ -1,5 +1,6 @@
 import BadgeSelect from "@components/Content/shared/BadgeSelect/BadgeSelect.jsx";
 import BadgeSelectAdapter from "@components/Content/shared/BadgeSelect/BadgeSelectAdapter.jsx";
+import gridStyles from "@components/Content/shared/grid/Grid.module.css";
 import { useShows } from "@hooks/useShows";
 import { useDeleteTask, useTaskEvents, useTasks, useUpdateTask } from "@hooks/useTasks";
 import AddTaskModal from "@modals/AddTaskModal/AddTaskModal";
@@ -21,8 +22,7 @@ import {
   themeAlpine,
 } from "ag-grid-community";
 import { AgGridReact } from "ag-grid-react";
-import { useCallback, useMemo, useRef, useState } from "react";
-import BadgeSelectEditor from "./BadgeSelectEditor/BadgeSelectEditor";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import styles from "./TasksView.module.css";
 import TextEditor from "./TextEditor/TextEditor";
 
@@ -141,6 +141,8 @@ export default function TasksView() {
   // ── data
   const { data: shows = [] } = useShows();
   const deleteTask = useDeleteTask();
+
+  const filterInputRef = useRef();
 
   const linkedParam = { all: undefined, linked: "true", general: "false" }[filterLinked];
 
@@ -343,10 +345,53 @@ export default function TasksView() {
     return [date, artist].filter(Boolean).join(" ") || folderId;
   }, [editingTask, preloadFolderId, showMap]);
 
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      const tag = document.activeElement?.tagName;
+      const isTyping =
+        tag === "INPUT" || tag === "TEXTAREA" || document.activeElement?.isContentEditable;
+
+      // the "/" key focuses the filter input, even if you're currently typing in another input
+      if (e.key === "/" && !isTyping) {
+        e.preventDefault();
+        filterInputRef.current?.focus();
+        filterInputRef.current?.select();
+      }
+
+      // the "Escape" key clears the filter input and removes the quick filter, even if you're currently typing in the filter input
+      if (e.key === "Escape") {
+        e.preventDefault();
+        // Only handle if filter input is focused or has a value
+        if (document.activeElement === filterInputRef.current || filterInputRef.current.value) {
+          filterInputRef.current.value = "";
+          gridRef.current.api.setGridOption("quickFilterText", "");
+          filterInputRef.current.blur();
+        }
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown, { capture: true });
+    return () => window.removeEventListener("keydown", handleKeyDown, { capture: true });
+  }, []);
+
+  const onFilterInput = useCallback((e) => {
+    gridRef.current.api.setGridOption("quickFilterText", e.target.value);
+  }, []);
+
   return (
     <div className={styles.root}>
       {/* ── toolbar */}
       <div className={styles.toolbar}>
+        <div className={`${gridStyles.filterBar} ${styles.filterBar}`}>
+          <input
+            ref={filterInputRef}
+            name="raven-grid-filter"
+            type="search"
+            placeholder='(press "/" to filter)'
+            onChange={onFilterInput}
+            className={gridStyles.filterInput}
+          />
+        </div>
+
         <div className={styles.rightActions}>
           <button className="primary" onClick={() => openCreate()}>
             <SvgAddTask />
