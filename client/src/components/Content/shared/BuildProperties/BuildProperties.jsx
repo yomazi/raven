@@ -359,6 +359,20 @@ export default function BuildProperties({ show }) {
             onChange={setField}
             overdue={isOverdue(build.contractLastCheckin)}
           />
+          <FieldRow
+            label="Livestream"
+            field="livestream"
+            value={build.livestream}
+            options={BASE_STATUS}
+            onChange={setField}
+          />
+          <FieldRow
+            label="Workbook"
+            field="workbook"
+            value={build.workbook}
+            options={BASE_STATUS}
+            onChange={setField}
+          />
           <div className={styles.checkboxRow}>
             <span className={styles.fieldLabel}>We drafted contract</span>
             <input
@@ -392,20 +406,6 @@ export default function BuildProperties({ show }) {
               </span>
             </div>
           )}
-          <FieldRow
-            label="Livestream"
-            field="livestream"
-            value={build.livestream}
-            options={BASE_STATUS}
-            onChange={setField}
-          />
-          <FieldRow
-            label="Workbook"
-            field="workbook"
-            value={build.workbook}
-            options={BASE_STATUS}
-            onChange={setField}
-          />
           {build.dateCloseComplete && (
             <div className={styles.phaseComplete}>
               Close complete {new Date(build.dateCloseComplete).toLocaleDateString()}
