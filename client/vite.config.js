@@ -13,6 +13,10 @@ export default defineConfig({
   server: {
     allowedHosts: ["raven.neuron9.io", "localhost"],
   },
+  hmr: {
+    protocol: "wss",
+    clientPort: 443,
+  },
   resolve: {
     alias: {
       "@shared": path.resolve(__dirname, "../shared"),

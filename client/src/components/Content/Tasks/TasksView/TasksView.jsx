@@ -377,6 +377,10 @@ export default function TasksView() {
     gridRef.current.api.setGridOption("quickFilterText", e.target.value);
   }, []);
 
+  const onGridReady = useCallback((params) => {
+    params.api.sizeColumnsToFit();
+  }, []);
+
   return (
     <div className={styles.root}>
       {/* ── toolbar */}
@@ -423,6 +427,7 @@ export default function TasksView() {
                 sortModel: [{ colId: "priority", sort: "asc" }],
               },
             }}
+            onGridReady={onGridReady}
             animateRows
             suppressCellFocus
           />

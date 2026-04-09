@@ -141,6 +141,10 @@ export default function BuildRoster() {
     [setSelectedShow, setIsSelectedShowVisible, navigate]
   );
 
+  const onGridReady = useCallback((params) => {
+    params.api.sizeColumnsToFit();
+  }, []);
+
   return (
     <div className={styles.root}>
       {/* ── grid */}
@@ -182,6 +186,7 @@ export default function BuildRoster() {
                   sortModel: [{ colId: "date", sort: "desc" }],
                 },
               }}
+              onGridReady={onGridReady}
             />
           </div>
         </>

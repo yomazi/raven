@@ -100,7 +100,10 @@ export const columnDefs = [
     comparator: rollupComparator,
     cellClass: "ag-center-aligned-cell",
     width: 50,
+    minWidth: 50,
+    maxWidth: 50,
     sortable: true,
+    suppressAutoSize: true,
   },
   {
     headerName: "b",
@@ -111,7 +114,10 @@ export const columnDefs = [
     comparator: rollupComparator,
     cellClass: "ag-center-aligned-cell",
     width: 50,
+    minWidth: 50,
+    maxWidth: 50,
     sortable: true,
+    suppressAutoSize: true,
   },
   {
     headerName: "c",
@@ -122,7 +128,10 @@ export const columnDefs = [
     comparator: rollupComparator,
     cellClass: "ag-center-aligned-cell",
     width: 50,
+    minWidth: 50,
+    maxWidth: 50,
     sortable: true,
+    suppressAutoSize: true,
   },
   {
     headerName: "",
@@ -133,5 +142,6 @@ export const columnDefs = [
     minWidth: 50,
     maxWidth: 50,
     sortable: false,
+    suppressAutoSize: true,
   },
 ];
