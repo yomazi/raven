@@ -73,13 +73,11 @@ export const columnDefs = [
     maxWidth: 110,
     cellRenderer: DateRenderer,
     suppressAutoSize: true,
-    sort: "asc",
   },
   {
     headerName: "Artist",
     field: "artist",
     flex: 1,
-    minWidth: 150,
     cellRenderer: ArtistNameRenderer,
   },
   {

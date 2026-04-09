@@ -8,6 +8,7 @@
   background-color: var(--color-void);
   color: var(--color-ember);
   box-sizing: border-box;
+  height: 100%;
 }
 
 .routeContainer {

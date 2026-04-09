@@ -175,7 +175,6 @@ export default function BuildRoster() {
               onRowClicked={onRowClicked}
               rowSelection={{ mode: "singleRow", enableClickSelection: true, checkboxes: false }}
               getRowId={getRowId}
-              animateRows={true}
               suppressCellFocus
               onFilterChanged={onFilterChanged}
               initialState={{

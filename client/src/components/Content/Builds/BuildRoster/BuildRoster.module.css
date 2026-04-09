@@ -22,15 +22,6 @@
   gap: 8px;
 }
 
-.title {
-  font-family: var(--font-ui);
-  font-size: 14px;
-  color: var(--color-moonlight);
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-}
-
 .grid {
   flex: 1;
   min-height: 0;
@@ -45,13 +36,6 @@
   color: var(--color-frost);
   font-family: var(--font-ui);
   font-size: 14px;
-}
-
-.multiCell {
-  font-family: var(--font-ui);
-  font-size: 13px;
-  color: var(--color-frost);
-  text-align: center;
 }
 
 .rosterInfo {
