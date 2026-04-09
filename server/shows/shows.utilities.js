@@ -8,6 +8,7 @@ import {
   ROLLUP_STATUS,
   SETUP_FIELDS,
 } from "../../shared/constants/builds.js";
+import { deriveAllRollups } from "../../shared/functions/builds.js";
 
 // ---------------------------------------------------------------------------
 // CONTRACT_STATUS_DATE_MAP
@@ -64,26 +65,6 @@ export function deriveRollup(values) {
 
   // Mixed: some done, some to do, none blocked or in progress
   return ROLLUP_STATUS.IN_PROGRESS;
-}
-
-// ---------------------------------------------------------------------------
-// deriveAllRollups
-// Derives all three phase rollups from a build subdocument.
-// ---------------------------------------------------------------------------
-
-export function deriveAllRollups(build) {
-  if (!build)
-    return {
-      setup: ROLLUP_STATUS.NA,
-      build: ROLLUP_STATUS.NA,
-      close: ROLLUP_STATUS.NA,
-    };
-
-  return {
-    setup: deriveRollup(SETUP_FIELDS.map((f) => build[f] ?? "n/a")),
-    build: deriveRollup(BUILD_FIELDS.map((f) => build[f] ?? "n/a")),
-    close: deriveRollup(CLOSE_FIELDS.map((f) => build[f] ?? "n/a")),
-  };
 }
 
 // ---------------------------------------------------------------------------

@@ -158,6 +158,9 @@ export default function BuildRoster() {
               onKeyDown={onFilterKeyDown}
               className={gridStyles.filterInput}
             />
+            <div className={styles.rosterInfo}>
+              <span className={styles.rosterLength}>{shows.length}</span> shows
+            </div>
           </div>
           <div className={`ag-theme-alpine-dark ${styles.grid}`}>
             <AgGridReact
@@ -175,6 +178,11 @@ export default function BuildRoster() {
               animateRows={true}
               suppressCellFocus
               onFilterChanged={onFilterChanged}
+              initialState={{
+                sort: {
+                  sortModel: [{ colId: "date", sort: "desc" }],
+                },
+              }}
             />
           </div>
         </>

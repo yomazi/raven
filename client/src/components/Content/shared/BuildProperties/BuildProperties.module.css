@@ -42,6 +42,14 @@
   }
 }
 
+.phaseHeader[data-disabled] {
+  cursor: default;
+
+  &:hover {
+    background: var(--color-wyrd-dim);
+  }
+}
+
 .phaseTitle {
   font-size: 0.9rem;
   font-weight: 300;
@@ -55,13 +63,32 @@
   flex: 1;
 }
 
-.phaseChevron {
-  font-size: 0.9rem;
-  color: var(--color-ember);
-  transition: transform 150ms ease;
+.phaseContent {
+  overflow: hidden;
 
-  &[data-collapsed="true"] {
-    transform: rotate(-90deg);
+  &[data-state="open"] {
+    animation: radix-accordion-down 200ms ease-out;
+  }
+  &[data-state="closed"] {
+    animation: radix-accordion-up 180ms ease-in;
+  }
+}
+
+@keyframes radix-accordion-down {
+  from {
+    height: 0;
+  }
+  to {
+    height: var(--radix-accordion-content-height);
+  }
+}
+
+@keyframes radix-accordion-up {
+  from {
+    height: var(--radix-accordion-content-height);
+  }
+  to {
+    height: 0;
   }
 }
 
@@ -70,6 +97,18 @@
   grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
   gap: 0.75rem 1.5rem;
   padding: 0.75rem 1.25rem;
+}
+
+.phaseChevron {
+  font-size: 0.9rem;
+  color: var(--color-ember);
+  transition: transform 200ms ease;
+}
+
+/* Radix sets data-state on the trigger */
+.phaseHeader[data-state="open"] .phaseChevron,
+.phaseHeader[data-state="open"] > .phaseChevron {
+  transform: rotate(180deg);
 }
 
 .phaseComplete {
@@ -83,35 +122,47 @@
 /* ── Rollup badge ──────────────────────────────────────────────────────────── */
 
 .rollupBadge {
-  font-family: "Google Sans Code", monospace;
-  font-size: 0.9rem;
-  padding: 0.15rem 0.5rem;
-  border-radius: 3px;
-  text-transform: lowercase;
+  display: inline-flex;
+  align-items: center;
+  text-transform: uppercase;
+  border-width: 1px;
+  border-style: solid;
+  padding: 0 1rem;
+  border-radius: 0.3rem;
+  font-size: 0.75rem;
+  font-weight: 400;
+  height: 1.8rem;
 
-  &[data-rollup="done"] {
-    background: #1a3a1a;
-    color: #7ecf7e;
+  &[data-status="done"] {
+    background: var(--status-done-bg);
+    color: var(--status-done-fg);
+    border-color: var(--status-done-bd);
   }
-  &[data-rollup="blocked"] {
-    background: #3a1a1a;
-    color: #cf7e7e;
+  &[data-status="blocked"] {
+    background: var(--status-blocked-bg);
+    color: var(--status-blocked-fg);
+    border-color: var(--status-blocked-bd);
   }
-  &[data-rollup="in-progress"] {
-    background: #2a2a1a;
-    color: #cfcf7e;
+  &[data-status="in_progress"] {
+    background: var(--status-in_progress-bg);
+    color: var(--status-in_progress-fg);
+    border-color: var(--status-in_progress-bd);
   }
-  &[data-rollup="not-started"] {
-    background: transparent;
-    color: var(--color-moonlight);
-    border: 1px solid var(--color-wyrd);
+  &[data-status="to_do"] {
+    background: var(--status-to_do-bg);
+    color: var(--status-to_do-fg);
+    border-color: var(--status-to_do-bd);
   }
-  &[data-rollup="n-a"] {
-    background: transparent;
-    color: var(--color-wyrd);
+  &[data-status="n-a"] {
+    background: var(--status-na-bg);
+    color: var(--status-na-fg);
+    border-color: var(--status-na-bd);
   }
 }
 
+.rollupBadgeDisabled {
+  margin-right: 1.125rem;
+}
 /* ── Field rows ────────────────────────────────────────────────────────────── */
 
 .fieldRow {
@@ -286,21 +337,10 @@
 }
 
 .addLinkBtn {
-  font-family: var("Google Sans Code", monospace);
   font-size: 0.9rem;
   padding: 0.2rem 0.6rem;
-  background: transparent;
-  border: 1px solid var(--color-wyrd);
+  background: var(--color-wyrd);
   border-radius: 4px;
-  color: var(--color-Frost);
   cursor: pointer;
   white-space: nowrap;
-
-  &:hover {
-    background: var(--color-wyrd);
-  }
-}
-
-.spacer {
-  height: 200px;
 }

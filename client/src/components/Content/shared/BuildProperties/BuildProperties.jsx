@@ -2,14 +2,9 @@
 
 import BadgeSelect from "@components/Content/shared/BadgeSelect/BadgeSelect.jsx";
 import { useShowBuild } from "@hooks/useShowBuild.js";
-import {
-  BASE_STATUS,
-  BUILD_FIELDS,
-  CLOSE_FIELDS,
-  CONTRACT_STATUS,
-  ROLLUP_STATUS,
-  SETUP_FIELDS,
-} from "@shared/constants/builds.js";
+import * as Accordion from "@radix-ui/react-accordion";
+import { BASE_STATUS, CONTRACT_STATUS, ROLLUP_STATUS } from "@shared/constants/builds.js";
+import { deriveAllRollups } from "@shared/functions/builds.js";
 import { useCallback, useRef, useState } from "react";
 import styles from "./BuildProperties.module.css";
 
@@ -28,7 +23,7 @@ function badgeDataAttr(value) {
 // Rollup badge
 // ---------------------------------------------------------------------------
 
-function RollupBadge({ value }) {
+function RollupBadge({ value, disabled }) {
   if (!value) return null;
   const statusMap = {
     [ROLLUP_STATUS.NOT_STARTED]: "to_do",
@@ -39,7 +34,10 @@ function RollupBadge({ value }) {
   };
   const status = statusMap[value] ?? "to_do";
   return (
-    <span className={styles.rollupBadge} data-status={status}>
+    <span
+      className={`${styles.rollupBadge} ${disabled ? styles.rollupBadgeDisabled : ""}`}
+      data-status={status}
+    >
       {value === ROLLUP_STATUS.NA ? "done" : value}
     </span>
   );
@@ -100,54 +98,20 @@ function DateRow({ label, field, value, onChange, overdue }) {
 // Phase section — header with rollup + collapsible body
 // ---------------------------------------------------------------------------
 
-function PhaseSection({ title, rollup, children }) {
-  const [collapsed, setCollapsed] = useState(false);
-  const bodyRef = useRef(null);
-  const animatingRef = useRef(false);
-
-  function toggle() {
-    const el = bodyRef.current;
-    if (!el || animatingRef.current) return;
-
-    animatingRef.current = true;
-
-    if (collapsed) {
-      el.style.display = "grid";
-      const height = el.scrollHeight;
-      el.animate([{ height: "0px" }, { height: `${height}px` }], {
-        duration: 300,
-        easing: "ease",
-      }).onfinish = () => {
-        el.style.height = "auto";
-        animatingRef.current = false;
-        setCollapsed(false);
-      };
-    } else {
-      const height = el.scrollHeight;
-      el.animate([{ height: `${height}px` }, { height: "0px" }], {
-        duration: 300,
-        easing: "ease",
-      }).onfinish = () => {
-        el.style.display = "none";
-        animatingRef.current = false;
-        setCollapsed(true);
-      };
-    }
-  }
-
+function PhaseSection({ title, rollup, value, children, disabled }) {
   return (
-    <div className={styles.phase}>
-      <button className={styles.phaseHeader} onClick={toggle} aria-expanded={!collapsed}>
-        <span className={styles.phaseTitle}>{title}</span>
-        <RollupBadge value={rollup} />
-        <span className={styles.phaseChevron} data-collapsed={collapsed}>
-          ▾
-        </span>
-      </button>
-      <div ref={bodyRef} className={styles.phaseBody} style={{ overflow: "hidden" }}>
-        {children}
-      </div>
-    </div>
+    <Accordion.Item value={value} className={styles.phase} disabled={disabled}>
+      <Accordion.Header>
+        <Accordion.Trigger className={styles.phaseHeader}>
+          <span className={styles.phaseTitle}>{title}</span>
+          <RollupBadge value={rollup} disabled={disabled} />
+          {!disabled && <span className={styles.phaseChevron}>▾</span>}
+        </Accordion.Trigger>
+      </Accordion.Header>
+      <Accordion.Content className={styles.phaseContent}>
+        <div className={styles.phaseBody}>{children}</div>
+      </Accordion.Content>
+    </Accordion.Item>
   );
 }
 
@@ -229,28 +193,6 @@ function isOverdue(date, workdays = 5) {
 }
 
 // ---------------------------------------------------------------------------
-// deriveRollups — client-side rollup computation from build state
-// ---------------------------------------------------------------------------
-
-function deriveRollup(values) {
-  const active = values.filter((v) => v !== "n/a");
-  if (active.length === 0) return ROLLUP_STATUS.NA;
-  if (active.some((v) => v === "blocked")) return ROLLUP_STATUS.BLOCKED;
-  if (active.every((v) => v === "done")) return ROLLUP_STATUS.DONE;
-  if (active.some((v) => v === "in progress")) return ROLLUP_STATUS.IN_PROGRESS;
-  if (active.every((v) => v === "to do")) return ROLLUP_STATUS.NOT_STARTED;
-  return ROLLUP_STATUS.IN_PROGRESS;
-}
-
-function deriveAllRollups(build) {
-  return {
-    setup: deriveRollup(SETUP_FIELDS.map((f) => build[f] ?? "n/a")),
-    build: deriveRollup(BUILD_FIELDS.map((f) => build[f] ?? "n/a")),
-    close: deriveRollup(CLOSE_FIELDS.map((f) => build[f] ?? "n/a")),
-  };
-}
-
-// ---------------------------------------------------------------------------
 // BuildSection
 // ---------------------------------------------------------------------------
 
@@ -306,168 +248,171 @@ export default function BuildProperties({ show }) {
       </div>
 
       {/* ── Setup ─────────────────────────────────────────────────────── */}
-      <PhaseSection title="Setup" rollup={rollups.setup}>
-        <FieldRow
-          label="Show Folder Created:"
-          field="showFolder"
-          value={build.showFolder}
-          options={BASE_STATUS}
-          onChange={setField}
-        />
-        <FieldRow
-          label="Calendar Updated:"
-          field="calendarUpdated"
-          value={build.calendarUpdated}
-          options={BASE_STATUS}
-          onChange={setField}
-        />
-        <FieldRow
-          label="Booking Spreadsheet Updated:"
-          field="bookingSpreadsheet"
-          value={build.bookingSpreadsheet}
-          options={BASE_STATUS}
-          onChange={setField}
-        />
-        <FieldRow
-          label="Offer In Folder:"
-          field="offerInFolder"
-          value={build.offerInFolder}
-          options={BASE_STATUS}
-          onChange={setField}
-        />
-        <FieldRow
-          label="Packet Sent:"
-          field="packetSent"
-          value={build.packetSent}
-          options={BASE_STATUS}
-          onChange={setField}
-        />
-        <FieldRow
-          label="SIS Populated:"
-          field="sisPopulated"
-          value={build.sisPopulated}
-          options={BASE_STATUS}
-          onChange={setField}
-        />
-        {build.dateSetupComplete && (
-          <div className={styles.phaseComplete}>
-            Setup complete {new Date(build.dateSetupComplete).toLocaleDateString()}
-          </div>
-        )}
-      </PhaseSection>
-
-      {/* ── Build ─────────────────────────────────────────────────────── */}
-      <PhaseSection title="Build" rollup={rollups.build}>
-        <FieldRow
-          label="Tessitura"
-          field="tessitura"
-          value={build.tessitura}
-          options={BASE_STATUS}
-          onChange={setField}
-        />
-        <FieldRow
-          label="TNEW"
-          field="tnew"
-          value={build.tnew}
-          options={BASE_STATUS}
-          onChange={setField}
-        />
-        <FieldRow
-          label="Marketing assets"
-          field="marketingAssetsCompiled"
-          value={build.marketingAssetsCompiled}
-          options={BASE_STATUS}
-          onChange={setField}
-        />
-        <DateRow
-          label="Assets last checkin"
-          field="marketingAssetsLastCheckin"
-          value={build.marketingAssetsLastCheckin}
-          onChange={setField}
-          overdue={isOverdue(build.marketingAssetsLastCheckin)}
-        />
-        <FieldRow
-          label="SIS released"
-          field="sisReleased"
-          value={build.sisReleased}
-          options={BASE_STATUS}
-          onChange={setField}
-        />
-        {build.dateBuildComplete && (
-          <div className={styles.phaseComplete}>
-            Build complete {new Date(build.dateBuildComplete).toLocaleDateString()}
-          </div>
-        )}
-      </PhaseSection>
-
-      {/* ── Close ─────────────────────────────────────────────────────── */}
-      <PhaseSection title="Close" rollup={rollups.close}>
-        <FieldRow
-          label="Contract"
-          field="contract"
-          value={build.contract}
-          options={CONTRACT_STATUS}
-          onChange={setField}
-        />
-        <DateRow
-          label="Contract last checkin"
-          field="contractLastCheckin"
-          value={build.contractLastCheckin}
-          onChange={setField}
-          overdue={isOverdue(build.contractLastCheckin)}
-        />
-        <div className={styles.checkboxRow}>
-          <span className={styles.fieldLabel}>We drafted contract</span>
-          <input
-            type="checkbox"
-            className={styles.checkbox}
-            checked={build.weDraftedContract ?? false}
-            onChange={(e) => setField("weDraftedContract", e.target.checked)}
+      <Accordion.Root type="multiple" defaultValue={["setup", "build", "close"]}>
+        <PhaseSection title="Setup" value="setup" rollup={rollups.setup}>
+          <FieldRow
+            label="Show Folder Created:"
+            field="showFolder"
+            value={build.showFolder}
+            options={BASE_STATUS}
+            onChange={setField}
           />
-        </div>
-        {build.dateDrafted && (
-          <div className={styles.autoDateRow}>
-            <span className={styles.fieldLabel}>Date drafted</span>
-            <span className={styles.autoDate}>
-              {new Date(build.dateDrafted).toLocaleDateString()}
-            </span>
+          <FieldRow
+            label="Calendar Updated:"
+            field="calendarUpdated"
+            value={build.calendarUpdated}
+            options={BASE_STATUS}
+            onChange={setField}
+          />
+          <FieldRow
+            label="Booking Spreadsheet Updated:"
+            field="bookingSpreadsheet"
+            value={build.bookingSpreadsheet}
+            options={BASE_STATUS}
+            onChange={setField}
+          />
+          <FieldRow
+            label="Offer In Folder:"
+            field="offerInFolder"
+            value={build.offerInFolder}
+            options={BASE_STATUS}
+            onChange={setField}
+          />
+          <FieldRow
+            label="Packet Sent:"
+            field="packetSent"
+            value={build.packetSent}
+            options={BASE_STATUS}
+            onChange={setField}
+          />
+          <FieldRow
+            label="SIS Populated:"
+            field="sisPopulated"
+            value={build.sisPopulated}
+            options={BASE_STATUS}
+            onChange={setField}
+          />
+          {build.dateSetupComplete && (
+            <div className={styles.phaseComplete}>
+              Setup complete {new Date(build.dateSetupComplete).toLocaleDateString()}
+            </div>
+          )}
+        </PhaseSection>
+
+        {/* ── Build ─────────────────────────────────────────────────────── */}
+        <PhaseSection title="Build" value="build" rollup={rollups.build}>
+          <FieldRow
+            label="Tessitura"
+            field="tessitura"
+            value={build.tessitura}
+            options={BASE_STATUS}
+            onChange={setField}
+          />
+          <FieldRow
+            label="TNEW"
+            field="tnew"
+            value={build.tnew}
+            options={BASE_STATUS}
+            onChange={setField}
+          />
+          <FieldRow
+            label="Marketing assets"
+            field="marketingAssetsCompiled"
+            value={build.marketingAssetsCompiled}
+            options={BASE_STATUS}
+            onChange={setField}
+          />
+          <DateRow
+            label="Assets last checkin"
+            field="marketingAssetsLastCheckin"
+            value={build.marketingAssetsLastCheckin}
+            onChange={setField}
+            overdue={isOverdue(build.marketingAssetsLastCheckin)}
+          />
+          <FieldRow
+            label="SIS released"
+            field="sisReleased"
+            value={build.sisReleased}
+            options={BASE_STATUS}
+            onChange={setField}
+          />
+          {build.dateBuildComplete && (
+            <div className={styles.phaseComplete}>
+              Build complete {new Date(build.dateBuildComplete).toLocaleDateString()}
+            </div>
+          )}
+        </PhaseSection>
+
+        {/* ── Close ─────────────────────────────────────────────────────── */}
+        <PhaseSection title="Close" value="close" rollup={rollups.close} disabled>
+          <FieldRow
+            label="Contract"
+            field="contract"
+            value={build.contract}
+            options={CONTRACT_STATUS}
+            onChange={setField}
+          />
+          <DateRow
+            label="Contract last checkin"
+            field="contractLastCheckin"
+            value={build.contractLastCheckin}
+            onChange={setField}
+            overdue={isOverdue(build.contractLastCheckin)}
+          />
+          <div className={styles.checkboxRow}>
+            <span className={styles.fieldLabel}>We drafted contract</span>
+            <input
+              type="checkbox"
+              className={styles.checkbox}
+              checked={build.weDraftedContract ?? false}
+              onChange={(e) => setField("weDraftedContract", e.target.checked)}
+            />
           </div>
-        )}
-        {build.dateSigned && (
-          <div className={styles.autoDateRow}>
-            <span className={styles.fieldLabel}>Date signed</span>
-            <span className={styles.autoDate}>
-              {new Date(build.dateSigned).toLocaleDateString()}
-            </span>
-          </div>
-        )}
-        {build.dateFEC && (
-          <div className={styles.autoDateRow}>
-            <span className={styles.fieldLabel}>Date FEC</span>
-            <span className={styles.autoDate}>{new Date(build.dateFEC).toLocaleDateString()}</span>
-          </div>
-        )}
-        <FieldRow
-          label="Livestream"
-          field="livestream"
-          value={build.livestream}
-          options={BASE_STATUS}
-          onChange={setField}
-        />
-        <FieldRow
-          label="Workbook"
-          field="workbook"
-          value={build.workbook}
-          options={BASE_STATUS}
-          onChange={setField}
-        />
-        {build.dateCloseComplete && (
-          <div className={styles.phaseComplete}>
-            Close complete {new Date(build.dateCloseComplete).toLocaleDateString()}
-          </div>
-        )}
-      </PhaseSection>
-      <div class={styles.spacer} />
+          {build.dateDrafted && (
+            <div className={styles.autoDateRow}>
+              <span className={styles.fieldLabel}>Date drafted</span>
+              <span className={styles.autoDate}>
+                {new Date(build.dateDrafted).toLocaleDateString()}
+              </span>
+            </div>
+          )}
+          {build.dateSigned && (
+            <div className={styles.autoDateRow}>
+              <span className={styles.fieldLabel}>Date signed</span>
+              <span className={styles.autoDate}>
+                {new Date(build.dateSigned).toLocaleDateString()}
+              </span>
+            </div>
+          )}
+          {build.dateFEC && (
+            <div className={styles.autoDateRow}>
+              <span className={styles.fieldLabel}>Date FEC</span>
+              <span className={styles.autoDate}>
+                {new Date(build.dateFEC).toLocaleDateString()}
+              </span>
+            </div>
+          )}
+          <FieldRow
+            label="Livestream"
+            field="livestream"
+            value={build.livestream}
+            options={BASE_STATUS}
+            onChange={setField}
+          />
+          <FieldRow
+            label="Workbook"
+            field="workbook"
+            value={build.workbook}
+            options={BASE_STATUS}
+            onChange={setField}
+          />
+          {build.dateCloseComplete && (
+            <div className={styles.phaseComplete}>
+              Close complete {new Date(build.dateCloseComplete).toLocaleDateString()}
+            </div>
+          )}
+        </PhaseSection>
+      </Accordion.Root>
     </div>
   );
 }

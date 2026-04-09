@@ -206,6 +206,30 @@
   font-size: 1.1em;
 }
 
+.rollupDot {
+  width: 0.9rem;
+  height: 0.9rem;
+  border-radius: 50%;
+  margin: auto;
+
+  &[data-status="to_do"] {
+    background: var(--status-to_do-fg);
+    border: 1px solid var(--status-to_do-bd);
+  }
+  &[data-status="in_progress"] {
+    background: var(--status-in_progress-fg);
+    border: 1px solid var(--status-in_progress-bd);
+  }
+  &[data-status="blocked"] {
+    background: var(--status-blocked-fg);
+    border: 1px solid var(--status-blocked-bd);
+  }
+  &[data-status="done"] {
+    background: var(--status-done-fg);
+    border: 1px solid var(--status-done-bd);
+  }
+}
+
 .gridFooter {
   position: absolute;
   bottom: 0;

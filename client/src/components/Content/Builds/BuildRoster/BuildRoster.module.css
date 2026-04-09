@@ -53,3 +53,15 @@
   color: var(--color-frost);
   text-align: center;
 }
+
+.rosterInfo {
+  color: var(--color-frost);
+  text-transform: uppercase;
+  font-size: 0.8rem;
+  padding: 0 1rem;
+}
+
+.rosterLength {
+  font-size: 0.95rem;
+  font-weight: 300;
+}
