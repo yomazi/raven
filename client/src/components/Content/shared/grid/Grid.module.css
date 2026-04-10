@@ -206,6 +206,26 @@
   font-size: 1.1em;
 }
 
+.scheduleHeaderCell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+}
+
+.scheduleHeaderCellSmall svg {
+  width: 14px;
+  height: 14px;
+}
+
+.scheduleCell {
+  width: 18px;
+  height: 18px;
+}
+
 .rollupDot {
   width: 0.9rem;
   height: 0.9rem;

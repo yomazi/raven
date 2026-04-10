@@ -36,7 +36,6 @@ const buildSchema = new Schema(
     // --- Context ---
     notes: { type: String },
     gmailLinks: [{ type: String }],
-    announceOnSaleNotes: { type: String },
     dateConfirmed: { type: Date, default: Date.now }, // automatically set to the date the show was created; can be updated
 
     // --- Setup ---
@@ -229,6 +228,7 @@ const ShowSchema = new Schema(
       announceDateTime: { type: Date },
       onSaleDateTime: { type: Date },
       presales: [presaleSchema],
+      notes: { type: String },
     },
 
     // terms

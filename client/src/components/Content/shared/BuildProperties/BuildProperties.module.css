@@ -344,3 +344,134 @@
   cursor: pointer;
   white-space: nowrap;
 }
+
+.presalesBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.presalesHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.presaleRow {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding-left: 0.75rem;
+  border-left: 2px solid var(--color-stone);
+  margin-top: 0.25rem;
+}
+
+.presaleNameRow {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* ── Schedule grid ─────────────────────────────────────────────────────────── */
+
+.scheduleGrid {
+  display: grid;
+  grid-template-columns: 140px 1fr;
+  gap: 8px 12px;
+  align-items: center;
+}
+
+.scheduleLabel {
+  font-size: 0.9rem;
+  color: var(--color-moonlight);
+  opacity: 0.6;
+}
+
+/* ── Add presale button ────────────────────────────────────────────────────── */
+
+.addPresaleBtn {
+  align-self: flex-start;
+  padding: 0.3rem 0.75rem;
+  font-size: 0.85rem;
+  background: none;
+  border: 1px solid var(--color-stone);
+  border-radius: 4px;
+  color: var(--color-moonlight);
+  opacity: 0.6;
+  cursor: pointer;
+  transition: opacity 0.15s;
+
+  &:hover {
+    opacity: 1;
+  }
+}
+
+/* ── Presale cards ─────────────────────────────────────────────────────────── */
+
+.presalesGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.presaleCard {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  background: var(--color-stone);
+  border-radius: 6px;
+  border: 1px solid var(--color-stone);
+}
+
+.presaleCardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.presaleCardTitle {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-moonlight);
+  opacity: 0.5;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.removeButton {
+  padding: 0.15rem 0.5rem;
+  font-size: 0.75rem;
+  background: none;
+  border: 1px solid color(srgb 1 1 1 / 0.15);
+  border-radius: 4px;
+  color: var(--color-ember);
+  opacity: 0.7;
+  cursor: pointer;
+  transition: opacity 0.15s;
+
+  &:hover {
+    opacity: 1;
+  }
+}
+
+/* ── Text input (presale name) ─────────────────────────────────────────────── */
+
+.textInput {
+  font-size: 0.9rem;
+  background: var(--color-void);
+  border: 1px solid var(--color-stone);
+  border-radius: 4px;
+  color: var(--color-moonlight);
+  padding: 0.2rem 0.4rem;
+  width: 100%;
+  box-sizing: border-box;
+
+  &:hover {
+    border-color: var(--color-rune);
+  }
+  &:focus {
+    outline: none;
+    border-color: var(--color-wyrd);
+  }
+}

@@ -6,8 +6,11 @@ import SvgCopyOneCell from "@svg/copy-one-cell_rg.svg?react";
 import SvgCopyTwoCells from "@svg/copy-two-cells_rg.svg?react";
 import SvgFolderClosed from "@svg/folder--closed_google.svg?react";
 import SvgFolderOpen from "@svg/folder--open_google.svg?react";
+import SvgSchedule from "@svg/schedule_google.svg?react";
 import { useState } from "react";
 import gridStyles from "./Grid.module.css";
+
+import { useEffect } from "react";
 
 export const RowNumberRenderer = (params) => {
   return <div className={gridStyles.rowNumberCell}>{params.value}</div>;
@@ -93,6 +96,46 @@ export const AddTaskIconRenderer = ({ data }) => {
         showFolderId={folderId}
         showLabel={showLabel}
       />
+    </>
+  );
+};
+
+export const ScheduleHeaderRenderer = ({ progressSort, column }) => {
+  const [sort, setSort] = useState(column.getSort());
+
+  useEffect(() => {
+    const listener = () => setSort(column.getSort());
+    column.addEventListener("sortChanged", listener);
+    return () => column.removeEventListener("sortChanged", listener);
+  }, [column]);
+
+  console.log(`sort: ${sort}`);
+
+  return (
+    <div
+      className={`${gridStyles.scheduleHeaderCell} ${!sort ? gridStyles.scheduleHeaderCellSmall : ""}`}
+      onClick={() => progressSort()}
+    >
+      <SvgSchedule />
+      {sort && (
+        <span
+          className={`ag-icon ${sort === "asc" ? "ag-icon-asc" : "ag-icon-desc"}`}
+          role="presentation"
+          unselectable="on"
+        ></span>
+      )}
+    </div>
+  );
+};
+
+export const ScheduleRenderer = ({ value }) => {
+  return (
+    <>
+      {value != null && (
+        <div className={gridStyles.scheduleCell}>
+          <SvgSchedule />
+        </div>
+      )}
     </>
   );
 };

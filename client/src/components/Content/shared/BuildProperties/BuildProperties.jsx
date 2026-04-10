@@ -1,7 +1,8 @@
-// client/src/components/Content/Events/ShowProperties/sections/BuildSection/BuildSection.jsx
+// client/src/components/Content/Events/ShowProperties/sections/BuildSection/BuildProperties.jsx
 
 import BadgeSelect from "@components/Content/shared/BadgeSelect/BadgeSelect.jsx";
 import { useShowBuild } from "@hooks/useShowBuild.js";
+import { useShowSchedule } from "@hooks/useShowSchedule.js";
 import * as Accordion from "@radix-ui/react-accordion";
 import { BASE_STATUS, CONTRACT_STATUS, ROLLUP_STATUS } from "@shared/constants/builds.js";
 import { deriveAllRollups } from "@shared/functions/builds.js";
@@ -9,18 +10,7 @@ import { useCallback, useRef, useState } from "react";
 import styles from "./BuildProperties.module.css";
 
 // ---------------------------------------------------------------------------
-// Status badge styling — maps status values to CSS data attributes
-// so the design system handles colors via data-status selectors.
-// ---------------------------------------------------------------------------
-
-/*
-function badgeDataAttr(value) {
-  return { "data-status": value?.replace(/\s+/g, "-") };
-}
-*/
-
-// ---------------------------------------------------------------------------
-// Rollup badge
+// RollupBadge
 // ---------------------------------------------------------------------------
 
 function RollupBadge({ value, disabled }) {
@@ -44,12 +34,11 @@ function RollupBadge({ value, disabled }) {
 }
 
 // ---------------------------------------------------------------------------
-// Field row — label + badge selector + optional date
+// FieldRow
 // ---------------------------------------------------------------------------
 
 function FieldRow({ label, field, value, options, onChange, dateValue, dateLabel }) {
   const labels = Object.fromEntries(options.map((o) => [o, o]));
-
   return (
     <div className={styles.fieldRow}>
       <span className={styles.fieldLabel}>{label}</span>
@@ -70,16 +59,14 @@ function FieldRow({ label, field, value, options, onChange, dateValue, dateLabel
 }
 
 // ---------------------------------------------------------------------------
-// Date field row — label + date input
+// DateRow — date-only input (used in build phases)
 // ---------------------------------------------------------------------------
 
 function DateRow({ label, field, value, onChange, overdue }) {
   function handleChange(e) {
     onChange(field, e.target.value ? new Date(e.target.value) : null);
   }
-
   const formatted = value ? new Date(value).toISOString().split("T")[0] : "";
-
   return (
     <div className={styles.fieldRow}>
       <span className={styles.fieldLabel}>{label}</span>
@@ -95,7 +82,33 @@ function DateRow({ label, field, value, onChange, overdue }) {
 }
 
 // ---------------------------------------------------------------------------
-// Phase section — header with rollup + collapsible body
+// DateTimeRow — date + time inputs that commit together on either change.
+// Keeps local draft state so the two inputs stay in sync before committing.
+// ---------------------------------------------------------------------------
+
+function DateTimeRow({ label, field, value, onChange }) {
+  // datetime-local expects "YYYY-MM-DDTHH:MM" (no seconds, no Z)
+  const formatted = value ? new Date(value).toISOString().slice(0, 16) : "";
+
+  function handleChange(e) {
+    onChange(field, e.target.value ? new Date(e.target.value) : null);
+  }
+
+  return (
+    <div className={styles.fieldRow}>
+      <span className={styles.fieldLabel}>{label}</span>
+      <input
+        type="datetime-local"
+        className={styles.dateInput}
+        value={formatted}
+        onChange={handleChange}
+      />
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// PhaseSection
 // ---------------------------------------------------------------------------
 
 function PhaseSection({ title, rollup, value, children, disabled }) {
@@ -116,7 +129,7 @@ function PhaseSection({ title, rollup, value, children, disabled }) {
 }
 
 // ---------------------------------------------------------------------------
-// Gmail links pane
+// GmailLinks
 // ---------------------------------------------------------------------------
 
 function GmailLinks({ links = [], onAdd, onRemove }) {
@@ -129,10 +142,6 @@ function GmailLinks({ links = [], onAdd, onRemove }) {
     onAdd(url);
     setInput("");
     inputRef.current?.focus();
-  }
-
-  function handleKeyDown(e) {
-    if (e.key === "Enter") handleAdd();
   }
 
   return (
@@ -162,7 +171,7 @@ function GmailLinks({ links = [], onAdd, onRemove }) {
           placeholder="Paste Gmail URL…"
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          onKeyDown={handleKeyDown}
+          onKeyDown={(e) => e.key === "Enter" && handleAdd()}
         />
         <button className={styles.addLinkBtn} onClick={handleAdd}>
           Add
@@ -173,7 +182,156 @@ function GmailLinks({ links = [], onAdd, onRemove }) {
 }
 
 // ---------------------------------------------------------------------------
-// isOverdue — returns true if date is more than N workdays in the past
+// PresaleRow — one presale with local draft for the name field
+// ---------------------------------------------------------------------------
+
+function PresaleRow({ presale, index, onUpdate, onRemove }) {
+  const [draftName, setDraftName] = useState(null); // null = not editing
+
+  const displayName = draftName ?? presale.name ?? "Donor Presale";
+
+  function handleNameBlur() {
+    if (draftName !== null && draftName !== presale.name) {
+      onUpdate(index, { name: draftName });
+    }
+    setDraftName(null); // exit draft mode; prop is now source of truth again
+  }
+
+  return (
+    <div className={styles.presaleCard}>
+      <div className={styles.presaleCardHeader}>
+        <span className={styles.presaleCardTitle}>Presale {index + 1}</span>
+        <button className={styles.removeButton} onClick={() => onRemove(index)}>
+          Remove
+        </button>
+      </div>
+
+      <div className={styles.scheduleGrid}>
+        <span className={styles.scheduleLabel}>Name</span>
+        <input
+          type="text"
+          className={styles.textInput}
+          value={displayName}
+          onChange={(e) => setDraftName(e.target.value)}
+          onBlur={handleNameBlur}
+        />
+
+        <span className={styles.scheduleLabel}>Start</span>
+        <input
+          type="datetime-local"
+          className={styles.dateInput}
+          value={toDateTimeLocal(presale.startDateTime)}
+          onChange={(e) =>
+            onUpdate(index, {
+              startDateTime: e.target.value ? new Date(e.target.value) : null,
+            })
+          }
+        />
+
+        <span className={styles.scheduleLabel}>End</span>
+        <input
+          type="datetime-local"
+          className={styles.dateInput}
+          value={toDateTimeLocal(presale.endDateTime)}
+          onChange={(e) =>
+            onUpdate(index, {
+              endDateTime: e.target.value ? new Date(e.target.value) : null,
+            })
+          }
+        />
+      </div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// ScheduleSection
+// ---------------------------------------------------------------------------
+
+// ---------------------------------------------------------------------------
+// ScheduleSection
+// ---------------------------------------------------------------------------
+
+function ScheduleSection({ schedule, setField, addPresale, updatePresale, removePresale }) {
+  const presales = schedule.presales ?? [];
+
+  const handleBlurNotes = useCallback((e) => setField("notes", e.target.value), [setField]);
+
+  return (
+    <div className={styles.contextPane}>
+      <div className={styles.scheduleGrid}>
+        <span className={styles.scheduleLabel}>Release ASAP</span>
+        <input
+          type="checkbox"
+          className={styles.checkbox}
+          checked={schedule.releaseAsap ?? false}
+          onChange={(e) => setField("releaseAsap", e.target.checked)}
+        />
+
+        <span className={styles.scheduleLabel}>Announce Date</span>
+        <input
+          type="datetime-local"
+          className={styles.dateInput}
+          value={toDateTimeLocal(schedule.announceDateTime)}
+          disabled={schedule.releaseAsap}
+          onChange={(e) =>
+            setField("announceDateTime", e.target.value ? new Date(e.target.value) : null)
+          }
+        />
+
+        <span className={styles.scheduleLabel}>On Sale Date</span>
+        <input
+          type="datetime-local"
+          className={styles.dateInput}
+          value={toDateTimeLocal(schedule.onSaleDateTime)}
+          disabled={schedule.releaseAsap}
+          onChange={(e) =>
+            setField("onSaleDateTime", e.target.value ? new Date(e.target.value) : null)
+          }
+        />
+      </div>
+
+      {presales.length > 0 && (
+        <div className={styles.presalesGroup}>
+          {presales.map((presale, i) => (
+            <PresaleRow
+              key={i}
+              presale={presale}
+              index={i}
+              onUpdate={updatePresale}
+              onRemove={removePresale}
+            />
+          ))}
+        </div>
+      )}
+
+      <button className={styles.addPresaleBtn} onClick={addPresale}>
+        + Add Presale
+      </button>
+
+      <div className={styles.fieldRow}>
+        <span className={styles.fieldLabel}>Announce / On Sale notes</span>
+        <textarea
+          className={styles.textarea}
+          defaultValue={schedule.notes ?? ""}
+          onBlur={handleBlurNotes}
+          rows={2}
+        />
+      </div>
+    </div>
+  );
+}
+
+// datetime-local inputs expect local time, not UTC
+function toDateTimeLocal(date) {
+  if (!date) return "";
+  const d = new Date(date);
+  const pad = (n) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+// ---------------------------------------------------------------------------
+// isOverdue
 // ---------------------------------------------------------------------------
 
 function isOverdue(date, workdays = 5) {
@@ -193,34 +351,40 @@ function isOverdue(date, workdays = 5) {
 }
 
 // ---------------------------------------------------------------------------
-// BuildSection
+// BuildProperties
 // ---------------------------------------------------------------------------
 
 export default function BuildProperties({ show }) {
-  const { build, setField, addGmailLink, removeGmailLink } = useShowBuild(show);
+  const { build, setField: setBuildField, addGmailLink, removeGmailLink } = useShowBuild(show);
+  const {
+    schedule,
+    setField: setScheduleField,
+    addPresale,
+    updatePresale,
+    removePresale,
+  } = useShowSchedule(show);
   const rollups = deriveAllRollups(build);
 
   const handleBlurText = useCallback(
     (field) => (e) => {
-      setField(field, e.target.value);
+      setBuildField(field, e.target.value);
     },
-    [setField]
+    [setBuildField]
   );
 
   return (
     <div className={styles.section}>
-      {/* ── Context pane ──────────────────────────────────────────────── */}
-      <div className={styles.contextPane}>
-        <div className={styles.fieldRow}>
-          <span className={styles.fieldLabel}>Announce / On Sale:</span>
-          <textarea
-            className={styles.textarea}
-            defaultValue={build.announceOnSaleNotes ?? ""}
-            onBlur={handleBlurText("announceOnSaleNotes")}
-            rows={2}
-          />
-        </div>
+      {/* ── Schedule ──────────────────────────────────────────────────── */}
+      <ScheduleSection
+        schedule={schedule}
+        setField={setScheduleField}
+        addPresale={addPresale}
+        updatePresale={updatePresale}
+        removePresale={removePresale}
+      />
 
+      {/* ── Build context pane ────────────────────────────────────────── */}
+      <div className={styles.contextPane}>
         <div className={styles.fieldRow}>
           <span className={styles.fieldLabel}>Notes:</span>
           <textarea
@@ -247,7 +411,7 @@ export default function BuildProperties({ show }) {
         )}
       </div>
 
-      {/* ── Setup ─────────────────────────────────────────────────────── */}
+      {/* ── Phase accordion ───────────────────────────────────────────── */}
       <Accordion.Root type="multiple" defaultValue={["setup", "build", "close"]}>
         <PhaseSection title="Setup" value="setup" rollup={rollups.setup}>
           <FieldRow
@@ -255,42 +419,42 @@ export default function BuildProperties({ show }) {
             field="showFolder"
             value={build.showFolder}
             options={BASE_STATUS}
-            onChange={setField}
+            onChange={setBuildField}
           />
           <FieldRow
             label="Calendar Updated:"
             field="calendarUpdated"
             value={build.calendarUpdated}
             options={BASE_STATUS}
-            onChange={setField}
+            onChange={setBuildField}
           />
           <FieldRow
             label="Booking Spreadsheet Updated:"
             field="bookingSpreadsheet"
             value={build.bookingSpreadsheet}
             options={BASE_STATUS}
-            onChange={setField}
+            onChange={setBuildField}
           />
           <FieldRow
             label="Offer In Folder:"
             field="offerInFolder"
             value={build.offerInFolder}
             options={BASE_STATUS}
-            onChange={setField}
+            onChange={setBuildField}
           />
           <FieldRow
             label="Packet Sent:"
             field="packetSent"
             value={build.packetSent}
             options={BASE_STATUS}
-            onChange={setField}
+            onChange={setBuildField}
           />
           <FieldRow
             label="SIS Populated:"
             field="sisPopulated"
             value={build.sisPopulated}
             options={BASE_STATUS}
-            onChange={setField}
+            onChange={setBuildField}
           />
           {build.dateSetupComplete && (
             <div className={styles.phaseComplete}>
@@ -299,34 +463,33 @@ export default function BuildProperties({ show }) {
           )}
         </PhaseSection>
 
-        {/* ── Build ─────────────────────────────────────────────────────── */}
         <PhaseSection title="Build" value="build" rollup={rollups.build}>
           <FieldRow
             label="Tessitura"
             field="tessitura"
             value={build.tessitura}
             options={BASE_STATUS}
-            onChange={setField}
+            onChange={setBuildField}
           />
           <FieldRow
             label="TNEW"
             field="tnew"
             value={build.tnew}
             options={BASE_STATUS}
-            onChange={setField}
+            onChange={setBuildField}
           />
           <FieldRow
             label="Marketing assets"
             field="marketingAssetsCompiled"
             value={build.marketingAssetsCompiled}
             options={BASE_STATUS}
-            onChange={setField}
+            onChange={setBuildField}
           />
           <DateRow
             label="Assets last checkin"
             field="marketingAssetsLastCheckin"
             value={build.marketingAssetsLastCheckin}
-            onChange={setField}
+            onChange={setBuildField}
             overdue={isOverdue(build.marketingAssetsLastCheckin)}
           />
           <FieldRow
@@ -334,7 +497,7 @@ export default function BuildProperties({ show }) {
             field="sisReleased"
             value={build.sisReleased}
             options={BASE_STATUS}
-            onChange={setField}
+            onChange={setBuildField}
           />
           {build.dateBuildComplete && (
             <div className={styles.phaseComplete}>
@@ -343,20 +506,19 @@ export default function BuildProperties({ show }) {
           )}
         </PhaseSection>
 
-        {/* ── Close ─────────────────────────────────────────────────────── */}
         <PhaseSection title="Close" value="close" rollup={rollups.close} disabled>
           <FieldRow
             label="Contract"
             field="contract"
             value={build.contract}
             options={CONTRACT_STATUS}
-            onChange={setField}
+            onChange={setBuildField}
           />
           <DateRow
             label="Contract last checkin"
             field="contractLastCheckin"
             value={build.contractLastCheckin}
-            onChange={setField}
+            onChange={setBuildField}
             overdue={isOverdue(build.contractLastCheckin)}
           />
           <FieldRow
@@ -364,14 +526,14 @@ export default function BuildProperties({ show }) {
             field="livestream"
             value={build.livestream}
             options={BASE_STATUS}
-            onChange={setField}
+            onChange={setBuildField}
           />
           <FieldRow
             label="Workbook"
             field="workbook"
             value={build.workbook}
             options={BASE_STATUS}
-            onChange={setField}
+            onChange={setBuildField}
           />
           <div className={styles.checkboxRow}>
             <span className={styles.fieldLabel}>We drafted contract</span>
@@ -379,7 +541,7 @@ export default function BuildProperties({ show }) {
               type="checkbox"
               className={styles.checkbox}
               checked={build.weDraftedContract ?? false}
-              onChange={(e) => setField("weDraftedContract", e.target.checked)}
+              onChange={(e) => setBuildField("weDraftedContract", e.target.checked)}
             />
           </div>
           {build.dateDrafted && (

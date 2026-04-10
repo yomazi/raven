@@ -7,7 +7,8 @@ import {
   DateRenderer,
   FolderIconRenderer,
   RollupCellRenderer,
-  RowNumberRenderer,
+  ScheduleHeaderRenderer,
+  ScheduleRenderer,
 } from "@components/Content/shared/grid/renderers.jsx";
 import {
   BUILD_FIELDS,
@@ -90,6 +91,32 @@ export const columnDefs = [
     minWidth: 70,
     maxWidth: 70,
     suppressAutoSize: true,
+  },
+  {
+    colId: "schedule",
+    headerComponent: ScheduleHeaderRenderer,
+    headerComponentParams: {
+      enableSorting: true,
+    },
+    headerClass: "ag-header-cell-center",
+    cellClass: "ag-center-aligned-cell",
+    width: 50,
+    minWidth: 50,
+    maxWidth: 50,
+    sortable: true,
+    suppressAutoSize: true,
+    valueGetter: ({ data }) => {
+      const s = data?.schedule;
+      const d = s?.announceDateTime ?? s?.onSaleDateTime;
+      return d ? new Date(d).getTime() : null;
+    },
+    cellRenderer: ScheduleRenderer,
+    comparator: (a, b, _nodeA, _nodeB, isDescending) => {
+      if (a === null && b === null) return 0;
+      if (a === null) return 1; // nulls always sink regardless of direction
+      if (b === null) return -1;
+      return isDescending ? b - a : a - b;
+    },
   },
   {
     headerName: "s",
