@@ -11,12 +11,6 @@
   height: 100%;
 }
 
-.routeContainer {
-  flex: 1;
-  overflow: hidden;
-  min-height: 0;
-}
-
 .empty {
   margin: 1rem;
 }
