@@ -24,6 +24,7 @@ const theme = themeAlpine.withPart(colorSchemeDark).withParams(gridThemeParams);
 export default function BuildRoster() {
   const navigate = useNavigate();
   const gridRef = useRef();
+  const gridContainerRef = useRef();
   const { data: shows = [], isLoading } = useBuildRosterShows();
   const setIsSelectedShowVisible = useRavenStore((s) => s.setIsSelectedShowVisible);
 
@@ -78,6 +79,19 @@ export default function BuildRoster() {
     const url = `https://drive.google.com/drive/folders/${folderId}`;
     window.open(url, "_blank", "noopener,noreferrer");
   };
+
+  // autosize the grid!
+  useEffect(() => {
+    const container = gridContainerRef.current;
+    if (!container) return;
+
+    const observer = new ResizeObserver(() => {
+      gridRef.current?.api?.sizeColumnsToFit();
+    });
+
+    observer.observe(container);
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -141,8 +155,8 @@ export default function BuildRoster() {
     [setSelectedShow, setIsSelectedShowVisible, navigate]
   );
 
-  const onGridReady = useCallback((params) => {
-    params.api.sizeColumnsToFit();
+  const onGridReady = useCallback(() => {
+    //    params.api.sizeColumnsToFit();
   }, []);
 
   return (
@@ -166,7 +180,7 @@ export default function BuildRoster() {
               <span className={styles.rosterLength}>{shows.length}</span> shows
             </div>
           </div>
-          <div className={`ag-theme-alpine-dark ${styles.grid}`}>
+          <div className={`ag-theme-alpine-dark ${styles.grid}`} ref={gridContainerRef}>
             <AgGridReact
               ref={gridRef}
               valueCache={true}

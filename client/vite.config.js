@@ -13,9 +13,15 @@ export default defineConfig({
   server: {
     allowedHosts: ["raven.neuron9.io", "localhost"],
   },
+  headers: {
+    "Cache-Control": "no-store",
+  },
   hmr: {
     protocol: "wss",
     clientPort: 443,
+  },
+  optimizeDeps: {
+    force: true,
   },
   resolve: {
     alias: {
