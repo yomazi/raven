@@ -25,6 +25,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
+import styles from "./Dragonfly.module.css";
 import {
   DOCTYPES,
   SEND_AS_ALIASES,
@@ -207,11 +208,11 @@ function NamingForm({ att, messageId, folderId, onUploaded, onCancel }) {
   }, [editedName, att, messageId, folderId, onUploaded]);
 
   return (
-    <div style={s.namingForm}>
-      <div style={s.nRow}>
-        <div style={s.nField}>
-          <span style={s.nLabel}>Team</span>
-          <select style={s.nSelect} value={team} onChange={(e) => setTeam(e.target.value)}>
+    <div className={styles.namingForm}>
+      <div className={styles.nRow}>
+        <div className={styles.nField}>
+          <span className={styles.nLabel}>Team</span>
+          <select className={styles.nSelect} value={team} onChange={(e) => setTeam(e.target.value)}>
             {TEAMS.map((t) => (
               <option key={t.code} value={t.code}>
                 {t.label}
@@ -219,11 +220,11 @@ function NamingForm({ att, messageId, folderId, onUploaded, onCancel }) {
             ))}
           </select>
         </div>
-        <div style={s.nField}>
-          <span style={s.nLabel}>Document type</span>
+        <div className={styles.nField}>
+          <span className={styles.nLabel}>Document type</span>
           {doctypeOptions.length > 0 ? (
             <select
-              style={s.nSelect}
+              className={styles.nSelect}
               value={doctypeKey}
               onChange={(e) => setDoctypeKey(e.target.value)}
             >
@@ -235,7 +236,7 @@ function NamingForm({ att, messageId, folderId, onUploaded, onCancel }) {
             </select>
           ) : (
             <input
-              style={s.nInput}
+              className={styles.nInput}
               value={doctypeKey}
               onChange={(e) => setDoctypeKey(e.target.value)}
               placeholder="doctype"
@@ -245,11 +246,11 @@ function NamingForm({ att, messageId, folderId, onUploaded, onCancel }) {
       </div>
 
       {hasSubtypes && (
-        <div style={s.nRow}>
-          <div style={{ ...s.nField, flex: 1 }}>
-            <span style={s.nLabel}>Rider type</span>
+        <div className={styles.nRow}>
+          <div className={`${styles.nField} ${styles.flexOne}`}>
+            <span className={styles.nLabel}>Rider type</span>
             <select
-              style={s.nSelect}
+              className={styles.nSelect}
               value={subtype}
               onChange={(e) => {
                 setSubtype(e.target.value);
@@ -266,10 +267,10 @@ function NamingForm({ att, messageId, folderId, onUploaded, onCancel }) {
             </select>
           </div>
           {subtype === "__custom__" && (
-            <div style={{ ...s.nField, flex: 1 }}>
-              <span style={s.nLabel}>Custom type</span>
+            <div className={`${styles.nField} ${styles.flexOne}`}>
+              <span className={styles.nLabel}>Custom type</span>
               <input
-                style={s.nInput}
+                className={styles.nInput}
                 value={customSubtype}
                 onChange={(e) => setCustomSubtype(e.target.value)}
                 placeholder="e.g. catering"
@@ -281,11 +282,11 @@ function NamingForm({ att, messageId, folderId, onUploaded, onCancel }) {
       )}
 
       {hasPaymentTypes && (
-        <div style={s.nRow}>
-          <div style={{ ...s.nField, flex: 1 }}>
-            <span style={s.nLabel}>Payment type</span>
+        <div className={styles.nRow}>
+          <div className={`${styles.nField} ${styles.flexOne}`}>
+            <span className={styles.nLabel}>Payment type</span>
             <select
-              style={s.nSelect}
+              className={styles.nSelect}
               value={paymentType}
               onChange={(e) => {
                 setPaymentType(e.target.value);
@@ -302,10 +303,10 @@ function NamingForm({ att, messageId, folderId, onUploaded, onCancel }) {
             </select>
           </div>
           {paymentType === "__custom__" && (
-            <div style={{ ...s.nField, flex: 1 }}>
-              <span style={s.nLabel}>Custom type</span>
+            <div className={`${styles.nField} ${styles.flexOne}`}>
+              <span className={styles.nLabel}>Custom type</span>
               <input
-                style={s.nInput}
+                className={styles.nInput}
                 value={customPaymentType}
                 onChange={(e) => setCustomPaymentType(e.target.value)}
                 placeholder="e.g. hotel buyout"
@@ -317,10 +318,14 @@ function NamingForm({ att, messageId, folderId, onUploaded, onCancel }) {
       )}
 
       {stageOptions.length > 0 && (
-        <div style={s.nRow}>
-          <div style={{ ...s.nField, flex: 1 }}>
-            <span style={s.nLabel}>Stage</span>
-            <select style={s.nSelect} value={stage} onChange={(e) => setStage(e.target.value)}>
+        <div className={styles.nRow}>
+          <div className={`${styles.nField} ${styles.flexOne}`}>
+            <span className={styles.nLabel}>Stage</span>
+            <select
+              className={styles.nSelect}
+              value={stage}
+              onChange={(e) => setStage(e.target.value)}
+            >
               {stageOptions.map((o) => (
                 <option key={o.value} value={o.value}>
                   {o.label}
@@ -331,13 +336,13 @@ function NamingForm({ att, messageId, folderId, onUploaded, onCancel }) {
         </div>
       )}
 
-      <div style={s.nPreviewWrap}>
-        <span style={s.nLabel}>Filename</span>
+      <div className={styles.nPreviewWrap}>
+        <span className={styles.nLabel}>Filename</span>
         {loadingFolder ? (
-          <span style={s.nHint}>Scanning folder…</span>
+          <span className={styles.nHint}>Scanning folder…</span>
         ) : (
           <input
-            style={s.nPreviewInput}
+            className={styles.nPreviewInput}
             value={editedName}
             onChange={(e) => setEditedName(e.target.value)}
             spellCheck={false}
@@ -345,19 +350,19 @@ function NamingForm({ att, messageId, folderId, onUploaded, onCancel }) {
         )}
       </div>
       {editedName !== suggestedName && suggestedName && (
-        <button style={s.nResetBtn} onClick={() => setEditedName(suggestedName)}>
+        <button className={styles.nResetBtn} onClick={() => setEditedName(suggestedName)}>
           Reset to suggested
         </button>
       )}
 
-      {err && <div style={s.errText}>{err}</div>}
+      {err && <div className={styles.errText}>{err}</div>}
 
-      <div style={s.nActions}>
-        <button style={s.ghostBtn} onClick={onCancel}>
+      <div className={styles.nActions}>
+        <button className={styles.ghostBtn} onClick={onCancel}>
           Cancel
         </button>
         <button
-          style={{ ...s.sendBtn, ...(uploading ? s.sendBusy : {}) }}
+          className={`${styles.sendBtn} ${uploading ? styles.sendBusy : null}`}
           onClick={handleUpload}
           disabled={uploading || loadingFolder}
         >
@@ -383,21 +388,21 @@ function AttachmentRow({ att, messageId, folderId, uploadKey, uploadedNames, onU
   );
 
   return (
-    <div style={s.attWrap}>
-      <div style={s.attRow}>
-        <div style={s.attBadge}>{extBadge(att.filename)}</div>
-        <div style={s.attInfo}>
-          <div style={s.attName} title={att.filename}>
+    <div className={styles.attWrap}>
+      <div className={styles.attRow}>
+        <div className={styles.attBadge}>{extBadge(att.filename)}</div>
+        <div className={styles.attInfo}>
+          <div className={styles.attName} title={att.filename}>
             {att.filename}
           </div>
-          <div style={s.attMeta}>
+          <div className={styles.attMeta}>
             {att.mimeType} · {formatBytes(att.size)}
           </div>
-          {isDone && <div style={s.uploadedAs}>✓ {uploadedNames.get(uploadKey)}</div>}
+          {isDone && <div className={styles.uploadedAs}>✓ {uploadedNames.get(uploadKey)}</div>}
         </div>
         {!isDone && (
           <button
-            style={{ ...s.chipBtn, ...(showForm ? s.chipActive : {}) }}
+            className={`${styles.chipBtn} ${showForm ? styles.chipActive : null}`}
             onClick={() => setShowForm((f) => !f)}
             title={folderId ? "Upload to Drive" : "No folder selected"}
             disabled={!folderId}
@@ -405,7 +410,7 @@ function AttachmentRow({ att, messageId, folderId, uploadKey, uploadedNames, onU
             ↑
           </button>
         )}
-        {isDone && <div style={{ ...s.chipBtn, ...s.chipDone }}>✓</div>}
+        {isDone && <div className={`${styles.chipBtn} ${styles.chipDone}`}>✓</div>}
       </div>
       {showForm && !isDone && (
         <NamingForm
@@ -436,45 +441,45 @@ function RoutingPreview({ uploadedNames, mode, onConfirm, onCancel }) {
   const hasRouting = routing.toAddresses.length > 0;
 
   return (
-    <div style={s.drawer}>
-      <div style={s.drawerHeader}>
-        <span style={s.drawerTitle}>
+    <div className={styles.drawer}>
+      <div className={styles.drawerHeader}>
+        <span className={styles.drawerTitle}>
           {mode === "reply" ? "Reply" : mode === "forward" ? "Forward" : "New message"}
         </span>
-        <button style={s.iconBtn} onClick={onCancel}>
+        <button className={styles.iconBtn} onClick={onCancel}>
           ✕
         </button>
       </div>
 
       {/* Routing summary */}
       {uploadedFilenames.length > 0 && (
-        <div style={s.routingBox}>
-          <div style={s.routingLabel}>Smart routing</div>
+        <div className={styles.routingBox}>
+          <div className={styles.routingLabel}>Smart routing</div>
           {hasRouting ? (
-            <div style={s.routingDetail}>
+            <div className={styles.routingDetail}>
               Routed from {uploadedFilenames.length} uploaded file
               {uploadedFilenames.length !== 1 ? "s" : ""}
             </div>
           ) : (
-            <div style={{ ...s.routingDetail, color: "#d97706" }}>
+            <div className={`${styles.routingDetail} ${styles.orange}`}>
               No team routing — fill in recipients manually
             </div>
           )}
           {routing.receivedLabels.length > 0 && (
-            <div style={s.routingPills}>
-              <span style={s.routingPillHead}>Received thread:</span>
+            <div className={styles.routingPills}>
+              <span className={styles.routingPillHead}>Received thread:</span>
               {routing.receivedLabels.map((l) => (
-                <span key={l} style={s.routingPill}>
+                <span key={l} className={styles.routingPill}>
                   {l}
                 </span>
               ))}
             </div>
           )}
-          {routing.sentLabels.length > 0 && (
-            <div style={s.routingPills}>
-              <span style={s.routingPillHead}>Sent message:</span>
+          {routing.sentLabelstyles.length > 0 && (
+            <div className={styles.routingPills}>
+              <span className={styles.routingPillHead}>Sent message:</span>
               {routing.sentLabels.map((l) => (
-                <span key={l} style={s.routingPill}>
+                <span key={l} className={styles.routingPill}>
                   {l}
                 </span>
               ))}
@@ -484,9 +489,13 @@ function RoutingPreview({ uploadedNames, mode, onConfirm, onCancel }) {
       )}
 
       {/* From */}
-      <div style={s.field}>
-        <span style={s.fieldLabel}>From</span>
-        <select style={s.fieldSelect} value={from} onChange={(e) => setFrom(e.target.value)}>
+      <div className={styles.field}>
+        <span className={styles.fieldLabel}>From</span>
+        <select
+          className={styles.fieldSelect}
+          value={from}
+          onChange={(e) => setFrom(e.target.value)}
+        >
           {SEND_AS_ALIASES.map((a, i) => (
             <option key={i} value={a.address ?? ""}>
               {a.label}
@@ -496,10 +505,10 @@ function RoutingPreview({ uploadedNames, mode, onConfirm, onCancel }) {
       </div>
 
       {/* To */}
-      <div style={s.field}>
-        <span style={s.fieldLabel}>To</span>
+      <div className={styles.field}>
+        <span className={styles.fieldLabel}>To</span>
         <input
-          style={s.fieldInput}
+          className={styles.fieldInput}
           value={to}
           onChange={(e) => setTo(e.target.value)}
           placeholder="recipient@example.com"
@@ -508,10 +517,10 @@ function RoutingPreview({ uploadedNames, mode, onConfirm, onCancel }) {
 
       {/* Subject — only for new messages */}
       {mode === "new" && (
-        <div style={s.field}>
-          <span style={s.fieldLabel}>Subject</span>
+        <div className={styles.field}>
+          <span className={styles.fieldLabel}>Subject</span>
           <input
-            style={s.fieldInput}
+            className={styles.fieldInput}
             value={subject}
             onChange={(e) => setSubject(e.target.value)}
           />
@@ -519,7 +528,7 @@ function RoutingPreview({ uploadedNames, mode, onConfirm, onCancel }) {
       )}
 
       <textarea
-        style={s.bodyArea}
+        className={styles.bodyArea}
         value={body}
         onChange={(e) => setBody(e.target.value)}
         placeholder="Write your message…"
@@ -527,12 +536,12 @@ function RoutingPreview({ uploadedNames, mode, onConfirm, onCancel }) {
         autoFocus
       />
 
-      <div style={s.drawerActions}>
-        <button style={s.ghostBtn} onClick={onCancel}>
+      <div className={styles.drawerActions}>
+        <button className={styles.ghostBtn} onClick={onCancel}>
           Cancel
         </button>
         <button
-          style={s.sendBtn}
+          className={styles.sendBtn}
           onClick={() =>
             onConfirm({
               to: to
@@ -600,7 +609,7 @@ function ComposeDrawer({ mode, message, messageId, uploadedNames, onClose, onSen
 
   if (state === "done") {
     return (
-      <div style={{ ...s.drawer, alignItems: "center", justifyContent: "center" }}>
+      <div className={styles.drawer} style={{ alignItems: "center", justifyContent: "center" }}>
         <div style={{ color: "#166534", fontSize: 13, fontWeight: 600 }}>Sent!</div>
       </div>
     );
@@ -608,7 +617,11 @@ function ComposeDrawer({ mode, message, messageId, uploadedNames, onClose, onSen
 
   return (
     <>
-      {err && <div style={{ ...s.errText, margin: "0 14px" }}>{err}</div>}
+      {err && (
+        <div className={styles.errText} style={{ margin: "0 14px" }}>
+          {err}
+        </div>
+      )}
       <RoutingPreview
         uploadedNames={uploadedNames}
         mode={mode}
@@ -655,32 +668,36 @@ function MessageGroup({ stub, isFocused, folderId, uploadedNames, onUploaded, de
   const attachments = msg?.attachments ?? [];
 
   return (
-    <div style={{ ...s.msgGroup, ...(isFocused ? s.msgGroupFocused : {}) }}>
-      <button style={s.groupHeader} onClick={toggle}>
-        <div style={s.groupHeaderLeft}>
-          <span style={s.groupChevron}>{open ? "▾" : "▸"}</span>
-          <div style={s.groupMeta}>
-            <span style={s.groupFrom}>{shortSender(stub.from)}</span>
-            {isFocused && <span style={s.focusedPill}>focused</span>}
-            <span style={s.groupDate}>{formatDate(stub.date)}</span>
+    <div className={`${styles.msgGroup} ${isFocused ? styles.msgGroupFocused : null}`}>
+      <button className={styles.groupHeader} onClick={toggle}>
+        <div className={styles.groupHeaderLeft}>
+          <span className={styles.groupChevron}>{open ? "▾" : "▸"}</span>
+          <div className={styles.groupMeta}>
+            <span className={styles.groupFrom}>{shortSender(stub.from)}</span>
+            {isFocused && <span className={styles.focusedPill}>focused</span>}
+            <span className={styles.groupDate}>{formatDate(stub.date)}</span>
           </div>
         </div>
         {msg && attachments.length > 0 && (
-          <span style={s.groupAttCount}>
+          <span className={styles.groupAttCount}>
             {attachments.length} file{attachments.length !== 1 ? "s" : ""}
           </span>
         )}
       </button>
 
       {open && (
-        <div style={s.groupBody}>
-          {loading && <div style={s.loadingRow}>Loading…</div>}
-          {err && <div style={{ ...s.loadingRow, color: "#b91c1c" }}>{err}</div>}
+        <div className={styles.groupBody}>
+          {loading && <div className={styles.loadingRow}>Loading…</div>}
+          {err && (
+            <div className={styles.loadingRow} style={{ color: "#b91c1c" }}>
+              {err}
+            </div>
+          )}
           {msg && (
             <>
-              {msg.snippet && <div style={s.groupSnippet}>{msg.snippet}</div>}
+              {msg.snippet && <div className={styles.groupSnippet}>{msg.snippet}</div>}
               {attachments.length > 0 ? (
-                <div style={s.attList}>
+                <div className={styles.attList}>
                   {attachments.map((att) => {
                     const key = `${msg.id}::${att.attachmentId}`;
                     return (
@@ -697,7 +714,7 @@ function MessageGroup({ stub, isFocused, folderId, uploadedNames, onUploaded, de
                   })}
                 </div>
               ) : (
-                <div style={s.noAtts}>No attachments in this message</div>
+                <div className={styles.noAtts}>No attachments in this message</div>
               )}
             </>
           )}
@@ -793,22 +810,25 @@ export default function Dragonfly({ showFolderId }) {
   const uploadCount = uploadedNames.size;
 
   return (
-    <div style={s.root}>
+    <div className={styles.root}>
       {/* ── Toolbar ── */}
-      <div style={s.toolbar}>
-        <span style={s.wordmark}>✦ Dragonfly</span>
-        <div style={s.toolbarRight}>
+      <div className={styles.toolbar}>
+        <div className={styles.toolbarRight}>
           {focusedStub && (
             <>
-              <button style={s.iconChip} title="Reply" onClick={() => setCompose("reply")}>
+              <button className={styles.iconChip} title="Reply" onClick={() => setCompose("reply")}>
                 ↩
               </button>
-              <button style={s.iconChip} title="Forward" onClick={() => setCompose("forward")}>
+              <button
+                className={styles.iconChip}
+                title="Forward"
+                onClick={() => setCompose("forward")}
+              >
                 →
               </button>
             </>
           )}
-          <button style={s.iconChip} title="New message" onClick={() => setCompose("new")}>
+          <button className={styles.iconChip} title="New message" onClick={() => setCompose("new")}>
             ✉
           </button>
         </div>
@@ -816,33 +836,39 @@ export default function Dragonfly({ showFolderId }) {
 
       {/* ── Context bar ── */}
       {(threadId || messageId) && (
-        <div style={s.contextBar}>
-          <div style={s.pills}>
-            {threadId && <span style={s.pill}>thread {threadId}</span>}
-            {messageId && <span style={s.pill}>msg {messageId}</span>}
+        <div className={styles.contextBar}>
+          <div className={styles.pills}>
+            {threadId && <span className={styles.pill}>thread {threadId}</span>}
+            {messageId && <span className={styles.pill}>msg {messageId}</span>}
           </div>
-          {uploadCount > 0 && <span style={s.attSummary}>{uploadCount} uploaded</span>}
+          {uploadCount > 0 && <span className={styles.attSummary}>{uploadCount} uploaded</span>}
         </div>
       )}
 
       {/* ── Body ── */}
-      <div style={s.body}>
-        {loading && <div style={s.stateRow}>Loading…</div>}
-        {error && <div style={{ ...s.stateRow, color: "#b91c1c" }}>Error: {error}</div>}
+      <div className={styles.body}>
+        {loading && <div className={styles.stateRow}>Loading…</div>}
+        {error && (
+          <div className={styles.stateRow} style={{ color: "#b91c1c" }}>
+            Error: {error}
+          </div>
+        )}
 
         {!threadId && !messageId && !loading && (
-          <div style={s.emptyState}>
+          <div className={styles.emptyState}>
             No message loaded.{"\n"}
-            Pass a <code style={s.code}>threadId</code> or <code style={s.code}>messageId</code>,
-            {"\n"}
+            Pass a <code className={styles.code}>threadId</code> or{" "}
+            <code className={styles.code}>messageId</code>,{"\n"}
             or compose a new email above.
           </div>
         )}
 
-        {focusedStub && <div style={s.threadSubject}>{focusedStub.subject ?? "(no subject)"}</div>}
+        {focusedStub && (
+          <div className={styles.threadSubject}>{focusedStub.subject ?? "(no subject)"}</div>
+        )}
 
         {!showFolderId && messageStubs.length > 0 && (
-          <div style={s.folderWarning}>Select a Drive folder to enable uploads</div>
+          <div className={styles.folderWarning}>Select a Drive folder to enable uploads</div>
         )}
 
         {messageStubs.map((stub) => (
@@ -872,396 +898,3 @@ export default function Dragonfly({ showFolderId }) {
     </div>
   );
 }
-
-// ─── styles ───────────────────────────────────────────────────────────────────
-
-const s = {
-  root: {
-    display: "flex",
-    flexDirection: "column",
-    height: "100%",
-    fontFamily: "'Inter', system-ui, sans-serif",
-    fontSize: 13,
-    color: "#1a1a1a",
-    background: "#fafafa",
-    borderLeft: "1px solid #e8e8e8",
-    overflow: "hidden",
-  },
-  toolbar: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between",
-    padding: "10px 14px",
-    borderBottom: "1px solid #ebebeb",
-    background: "#fff",
-    flexShrink: 0,
-  },
-  wordmark: { fontWeight: 700, fontSize: 13, letterSpacing: "-0.01em", color: "#111" },
-  toolbarRight: { display: "flex", gap: 4 },
-  iconBtn: {
-    background: "none",
-    border: "none",
-    cursor: "pointer",
-    color: "#888",
-    fontSize: 13,
-    padding: "3px 6px",
-    borderRadius: 4,
-    lineHeight: 1,
-  },
-  iconChip: {
-    background: "none",
-    border: "1px solid #e0e0e0",
-    cursor: "pointer",
-    color: "#555",
-    fontSize: 13,
-    padding: "3px 9px",
-    borderRadius: 6,
-    lineHeight: 1,
-  },
-  contextBar: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between",
-    padding: "5px 14px",
-    borderBottom: "1px solid #ebebeb",
-    background: "#fff",
-    flexShrink: 0,
-    gap: 8,
-  },
-  pills: { display: "flex", gap: 5, flexWrap: "wrap", flex: 1, minWidth: 0 },
-  pill: {
-    fontSize: 10,
-    fontFamily: "monospace",
-    background: "#f2f2f2",
-    border: "1px solid #e5e5e5",
-    borderRadius: 99,
-    padding: "2px 7px",
-    color: "#888",
-    whiteSpace: "nowrap",
-    overflow: "hidden",
-    textOverflow: "ellipsis",
-    maxWidth: 140,
-  },
-  attSummary: { fontSize: 11, color: "#166534", whiteSpace: "nowrap", flexShrink: 0 },
-  body: { flex: 1, overflowY: "auto", paddingBottom: 16 },
-  stateRow: { padding: "24px 14px", textAlign: "center", color: "#999", fontSize: 12 },
-  emptyState: {
-    padding: "32px 20px",
-    textAlign: "center",
-    color: "#aaa",
-    fontSize: 12,
-    lineHeight: 1.8,
-    whiteSpace: "pre-line",
-  },
-  code: {
-    fontFamily: "monospace",
-    fontSize: 11,
-    background: "#f0f0f0",
-    borderRadius: 3,
-    padding: "1px 4px",
-    color: "#555",
-  },
-  threadSubject: {
-    padding: "12px 14px 4px",
-    fontWeight: 600,
-    fontSize: 14,
-    color: "#111",
-    lineHeight: 1.3,
-  },
-  folderWarning: {
-    margin: "6px 14px 2px",
-    padding: "5px 10px",
-    fontSize: 11,
-    color: "#92400e",
-    background: "#fef3c7",
-    borderRadius: 6,
-  },
-  msgGroup: {
-    margin: "6px 10px",
-    border: "1px solid #ebebeb",
-    borderRadius: 8,
-    background: "#fff",
-    overflow: "hidden",
-  },
-  msgGroupFocused: { border: "1px solid #c7d2fe", background: "#fafbff" },
-  groupHeader: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between",
-    width: "100%",
-    padding: "8px 10px",
-    background: "none",
-    border: "none",
-    cursor: "pointer",
-    textAlign: "left",
-    gap: 8,
-  },
-  groupHeaderLeft: { display: "flex", alignItems: "center", gap: 6, flex: 1, minWidth: 0 },
-  groupChevron: { fontSize: 10, color: "#bbb", flexShrink: 0 },
-  groupMeta: {
-    display: "flex",
-    alignItems: "baseline",
-    gap: 6,
-    flex: 1,
-    minWidth: 0,
-    flexWrap: "wrap",
-  },
-  groupFrom: {
-    fontWeight: 500,
-    fontSize: 12,
-    color: "#222",
-    whiteSpace: "nowrap",
-    overflow: "hidden",
-    textOverflow: "ellipsis",
-    maxWidth: 120,
-  },
-  focusedPill: {
-    fontSize: 9,
-    fontWeight: 600,
-    textTransform: "uppercase",
-    letterSpacing: "0.07em",
-    background: "#e0e7ff",
-    color: "#3730a3",
-    borderRadius: 99,
-    padding: "1px 5px",
-    flexShrink: 0,
-  },
-  groupDate: { fontSize: 10, color: "#bbb", whiteSpace: "nowrap" },
-  groupAttCount: { fontSize: 10, color: "#999", whiteSpace: "nowrap", flexShrink: 0 },
-  groupBody: { borderTop: "1px solid #f0f0f0", padding: "8px 10px" },
-  loadingRow: { fontSize: 11, color: "#aaa", padding: "4px 0" },
-  groupSnippet: {
-    fontSize: 11,
-    color: "#888",
-    lineHeight: 1.5,
-    marginBottom: 8,
-    overflow: "hidden",
-    display: "-webkit-box",
-    WebkitLineClamp: 2,
-    WebkitBoxOrient: "vertical",
-  },
-  attList: { display: "flex", flexDirection: "column", gap: 6 },
-  noAtts: { fontSize: 11, color: "#ccc", textAlign: "center", padding: "6px 0" },
-  attWrap: { display: "flex", flexDirection: "column", gap: 0 },
-  attRow: {
-    display: "flex",
-    alignItems: "center",
-    gap: 8,
-    padding: "6px 8px",
-    background: "#fafafa",
-    border: "1px solid #f0f0f0",
-    borderRadius: 6,
-  },
-  attBadge: {
-    width: 30,
-    height: 30,
-    borderRadius: 5,
-    background: "#eef0ff",
-    color: "#3730a3",
-    fontSize: 8,
-    fontWeight: 700,
-    letterSpacing: "0.04em",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    flexShrink: 0,
-  },
-  attInfo: { flex: 1, minWidth: 0 },
-  attName: {
-    fontWeight: 500,
-    fontSize: 12,
-    whiteSpace: "nowrap",
-    overflow: "hidden",
-    textOverflow: "ellipsis",
-    color: "#222",
-  },
-  attMeta: { fontSize: 10, color: "#bbb", marginTop: 1 },
-  uploadedAs: { fontSize: 10, color: "#166534", marginTop: 2, wordBreak: "break-all" },
-  errText: { fontSize: 11, color: "#b91c1c", marginTop: 3 },
-  chipBtn: {
-    width: 26,
-    height: 26,
-    borderRadius: 6,
-    border: "1px solid #e0e0e0",
-    background: "#fff",
-    cursor: "pointer",
-    color: "#555",
-    fontSize: 12,
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    flexShrink: 0,
-  },
-  chipActive: { border: "1px solid #a5b4fc", background: "#eef2ff", color: "#3730a3" },
-  chipDone: {
-    border: "1px solid #bbf7d0",
-    background: "#f0fdf4",
-    color: "#166534",
-    cursor: "default",
-  },
-
-  // Naming form
-  namingForm: {
-    margin: "4px 0 0",
-    padding: "10px 10px 8px",
-    background: "#f5f5ff",
-    border: "1px solid #c7d2fe",
-    borderRadius: "0 0 6px 6px",
-    display: "flex",
-    flexDirection: "column",
-    gap: 7,
-  },
-  nRow: { display: "flex", gap: 8, flexWrap: "wrap" },
-  nField: { display: "flex", flexDirection: "column", gap: 3, flex: 1, minWidth: 100 },
-  nLabel: {
-    fontSize: 10,
-    fontWeight: 600,
-    color: "#888",
-    textTransform: "uppercase",
-    letterSpacing: "0.05em",
-  },
-  nSelect: {
-    fontSize: 12,
-    border: "1px solid #ddd",
-    borderRadius: 5,
-    padding: "4px 6px",
-    background: "#fff",
-    color: "#111",
-    outline: "none",
-  },
-  nInput: {
-    fontSize: 12,
-    border: "1px solid #ddd",
-    borderRadius: 5,
-    padding: "4px 6px",
-    background: "#fff",
-    color: "#111",
-    outline: "none",
-  },
-  nPreviewWrap: { display: "flex", flexDirection: "column", gap: 3 },
-  nPreviewInput: {
-    fontSize: 11,
-    fontFamily: "monospace",
-    border: "1px solid #c7d2fe",
-    borderRadius: 5,
-    padding: "5px 7px",
-    background: "#fff",
-    color: "#3730a3",
-    outline: "none",
-    wordBreak: "break-all",
-  },
-  nHint: { fontSize: 11, color: "#aaa", fontStyle: "italic" },
-  nResetBtn: {
-    fontSize: 10,
-    color: "#6366f1",
-    background: "none",
-    border: "none",
-    cursor: "pointer",
-    padding: 0,
-    textAlign: "left",
-    textDecoration: "underline",
-  },
-  nActions: { display: "flex", justifyContent: "flex-end", gap: 6, marginTop: 2 },
-
-  // Routing preview + compose drawer
-  drawer: {
-    borderTop: "1px solid #e0e0e0",
-    background: "#fff",
-    padding: "12px 14px",
-    flexShrink: 0,
-    display: "flex",
-    flexDirection: "column",
-    gap: 7,
-  },
-  drawerHeader: { display: "flex", alignItems: "center", justifyContent: "space-between" },
-  drawerTitle: { fontWeight: 600, fontSize: 12, color: "#333" },
-  routingBox: {
-    background: "#f0fdf4",
-    border: "1px solid #bbf7d0",
-    borderRadius: 6,
-    padding: "8px 10px",
-    display: "flex",
-    flexDirection: "column",
-    gap: 4,
-  },
-  routingLabel: {
-    fontSize: 10,
-    fontWeight: 600,
-    color: "#166534",
-    textTransform: "uppercase",
-    letterSpacing: "0.06em",
-  },
-  routingDetail: { fontSize: 11, color: "#444" },
-  routingPills: { display: "flex", alignItems: "center", gap: 4, flexWrap: "wrap", marginTop: 2 },
-  routingPillHead: { fontSize: 10, color: "#888", flexShrink: 0 },
-  routingPill: {
-    fontSize: 10,
-    background: "#dcfce7",
-    color: "#166534",
-    borderRadius: 99,
-    padding: "1px 7px",
-    border: "1px solid #bbf7d0",
-  },
-  field: {
-    display: "flex",
-    alignItems: "center",
-    gap: 6,
-    borderBottom: "1px solid #f0f0f0",
-    paddingBottom: 5,
-  },
-  fieldLabel: { fontSize: 11, color: "#bbb", width: 44, flexShrink: 0, fontWeight: 500 },
-  fieldInput: {
-    flex: 1,
-    border: "none",
-    outline: "none",
-    fontSize: 12,
-    color: "#111",
-    background: "transparent",
-    padding: "2px 0",
-  },
-  fieldSelect: {
-    flex: 1,
-    border: "none",
-    outline: "none",
-    fontSize: 12,
-    color: "#111",
-    background: "transparent",
-    padding: "2px 0",
-  },
-  bodyArea: {
-    width: "100%",
-    border: "1px solid #eee",
-    borderRadius: 6,
-    padding: "7px 9px",
-    fontSize: 12,
-    lineHeight: 1.6,
-    resize: "vertical",
-    outline: "none",
-    fontFamily: "inherit",
-    color: "#111",
-    boxSizing: "border-box",
-    minHeight: 90,
-  },
-  drawerActions: { display: "flex", justifyContent: "flex-end", gap: 6 },
-  ghostBtn: {
-    background: "none",
-    border: "1px solid #e5e5e5",
-    borderRadius: 6,
-    padding: "5px 12px",
-    fontSize: 12,
-    cursor: "pointer",
-    color: "#777",
-  },
-  sendBtn: {
-    background: "#4f46e5",
-    border: "none",
-    borderRadius: 6,
-    padding: "5px 14px",
-    fontSize: 12,
-    fontWeight: 600,
-    cursor: "pointer",
-    color: "#fff",
-  },
-  sendBusy: { opacity: 0.6, cursor: "not-allowed" },
-  sendDone: { background: "#166534" },
-};
