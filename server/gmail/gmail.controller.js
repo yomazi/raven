@@ -102,17 +102,6 @@ class GmailController {
       res.status(500).json({ success: false, error: err.message });
     }
   }
-
-  static async getSignature(req, res) {
-    try {
-      const { address } = req.params;
-      const result = await GmailService.getSignature({ address });
-      res.json({ success: true, ...result });
-    } catch (err) {
-      console.error(err);
-      res.status(500).json({ success: false, error: err.message });
-    }
-  }
 }
 
 export default GmailController;

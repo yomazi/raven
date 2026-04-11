@@ -43,10 +43,10 @@ class GmailRepository {
   static #extractBody(payload) {
     if (!payload) return null;
     function walk(part) {
-      if (part.mimeType === "text/plain" && part.body?.data)
-        return { type: "plain", data: part.body.data };
       if (part.mimeType === "text/html" && part.body?.data)
         return { type: "html", data: part.body.data };
+      if (part.mimeType === "text/plain" && part.body?.data)
+        return { type: "plain", data: part.body.data };
       for (const child of part.parts ?? []) {
         const found = walk(child);
         if (found) return found;
@@ -57,18 +57,8 @@ class GmailRepository {
     if (!found) return null;
     const decoded = GmailRepository.#decodeBase64Url(found.data)?.toString("utf-8") ?? null;
     if (!decoded) return null;
-    if (found.type === "html") {
-      return decoded
-        .replace(/<br\s*\/?>/gi, "\n")
-        .replace(/<\/p>/gi, "\n\n")
-        .replace(/<[^>]+>/g, "")
-        .replace(/&nbsp;/g, " ")
-        .replace(/&amp;/g, "&")
-        .replace(/&lt;/g, "<")
-        .replace(/&gt;/g, ">")
-        .replace(/&quot;/g, '"')
-        .replace(/\n{3,}/g, "\n\n")
-        .trim();
+    if (found.type === "plain") {
+      return decoded.replace(/\n/g, "<br/>").trim();
     }
     return decoded;
   }
@@ -108,13 +98,12 @@ class GmailRepository {
       .join("\r\n");
 
     let raw;
-
     if (attachments.length === 0) {
-      // Simple text/plain message
-      raw = [headers, `Content-Type: text/plain; charset="UTF-8"`, "", body].join("\r\n");
+      // Simple text/html message
+      raw = [headers, `Content-Type: text/html; charset="UTF-8"`, "", body].join("\r\n");
     } else {
       // multipart/mixed with text body + attachments
-      const parts = [`--${boundary}`, `Content-Type: text/plain; charset="UTF-8"`, "", body];
+      const parts = [`--${boundary}`, `Content-Type: text/html; charset="UTF-8"`, "", body];
 
       for (const att of attachments) {
         const encoded = att.buffer.toString("base64");
@@ -399,17 +388,6 @@ class GmailRepository {
     await GmailRepository.#applyThreadLabels(gmail, threadId, labels);
 
     return { threadId };
-  }
-
-  static async getSignature({ address }) {
-    const gmail = await GmailRepository.#getGmailClient();
-    const response = await gmail.users.settings.sendAs.get({
-      userId: "me",
-      sendAsEmail: address,
-    });
-    return {
-      signature: response.data.signature ?? null,
-    };
   }
 }
 

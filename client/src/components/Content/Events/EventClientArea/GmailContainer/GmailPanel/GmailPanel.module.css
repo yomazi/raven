@@ -10,8 +10,8 @@
 .toolbar {
   display: flex;
   align-items: center;
-  justify-content: flex-end;
-  padding: 10px 14px;
+  justify-content: space-between;
+  padding: 1rem 1rem;
   border-bottom: 1px solid var(--color-stone);
   flex-shrink: 0;
 }
@@ -41,39 +41,10 @@
   line-height: 1;
 }
 
-.contextBar {
+.uploads {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 5px 14px 5px 0;
-  border-bottom: 1px solid var(--color-stone);
-  flex-shrink: 0;
-  gap: 8px;
-}
-
-.pills {
-  display: flex;
-  gap: 5px;
-  flex-wrap: wrap;
-  flex: 1;
-  min-width: 0;
-}
-
-.pill {
   font-size: 0.9rem;
-  font-family: "Google Sans Code", monospace;
-  border: 1px solid var(--color-wyrd-muted);
-  border-radius: 99px;
-  padding: 2px 7px;
-  color: var(--color-moonlight);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 140px;
-}
-
-.attSummary {
-  font-size: 11px;
   color: var(--color-fen);
   white-space: nowrap;
   flex-shrink: 0;
@@ -111,7 +82,7 @@
 }
 
 .threadSubject {
-  padding: 12px 14px 4px;
+  padding: 0.9rem 0.8rem 0.2rem 0.2rem;
   font-weight: 600;
   font-size: 1rem;
   color: var(--color-moonlight);
@@ -218,7 +189,7 @@
 }
 
 .groupSnippet {
-  font-size: 11px;
+  font-size: 0.85rem;
   color: #888;
   line-height: 1.5;
   margin-bottom: 8px;
@@ -317,8 +288,8 @@
 }
 
 .chipActive {
-  border: 1px solid #a5b4fc;
-  color: #3730a3;
+  border: 1px solid var(--color-frost);
+  color: var(--color-moonlight);
 }
 
 .chipDone {
@@ -332,7 +303,7 @@
 .namingForm {
   margin: 4px 0 0;
   padding: 10px 10px 8px;
-  border: 1px solid #c7d2fe;
+  border: 1px solid var(--color-stone);
   border-radius: 0 0 6px 6px;
   display: flex;
   flex-direction: column;
@@ -363,12 +334,13 @@
 
 .nSelect,
 .nInput {
-  font-size: 12px;
-  border: 1px solid #ddd;
+  font-size: 0.85rem;
+  border: 1px solid var(--color-rune);
   border-radius: 5px;
   padding: 4px 6px;
-  color: #111;
+  color: var(--color-moonlight);
   outline: none;
+  background-color: var(--grid-gray-darker);
 }
 
 .nPreviewWrap {
@@ -378,14 +350,15 @@
 }
 
 .nPreviewInput {
-  font-size: 11px;
-  font-family: monospace;
-  border: 1px solid #c7d2fe;
+  font-size: 0.85srem;
+  font-family: "Google Sans Code", monospace;
+  border: 1px solid var(--color-rune);
   border-radius: 5px;
   padding: 5px 7px;
-  color: #3730a3;
+  color: var(--color-moonlight);
   outline: none;
   word-break: break-all;
+  background-color: var(--grid-gray-darker);
 }
 
 .nHint {
@@ -536,20 +509,20 @@
 }
 
 .ghostBtn {
-  border: 1px solid #e5e5e5;
+  border: 1px solid var(--color-rune);
   border-radius: 6px;
   padding: 5px 12px;
-  font-size: 12px;
+  font-size: 0.8rem;
   cursor: pointer;
-  color: #777;
+  color: var(--color-moonlight);
 }
 
 .sendBtn {
-  background: #4f46e5;
-  border: none;
+  background: var(--color-wyrd);
+  border: 1px solid var(--color-rune);
   border-radius: 6px;
   padding: 5px 14px;
-  font-size: 12px;
+  font-size: 0.8rem;
   font-weight: 600;
   cursor: pointer;
   color: #fff;

@@ -1,12 +1,58 @@
 import * as NavigationMenu from "@radix-ui/react-navigation-menu";
 import { useEffect, useRef, useState } from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useLocation, useMatch } from "react-router-dom";
 import { useCreateMarketingAssetsFolder } from "../../hooks/useCreateMarketingAssetsFolder.js";
 import { useCreateSettlementWorkbook } from "../../hooks/useCreateSettlementWorkbook.js";
 import { useSyncShows } from "../../hooks/useSyncShows.js";
 import useRavenStore from "../../store/useRavenStore.js";
 import CreateShowModal from "../Modals/CreateShowModal/CreateShowModal.jsx";
 import styles from "./Nav.module.css";
+
+const NavDropdown = ({ label, items, disabled }) => (
+  <NavigationMenu.Item className={styles.navItem}>
+    <NavigationMenu.Trigger className={styles.navTrigger} disabled={disabled}>
+      {label}
+    </NavigationMenu.Trigger>
+    <NavigationMenu.Content className={styles.navContent}>
+      <ul className={styles.navDropdownList}>
+        {items.map((item, i) =>
+          item.separator ? (
+            <li key={i} className={styles.navSeparator} />
+          ) : (
+            <li key={i}>
+              <button className={styles.navDropdownButton} onClick={item.onClick}>
+                {item.label}
+              </button>
+            </li>
+          )
+        )}
+      </ul>
+    </NavigationMenu.Content>
+  </NavigationMenu.Item>
+);
+
+const NavItem = ({ to, label, disabled }) => {
+  const { pathname } = useLocation();
+  const isActive = !!useMatch(to) || pathname.startsWith(to);
+  const className = [styles.navLink, isActive && styles.navLinkActive].filter(Boolean).join(" ");
+  const isDisabled = disabled || isActive;
+
+  return (
+    <NavigationMenu.Item className={styles.navItem}>
+      <NavigationMenu.Link asChild>
+        <NavLink to={to} className={className} aria-disabled={isDisabled}>
+          {label}
+        </NavLink>
+      </NavigationMenu.Link>
+    </NavigationMenu.Item>
+  );
+};
+
+const showLinks = [
+  { route: "properties", label: "Properties" },
+  { route: "build", label: "Build" },
+  { route: "gmail", label: "Email" },
+];
 
 const Nav = () => {
   const { mutate: sync } = useSyncShows();
@@ -21,6 +67,33 @@ const Nav = () => {
   const oneRem = parseFloat(getComputedStyle(document.documentElement).fontSize);
   const spacerWidth = Math.max(0, leftPaneWidth - leftNavWidth - oneRem);
 
+  const dropdownMenus = [
+    {
+      label: "Drive",
+      items: [
+        { label: "Create a New Show Folder", onClick: () => setCreateShowOpen(true) },
+        { separator: true },
+        { label: "Sync from Drive", onClick: () => sync() },
+      ],
+    },
+    {
+      label: "Content",
+      disabled: !isSelectedShowVisible,
+      items: [
+        {
+          label: "Create Settlement Workbook",
+          onClick: () => createWorkbook({ googleFolderId: selectedShow?.googleFolderId }),
+        },
+        {
+          label: "Create Marketing Assets Folder",
+          onClick: () =>
+            createMarketingAssetsFolder({ googleFolderId: selectedShow?.googleFolderId }),
+        },
+        { separator: true },
+        { label: "Generate Contract", onClick: () => {} },
+      ],
+    },
+  ];
   useEffect(() => {
     if (!leftNavRef.current) return;
     const observer = new ResizeObserver(() => {
@@ -35,91 +108,21 @@ const Nav = () => {
       <NavigationMenu.Root className={styles.navRoot}>
         <NavigationMenu.List className={styles.navList}>
           <div ref={leftNavRef} className={styles.leftNavItems}>
-            <NavigationMenu.Item className={styles.navItem}>
-              <NavigationMenu.Trigger className={styles.navTrigger}>Drive</NavigationMenu.Trigger>
-              <NavigationMenu.Content className={styles.navContent}>
-                <ul className={styles.navDropdownList}>
-                  <li>
-                    <button
-                      className={styles.navDropdownButton}
-                      onClick={() => setCreateShowOpen(true)}
-                    >
-                      Create a New Show Folder
-                    </button>
-                  </li>
-                  <li className={styles.navSeparator} />
-                  <li>
-                    <button className={styles.navDropdownButton} onClick={() => sync()}>
-                      Sync from Drive
-                    </button>
-                  </li>
-                </ul>
-              </NavigationMenu.Content>
-            </NavigationMenu.Item>
-            <NavigationMenu.Item className={styles.navItem}>
-              <NavigationMenu.Trigger
-                className={styles.navTrigger}
-                disabled={!isSelectedShowVisible}
-              >
-                Content
-              </NavigationMenu.Trigger>
-              <NavigationMenu.Content className={styles.navContent}>
-                <ul className={styles.navDropdownList}>
-                  <li>
-                    <button
-                      className={styles.navDropdownButton}
-                      onClick={() =>
-                        createWorkbook({ googleFolderId: selectedShow?.googleFolderId })
-                      }
-                    >
-                      Create Settlement Workbook
-                    </button>
-                  </li>
-                  <li>
-                    <button
-                      className={styles.navDropdownButton}
-                      onClick={() =>
-                        createMarketingAssetsFolder({
-                          googleFolderId: selectedShow?.googleFolderId,
-                        })
-                      }
-                    >
-                      Create Marketing Assets Folder
-                    </button>
-                  </li>
-                  <li className={styles.navSeparator} />
-                  <li>
-                    <button className={styles.navDropdownButton}>Generate Contract</button>
-                  </li>
-                </ul>
-              </NavigationMenu.Content>
-            </NavigationMenu.Item>
+            {dropdownMenus.map(({ label, disabled, items }) => (
+              <NavDropdown key={label} label={label} disabled={disabled} items={items} />
+            ))}
           </div>
 
           <div className={styles.navSpacer} style={{ width: spacerWidth }} />
 
-          <NavigationMenu.Item className={styles.navItem}>
-            <NavigationMenu.Link asChild>
-              <NavLink
-                to={`/shows/${selectedShow?.googleFolderId}/properties`}
-                className={styles.navLink}
-                aria-disabled={!isSelectedShowVisible}
-              >
-                Properties
-              </NavLink>
-            </NavigationMenu.Link>
-          </NavigationMenu.Item>
-          <NavigationMenu.Item className={styles.navItem}>
-            <NavigationMenu.Link asChild>
-              <NavLink
-                to={`/shows/${selectedShow?.googleFolderId}/build`}
-                className={styles.navLink}
-                aria-disabled={!isSelectedShowVisible}
-              >
-                Build
-              </NavLink>
-            </NavigationMenu.Link>
-          </NavigationMenu.Item>
+          {showLinks.map(({ route, label }) => (
+            <NavItem
+              key={route}
+              to={`/shows/${selectedShow?.googleFolderId}/${route}`}
+              label={label}
+              disabled={!isSelectedShowVisible}
+            />
+          ))}
         </NavigationMenu.List>
       </NavigationMenu.Root>
 

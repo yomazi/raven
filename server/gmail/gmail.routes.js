@@ -63,12 +63,4 @@ router.post(
   Controller.labelThread
 );
 
-// GET /api/v1/gmail/signature/:address
-router.get(
-  "/gmail/signature/:address",
-  validate(Schemas.getSignature),
-  validateApiToken,
-  Controller.getSignature
-);
-
 export default router;

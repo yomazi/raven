@@ -91,6 +91,9 @@
   --priority-low-bd: #3a3650;
 
   --alert: #c0392b;
+
+  --grid-gray-darker: rgb(43, 43, 43);
+  --grid-gray-lighter: rgb(48, 48, 48);
 }
 
 #app {

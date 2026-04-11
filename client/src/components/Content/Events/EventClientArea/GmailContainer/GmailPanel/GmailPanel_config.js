@@ -58,7 +58,11 @@ export const TEAM_ROSTERS = {
 // Must be verified aliases in Gmail Settings → Accounts → Send mail as.
 
 export const SEND_AS_ALIASES = [
-  { address: "rgabrielli@thefreight.org", label: "My account (default)", name: "Robin Gabrielli" },
+  {
+    address: "rgabrielli@thefreight.org",
+    label: "rgabrielli@thefreight.org (default)",
+    name: "Robin Gabrielli",
+  },
   { address: "programming@thefreight.org", label: "Programming", name: "The Freight" },
 ];
 
@@ -74,6 +78,11 @@ export const GMAIL_LABELS = {
   OFFERS: "Offers",
   FINANCE_DOCS: "Finance Docs",
   RIDERS_AND_PROD_DOCS: "Riders & Production Docs",
+};
+
+export const SIGNATURES = {
+  "rgabrielli@thefreight.org": `<div style="direction: ltr;"><div>--</div><div>Best,&nbsp;<br></div><div><p dir="ltr" style="color:rgb(34,34,34);line-height:1.38;margin-top:0pt;margin-bottom:0pt"><span style="font-size:12pt;font-family:Arial,sans-serif;background-color:transparent;font-weight:700;vertical-align:baseline"><br></span></p><b>Robin Gabrielli </b><i>(he/him)</i><p dir="ltr" style="color:rgb(34,34,34);line-height:1.38;margin-top:0pt;margin-bottom:0pt"><span style="color:rgb(32,33,36)">Program Administrator</span></p><p style="color:rgb(34,34,34);line-height:1.38;margin-top:0pt;margin-bottom:0pt"><a href="mailto:rgabrielli@thefreight.org" target="_blank">rgabrielli@thefreight.org</a></p><p style="color:rgb(34,34,34);line-height:1.38;margin-top:0pt;margin-bottom:0pt"><br></p></div><div><p dir="ltr" style="color:rgb(34,34,34);line-height:1.38;margin-top:0pt;margin-bottom:0pt"><span style="font-size:12pt;font-family:Arial,sans-serif;background-color:transparent;vertical-align:baseline"><img width="200" height="68" src="https://drive.google.com/uc?export=view&id=1Tt8E5Ixx8HIOwNKd7ByfO65qtMyNEnyZ"><br></span></p><div style="color:rgb(34,34,34)"><span style="background-color:transparent;font-size:11pt;font-family:Arial,sans-serif;color:rgb(153,0,0);font-weight:700;vertical-align:baseline">The Freight</span><span style="background-color:transparent;font-size:11pt;font-family:Arial,sans-serif;vertical-align:baseline">&nbsp;</span><span style="background-color:transparent;font-size:11pt;font-family:Arial,sans-serif;font-weight:700;vertical-align:baseline">|</span><span style="background-color:transparent;font-size:11pt;font-family:Arial,sans-serif;vertical-align:baseline">&nbsp;</span><a href="http://thefreight.org/" style="color:rgb(17,85,204)" target="_blank"><span style="font-size:11pt;font-family:Arial,sans-serif;background-color:transparent;vertical-align:baseline">thefreight.org</span></a><br></div><div style="color:rgb(34,34,34)"><div><p dir="ltr" style="line-height:1.38;margin-top:0pt;margin-bottom:0pt"><span style="font-size:11pt;font-family:Arial,sans-serif;background-color:transparent;vertical-align:baseline">2020 Addison Street&nbsp;</span><span style="font-size:11pt;font-family:Arial,sans-serif;background-color:transparent;font-weight:700;vertical-align:baseline">|&nbsp;</span><span style="font-size:11pt;font-family:Arial,sans-serif;background-color:transparent;vertical-align:baseline">Berkeley, CA 94704</span></p></div><div><a href="https://www.instagram.com/freightandsalvage/?hl=en" style="color:rgb(17,85,204)" target="_blank">INSTAGRAM</a>&nbsp;<span style="background-color:transparent;font-size:11pt;font-family:Arial,sans-serif;vertical-align:baseline">&nbsp;</span><span style="background-color:transparent;font-size:11pt;font-family:Arial,sans-serif;font-weight:700;vertical-align:baseline">|&nbsp;</span><a href="https://www.facebook.com/thefreight/photos/?ref=page_internal" style="color:rgb(17,85,204)" target="_blank">FACEBOOK</a></div></div></div><div style="font-size:13px;color:rgb(0,0,0);font-family:Arial,Verdana,sans-serif"><br></div><div style="font-size:13px;color:rgb(0,0,0);font-family:Arial,Verdana,sans-serif"><div style="color:rgb(32,33,36);font-family:Arial,Helvetica,sans-serif;font-size:small"></div></div></div>`,
+  "programming@thefreight.org": "",
 };
 
 // ─── Label routing rules ──────────────────────────────────────────────────────

@@ -41,10 +41,6 @@ class GmailService {
   static async labelThread({ messageId, labels }) {
     return GmailRepository.labelThread({ messageId, labels });
   }
-
-  static async getSignature({ address }) {
-    return GmailRepository.getSignature({ address });
-  }
 }
 
 export default GmailService;

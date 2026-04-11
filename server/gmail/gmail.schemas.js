@@ -73,13 +73,6 @@ class GmailSchemas {
       labels: Joi.array().items(Joi.string()).min(1).required(),
     }),
   };
-
-  static getSignature = {
-    headers: authHeaderSchema,
-    params: Joi.object({
-      address: Joi.string().required(),
-    }),
-  };
 }
 
 export default GmailSchemas;

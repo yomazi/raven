@@ -5,7 +5,7 @@ import ShowProperties from "@components/ShowProperties/ShowProperties.jsx";
 import { useShowById } from "@hooks/useShowById.js";
 import { Navigate, Route, Routes, useParams } from "react-router-dom";
 import styles from "./EventClientArea.module.css";
-import GmailPanel from "./GmailPanel/GmailPanel.jsx";
+import GmailContainer from "./GmailContainer/GmailContainer.jsx";
 
 const EventClientArea = () => {
   const { showFolderId } = useParams();
@@ -34,10 +34,10 @@ const EventClientArea = () => {
                 element={<ShowProperties key={showFolderId} showFolderId={showFolderId} />}
               />
               <Route path="build" element={<BuildProperties show={show} />} />
-              <Route path="gmail" element={<GmailPanel showFolderId={showFolderId} />} />
+              <Route path="gmail" element={<GmailContainer showFolderId={showFolderId} />} />
               <Route
                 path="gmail/:threadId/:messageId"
-                element={<GmailPanel showFolderId={showFolderId} />}
+                element={<GmailContainer showFolderId={showFolderId} />}
               />
             </Routes>
           </div>
