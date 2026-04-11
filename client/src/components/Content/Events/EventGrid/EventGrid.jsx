@@ -9,7 +9,7 @@ import {
 } from "ag-grid-community";
 import { AgGridReact } from "ag-grid-react";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import styles from "./EventGrid.module.css";
 import { columnDefs } from "./grid-definitions.js";
 
@@ -18,6 +18,7 @@ ModuleRegistry.registerModules([AllCommunityModule]);
 const theme = themeAlpine.withPart(colorSchemeDark).withParams(gridThemeParams);
 
 const EventGrid = () => {
+  const { showFolderId } = useParams();
   const gridRef = useRef();
   const filterInputRef = useRef();
   const navigate = useNavigate();
@@ -213,6 +214,25 @@ const EventGrid = () => {
     [setSelectedShow, setIsSelectedShowVisible, routeToShow]
   );
 
+  const selectRowByFolderId = (folderId) => {
+    if (!folderId || !gridRef.current?.api) return;
+    gridRef.current.api.forEachNode((node) => {
+      if (node.data?.googleFolderId === folderId) {
+        node.setSelected(true, true);
+        gridRef.current.api.ensureNodeVisible(node, "middle");
+      }
+    });
+  };
+
+  const onFirstDataRendered = () => {
+    if (!showFolderId || !shows) return;
+    const match = shows.find((s) => s.googleFolderId === showFolderId);
+    if (!match) return;
+    setSelectedShow(match);
+    setIsSelectedShowVisible(true);
+    selectRowByFolderId(showFolderId);
+  };
+
   if (isLoading) return <div>Loading...</div>;
   if (isError) return <div>Error loading shows.</div>;
 
@@ -261,6 +281,7 @@ const EventGrid = () => {
           isExternalFilterPresent={isExternalFilterPresent}
           doesExternalFilterPass={doesExternalFilterPass}
           onCellClicked={handleCellClicked}
+          onFirstDataRendered={onFirstDataRendered}
           rowSelection={{ mode: "singleRow", enableClickSelection: true, checkboxes: false }}
           onFilterChanged={onFilterChanged}
         />

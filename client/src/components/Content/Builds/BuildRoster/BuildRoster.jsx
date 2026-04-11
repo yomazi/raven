@@ -11,7 +11,7 @@ import {
 } from "ag-grid-community";
 import { AgGridReact } from "ag-grid-react";
 import { useCallback, useEffect, useMemo, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import styles from "./BuildRoster.module.css";
 import { columnDefs } from "./grid-definitions.js";
 
@@ -22,6 +22,7 @@ const theme = themeAlpine.withPart(colorSchemeDark).withParams(gridThemeParams);
 // ─── Builds ──────────────────────────────────────────────────────────────────
 
 export default function BuildRoster() {
+  const { showFolderId } = useParams();
   const navigate = useNavigate();
   const gridRef = useRef();
   const gridContainerRef = useRef();
@@ -155,9 +156,28 @@ export default function BuildRoster() {
     [setSelectedShow, setIsSelectedShowVisible, navigate]
   );
 
-  const onGridReady = useCallback(() => {
-    //    params.api.sizeColumnsToFit();
+  const selectRowByFolderId = (folderId) => {
+    if (!folderId || !gridRef.current?.api) return;
+    gridRef.current.api.forEachNode((node) => {
+      if (node.data?.googleFolderId === folderId) {
+        node.setSelected(true, true);
+        gridRef.current.api.ensureNodeVisible(node, "middle");
+      }
+    });
+  };
+
+  const onGridReady = useCallback((params) => {
+    params.api.sizeColumnsToFit();
   }, []);
+
+  const onFirstDataRendered = () => {
+    if (!showFolderId || !shows) return;
+    const match = shows.find((s) => s.googleFolderId === showFolderId);
+    if (!match) return;
+    setSelectedShow(match);
+    setIsSelectedShowVisible(true);
+    selectRowByFolderId(showFolderId);
+  };
 
   return (
     <div className={styles.root}>
@@ -201,6 +221,7 @@ export default function BuildRoster() {
                 },
               }}
               onGridReady={onGridReady}
+              onFirstDataRendered={onFirstDataRendered}
             />
           </div>
         </>
