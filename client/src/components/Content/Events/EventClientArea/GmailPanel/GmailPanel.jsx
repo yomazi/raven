@@ -432,14 +432,14 @@ function RoutingPreview({ uploadedNames, mode, onConfirm, onCancel }) {
   const uploadedFilenames = [...uploadedNames.values()];
   const routing = deriveRouting(uploadedFilenames);
 
-  // Editable To: — pre-populated from routing, empty if none derived
   const [to, setTo] = useState(routing.toAddresses.join(", "));
-  const [from, setFrom] = useState(SEND_AS_ALIASES[0].address ?? "");
+  const [selectedAlias, setSelectedAlias] = useState(SEND_AS_ALIASES[0]);
   const [subject, setSubject] = useState("");
   const [body, setBody] = useState("");
 
   const hasRouting = routing.toAddresses.length > 0;
 
+  console.log(selectedAlias);
   return (
     <div className={styles.drawer}>
       <div className={styles.drawerHeader}>
@@ -451,7 +451,6 @@ function RoutingPreview({ uploadedNames, mode, onConfirm, onCancel }) {
         </button>
       </div>
 
-      {/* Routing summary */}
       {uploadedFilenames.length > 0 && (
         <div className={styles.routingBox}>
           <div className={styles.routingLabel}>Smart routing</div>
@@ -475,7 +474,7 @@ function RoutingPreview({ uploadedNames, mode, onConfirm, onCancel }) {
               ))}
             </div>
           )}
-          {routing.sentLabelstyles.length > 0 && (
+          {routing.sentLabels.length > 0 && (
             <div className={styles.routingPills}>
               <span className={styles.routingPillHead}>Sent message:</span>
               {routing.sentLabels.map((l) => (
@@ -488,23 +487,21 @@ function RoutingPreview({ uploadedNames, mode, onConfirm, onCancel }) {
         </div>
       )}
 
-      {/* From */}
       <div className={styles.field}>
         <span className={styles.fieldLabel}>From</span>
         <select
           className={styles.fieldSelect}
-          value={from}
-          onChange={(e) => setFrom(e.target.value)}
+          value={SEND_AS_ALIASES.indexOf(selectedAlias)}
+          onChange={(e) => setSelectedAlias(SEND_AS_ALIASES[parseInt(e.target.value)])}
         >
           {SEND_AS_ALIASES.map((a, i) => (
-            <option key={i} value={a.address ?? ""}>
+            <option key={i} value={i}>
               {a.label}
             </option>
           ))}
         </select>
       </div>
 
-      {/* To */}
       <div className={styles.field}>
         <span className={styles.fieldLabel}>To</span>
         <input
@@ -515,7 +512,6 @@ function RoutingPreview({ uploadedNames, mode, onConfirm, onCancel }) {
         />
       </div>
 
-      {/* Subject — only for new messages */}
       {mode === "new" && (
         <div className={styles.field}>
           <span className={styles.fieldLabel}>Subject</span>
@@ -548,7 +544,9 @@ function RoutingPreview({ uploadedNames, mode, onConfirm, onCancel }) {
                 .split(",")
                 .map((t) => t.trim())
                 .filter(Boolean),
-              from: from || null,
+              from: selectedAlias.address
+                ? `${selectedAlias.name} <${selectedAlias.address}>`
+                : null,
               subject,
               body,
               threadLabels: routing.receivedLabels,
@@ -724,9 +722,9 @@ function MessageGroup({ stub, isFocused, folderId, uploadedNames, onUploaded, de
   );
 }
 
-// ─── Dragonfly ────────────────────────────────────────────────────────────────
+// ─── GmailPanel ────────────────────────────────────────────────────────────────
 
-export default function Dragonfly({ showFolderId }) {
+export default function GmailPanel({ showFolderId }) {
   const { threadId: rawThreadId, messageId: rawMessageId } = useParams();
 
   // Gmail web UI uses decimal IDs (thread-f:NNN / msg-f:NNN)

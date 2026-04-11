@@ -34,9 +34,9 @@ const EventClientArea = () => {
                 element={<ShowProperties key={showFolderId} showFolderId={showFolderId} />}
               />
               <Route path="build" element={<BuildProperties show={show} />} />
-              <Route path="dragonfly" element={<GmailPanel showFolderId={showFolderId} />} />
+              <Route path="gmail" element={<GmailPanel showFolderId={showFolderId} />} />
               <Route
-                path="dragonfly/:threadId/:messageId"
+                path="gmail/:threadId/:messageId"
                 element={<GmailPanel showFolderId={showFolderId} />}
               />
             </Routes>

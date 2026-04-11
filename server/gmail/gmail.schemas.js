@@ -31,7 +31,7 @@ class GmailSchemas {
       to: Joi.array().items(Joi.string().email()).min(1).required(),
       subject: Joi.string().required(),
       body: Joi.string().allow("").required(),
-      from: Joi.string().email().optional(),
+      from: Joi.string().optional(),
       sentLabels: Joi.array().items(Joi.string()).optional(),
     }),
   };
@@ -43,7 +43,7 @@ class GmailSchemas {
     }),
     body: Joi.object({
       body: Joi.string().allow("").required(),
-      from: Joi.string().email().optional(),
+      from: Joi.string().optional(),
       // Labels to apply to the thread and sent message after sending
       threadLabels: Joi.array().items(Joi.string()).optional(),
       sentLabels: Joi.array().items(Joi.string()).optional(),
@@ -58,7 +58,7 @@ class GmailSchemas {
     body: Joi.object({
       to: Joi.array().items(Joi.string().email()).min(1).required(),
       body: Joi.string().allow("").required(),
-      from: Joi.string().email().optional(),
+      from: Joi.string().optional(),
       threadLabels: Joi.array().items(Joi.string()).optional(),
       sentLabels: Joi.array().items(Joi.string()).optional(),
     }),
@@ -71,6 +71,13 @@ class GmailSchemas {
     }),
     body: Joi.object({
       labels: Joi.array().items(Joi.string()).min(1).required(),
+    }),
+  };
+
+  static getSignature = {
+    headers: authHeaderSchema,
+    params: Joi.object({
+      address: Joi.string().required(),
     }),
   };
 }

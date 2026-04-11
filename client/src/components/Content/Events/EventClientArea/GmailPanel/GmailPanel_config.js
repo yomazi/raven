@@ -58,8 +58,8 @@ export const TEAM_ROSTERS = {
 // Must be verified aliases in Gmail Settings → Accounts → Send mail as.
 
 export const SEND_AS_ALIASES = [
-  { address: null, label: "My account (default)" },
-  { address: "programming@thefreight.org", label: "Programming" },
+  { address: "rgabrielli@thefreight.org", label: "My account (default)", name: "Robin Gabrielli" },
+  { address: "programming@thefreight.org", label: "Programming", name: "The Freight" },
 ];
 
 // ─── Gmail label names ────────────────────────────────────────────────────────

@@ -400,6 +400,17 @@ class GmailRepository {
 
     return { threadId };
   }
+
+  static async getSignature({ address }) {
+    const gmail = await GmailRepository.#getGmailClient();
+    const response = await gmail.users.settings.sendAs.get({
+      userId: "me",
+      sendAsEmail: address,
+    });
+    return {
+      signature: response.data.signature ?? null,
+    };
+  }
 }
 
 export default GmailRepository;
