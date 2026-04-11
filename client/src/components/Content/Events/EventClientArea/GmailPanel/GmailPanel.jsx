@@ -1,5 +1,5 @@
 /**
- * Dragonfly.jsx  —  v5
+ * GmailPanel.jsx  —  v5
  *
  * Right-side panel: reads Gmail threads (lazy-loaded per message), surfaces
  * all attachments grouped by message, uploads to Google Drive with config-driven
@@ -25,7 +25,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
-import styles from "./Dragonfly.module.css";
+import styles from "./GmailPanel.module.css";
 import {
   DOCTYPES,
   SEND_AS_ALIASES,
@@ -34,7 +34,7 @@ import {
   computeNextVersion,
   deriveRouting,
   getStageOptions,
-} from "./DRAGONFLY_CONFIG.js";
+} from "./GmailPanel_config.js";
 
 const BASE_URL = "/api/v1";
 const ATTACHMENT_MODE = "stream"; // "stream" | "signed"

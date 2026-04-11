@@ -20,7 +20,7 @@ class DriveSchemas {
     headers: authHeaderSchema,
     // multer populates req.body from the non-file multipart fields
     body: Joi.object({
-      filename: Joi.string().required(), // the renamed filename from Dragonfly
+      filename: Joi.string().required(), // the renamed filename from Raven
       mimeType: Joi.string().required(),
       folderId: Joi.string().required(),
     }),

@@ -4,8 +4,8 @@ import BuildProperties from "@components/Content/shared/BuildProperties/BuildPro
 import ShowProperties from "@components/ShowProperties/ShowProperties.jsx";
 import { useShowById } from "@hooks/useShowById.js";
 import { Navigate, Route, Routes, useParams } from "react-router-dom";
-import Dragonfly from "./Dragonfly/Dragonfly.jsx";
 import styles from "./EventClientArea.module.css";
+import GmailPanel from "./GmailPanel/GmailPanel.jsx";
 
 const EventClientArea = () => {
   const { showFolderId } = useParams();
@@ -34,10 +34,10 @@ const EventClientArea = () => {
                 element={<ShowProperties key={showFolderId} showFolderId={showFolderId} />}
               />
               <Route path="build" element={<BuildProperties show={show} />} />
-              <Route path="dragonfly" element={<Dragonfly showFolderId={showFolderId} />} />
+              <Route path="dragonfly" element={<GmailPanel showFolderId={showFolderId} />} />
               <Route
                 path="dragonfly/:threadId/:messageId"
-                element={<Dragonfly showFolderId={showFolderId} />}
+                element={<GmailPanel showFolderId={showFolderId} />}
               />
             </Routes>
           </div>

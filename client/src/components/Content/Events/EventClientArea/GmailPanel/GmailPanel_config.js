@@ -1,5 +1,5 @@
 /**
- * DRAGONFLY_CONFIG.js
+ * Gmail_config.js
  *
  * Single source of truth for:
  *   - Teams, doctypes, and naming rules

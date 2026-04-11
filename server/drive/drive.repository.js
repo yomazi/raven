@@ -110,7 +110,7 @@ class DriveRepository {
    * GET /api/v1/drive/folders/:folderId/files
    *
    * Lists all non-trashed files directly inside a Drive folder.
-   * Excludes subfolders — Dragonfly only needs to scan filenames for version
+   * Excludes subfolders — GmailPanel only needs to scan filenames for version
    * number inference, and show folders only contain files at the top level.
    *
    * Uses a single files.list call with pageToken looping to handle folders
@@ -145,7 +145,7 @@ class DriveRepository {
    * POST /api/v1/drive/upload
    *
    * Uploads a file Buffer to a specific Drive folder using the renamed filename
-   * supplied by Dragonfly's naming form. Uses multipart upload (metadata +
+   * supplied by GmailPanel's naming form. Uses multipart upload (metadata +
    * media in one request) which is appropriate for files up to ~5MB. For larger
    * files the Drive API supports resumable uploads, but attachment files in this
    * context are typically contracts and riders (PDFs, Word docs) well under that.
