@@ -401,7 +401,16 @@ function AttachmentRow({ att, messageId, folderId, uploadKey, uploadedNames, onU
 
 // ─── MessageGroup ──────────────────────────────────────────────────────────────
 
-function MessageGroup({ stub, isFocused, folderId, uploadedNames, onUploaded, defaultOpen }) {
+function MessageGroup({
+  stub,
+  isFocused,
+  folderId,
+  uploadedNames,
+  onUploaded,
+  defaultOpen,
+  onCompose,
+  onSelect,
+}) {
   const [open, setOpen] = useState(defaultOpen);
   const [msg, setMsg] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -426,7 +435,8 @@ function MessageGroup({ stub, isFocused, folderId, uploadedNames, onUploaded, de
   const expand = useCallback(() => {
     setOpen(true);
     loadMessage();
-  }, [loadMessage]);
+    onSelect?.();
+  }, [loadMessage, onSelect]);
 
   const toggle = useCallback(() => {
     if (!open) expand();
@@ -485,6 +495,28 @@ function MessageGroup({ stub, isFocused, folderId, uploadedNames, onUploaded, de
                 <div className={styles.noAtts}>No attachments in this message</div>
               )}
             </>
+          )}
+          {isFocused && msg && (
+            <div className={styles.msgActions}>
+              <button
+                className={styles.msgActionBtn}
+                onClick={() => onCompose({ mode: "reply", message: msg })}
+              >
+                ↩ Reply
+              </button>
+              <button
+                className={styles.msgActionBtn}
+                onClick={() => onCompose({ mode: "replyAll", message: msg })}
+              >
+                ↩ Reply All
+              </button>
+              <button
+                className={styles.msgActionBtn}
+                onClick={() => onCompose({ mode: "forward", message: msg })}
+              >
+                → Forward
+              </button>
+            </div>
           )}
         </div>
       )}
@@ -574,7 +606,8 @@ export default function GmailPanel({
 
   const messageStubs = stubs.length > 0 ? stubs : soloMsg ? [soloMsg] : [];
   const focusedId = messageId ?? messageStubs[messageStubs.length - 1]?.id;
-  const focusedStub = messageStubs.find((m) => m.id === focusedId) ?? null;
+  const [selectedId, setSelectedId] = useState(focusedId);
+  const focusedStub = messageStubs.find((m) => m.id === selectedId) ?? null;
   const uploadCount = uploadedNames.size;
 
   return (
@@ -645,11 +678,13 @@ export default function GmailPanel({
           <MessageGroup
             key={stub.id}
             stub={stub}
-            isFocused={stub.id === focusedId}
+            isFocused={stub.id === selectedId}
             folderId={showFolderId}
             uploadedNames={uploadedNames}
             onUploaded={handleUploaded}
             defaultOpen={stub.id === focusedId || messageStubs.length === 1}
+            onCompose={onCompose}
+            onSelect={() => setSelectedId(stub.id)}
           />
         ))}
       </div>

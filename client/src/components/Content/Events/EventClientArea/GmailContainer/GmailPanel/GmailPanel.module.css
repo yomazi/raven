@@ -536,3 +536,25 @@
 .sendDone {
   background: #166534;
 }
+
+.msgActions {
+  display: flex;
+  gap: 6px;
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px solid var(--color-stone);
+}
+
+.msgActionBtn {
+  border: 1px solid var(--color-rune);
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-size: 11px;
+  cursor: pointer;
+  color: var(--color-frost);
+  background: transparent;
+}
+
+.msgActionBtn:hover {
+  background: var(--color-stone);
+}

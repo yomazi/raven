@@ -216,6 +216,11 @@
   color: #fff;
 }
 
+.sendBtn:focus {
+  outline: 2px solid var(--color-frost);
+  outline-offset: 2px;
+}
+
 .sendBusy {
   opacity: 0.6;
   cursor: not-allowed;

@@ -1,10 +1,9 @@
 // GmailEditor/GmailEditor.jsx
 
-import Link from "@tiptap/extension-link";
 import Placeholder from "@tiptap/extension-placeholder";
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { forwardMessage, replyToMessage, sendMessage } from "../../../../../../api/gmail.api.js";
 import { SEND_AS_ALIASES, SIGNATURES } from "../GmailPanel/GmailPanel_config.js";
 import styles from "./GmailEditor.module.css";
@@ -35,6 +34,20 @@ function deriveInitialFields(mode, message) {
     };
   }
 
+  if (mode === "replyAll") {
+    const recipients = [message.from, message.to]
+      .filter(Boolean)
+      .flatMap((h) => h.split(",").map((a) => a.trim()))
+      .filter((addr, i, arr) => addr && arr.indexOf(addr) === i)
+      .join(", ");
+    return {
+      to: recipients,
+      subject: message.subject?.startsWith("Re:")
+        ? message.subject
+        : `Re: ${message.subject ?? ""}`,
+    };
+  }
+
   if (mode === "forward") {
     return {
       to: "",
@@ -47,13 +60,17 @@ function deriveInitialFields(mode, message) {
   return { to: "", subject: "" };
 }
 
-function deriveInitialHtml(mode, message) {
+function deriveInitialHtml(mode, message, showFolderId) {
+  const folderBlock = showFolderId
+    ? `<p>Here's the folder:<br/><a href="https://drive.google.com/drive/folders/${showFolderId}">https://drive.google.com/drive/folders/${showFolderId}</a></p>`
+    : "";
+
   if (mode === "reply" && message?.body) {
     const quoted = stripHtml(message.body)
       .split("\n")
       .map((line) => `<p>&gt; ${line}</p>`)
       .join("");
-    return `<p></p><p></p><hr/>${quoted}`;
+    return `<p>Hey folks,</p><p></p><p></p><p></p>${folderBlock}<p></p><hr/>${quoted}`;
   }
 
   if (mode === "forward" && message) {
@@ -67,10 +84,10 @@ function deriveInitialHtml(mode, message) {
       `<p></p>`,
       ...quotedBody.split("\n").map((l) => `<p>${l}</p>`),
     ].join("");
-    return `<p></p><p></p><hr/>${header}`;
+    return `<p>Hey folks,</p><p></p><p></p><p></p>${folderBlock}<p></p><hr/>${header}`;
   }
 
-  return "<p></p>";
+  return `<p>Hey folks,</p><p></p><p></p><p></p>${folderBlock}`;
 }
 
 // ─── Toolbar ──────────────────────────────────────────────────────────────────
@@ -132,7 +149,6 @@ function EditorToolbar({ editor }) {
 // ─── GmailEditor ─────────────────────────────────────────────────────────────
 
 const GmailEditor = ({ showFolderId, mode, message, onClose }) => {
-  console.log(`showFolderId: ${showFolderId}`);
   const initial = deriveInitialFields(mode, message);
 
   const [selectedAlias, setSelectedAlias] = useState(SEND_AS_ALIASES[0]);
@@ -142,12 +158,8 @@ const GmailEditor = ({ showFolderId, mode, message, onClose }) => {
   const [err, setErr] = useState(null);
 
   const editor = useEditor({
-    extensions: [
-      StarterKit,
-      Link.configure({ openOnClick: false }),
-      Placeholder.configure({ placeholder: "Write your message…" }),
-    ],
-    content: deriveInitialHtml(mode, message),
+    extensions: [StarterKit, Placeholder.configure({ placeholder: "Write your message…" })],
+    content: deriveInitialHtml(mode, message, showFolderId),
     editorProps: {
       transformPastedHTML(html) {
         return html.replace(
@@ -166,6 +178,13 @@ const GmailEditor = ({ showFolderId, mode, message, onClose }) => {
     },
   });
 
+  useEffect(() => {
+    if (!editor) return;
+    editor.commands.setContent(deriveInitialHtml(mode, message, showFolderId));
+    editor.commands.focus("start");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [showFolderId]);
+
   const handleSend = useCallback(async () => {
     if (!editor) return;
     setSendState("busy");
@@ -182,7 +201,7 @@ const GmailEditor = ({ showFolderId, mode, message, onClose }) => {
       .filter(Boolean);
 
     try {
-      if (mode === "reply" && message?.id) {
+      if ((mode === "reply" || mode === "replyAll") && message?.id) {
         await replyToMessage(message.id, { body: html, from: formattedFrom });
       } else if (mode === "forward" && message?.id) {
         await forwardMessage(message.id, { to: toAddresses, body: html, from: formattedFrom });
@@ -202,7 +221,13 @@ const GmailEditor = ({ showFolderId, mode, message, onClose }) => {
       {/* ── Header ── */}
       <div className={styles.header}>
         <span className={styles.title}>
-          {mode === "reply" ? "Reply" : mode === "forward" ? "Forward" : "New message"}
+          {mode === "reply"
+            ? "Reply"
+            : mode === "replyAll"
+              ? "Reply All"
+              : mode === "forward"
+                ? "Forward"
+                : "New message"}
         </span>
         {onClose && (
           <button className={styles.closeBtn} onClick={onClose} title="Close">
