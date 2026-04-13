@@ -1,10 +1,10 @@
 // GmailEditor/GmailEditor.jsx
 
+import { forwardMessage, replyToMessage, sendMessage } from "@api/gmail.api.js";
 import Placeholder from "@tiptap/extension-placeholder";
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { useCallback, useEffect, useState } from "react";
-import { forwardMessage, replyToMessage, sendMessage } from "../../../../../../api/gmail.api.js";
 import { SEND_AS_ALIASES, SIGNATURES } from "../GmailPanel/GmailPanel_config.js";
 import styles from "./GmailEditor.module.css";
 

@@ -12,14 +12,9 @@
  *   onCompose    ({ mode, message }) => void
  */
 
+import { uploadToDrive } from "@api/drive.api.js";
+import { fetchAttachment, fetchDriveFiles, fetchMessage, fetchThread } from "@api/gmail.api.js";
 import { useCallback, useEffect, useRef, useState } from "react";
-import {
-  fetchAttachment,
-  fetchDriveFiles,
-  fetchMessage,
-  fetchThread,
-  uploadToDrive,
-} from "../../../../../../api/gmail.api.js";
 import styles from "./GmailPanel.module.css";
 import {
   DOCTYPES,

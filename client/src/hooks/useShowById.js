@@ -1,5 +1,5 @@
+import { fetchShowById } from "@api/shows.api.js";
 import { useQuery } from "@tanstack/react-query";
-import { fetchShowById } from "../api/shows.api.js";
 
 export const useShowById = (googleFolderId, options = {}) => {
   return useQuery({

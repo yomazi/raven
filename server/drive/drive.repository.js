@@ -320,6 +320,25 @@ class DriveRepository {
       docWebViewLink: docResponse.data.webViewLink,
     };
   }
+
+  static async fetchFileContent({ fileId, mimeType }) {
+    const drive = await DriveRepository.#getDriveClient();
+
+    if (mimeType === "application/vnd.google-apps.document") {
+      const response = await drive.files.export(
+        { fileId, mimeType: "text/plain" },
+        { responseType: "text" }
+      );
+      return { text: response.data, buffer: null };
+    }
+
+    // PDFs and other binaries — download raw bytes
+    const response = await drive.files.get(
+      { fileId, alt: "media", supportsAllDrives: true },
+      { responseType: "arraybuffer" }
+    );
+    return { text: null, buffer: Buffer.from(response.data) };
+  }
 }
 
 export default DriveRepository;

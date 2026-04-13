@@ -1,6 +1,7 @@
 import log from "../logging/log.js";
 import ShowsService from "../shows/shows.service.js";
 import { ProgrammingDrive } from "../utilities/constants.js";
+import { extractPdfText } from "../utilities/pdf.js";
 import DriveRepository from "./drive.repository.js";
 
 class DriveService {
@@ -220,6 +221,20 @@ class DriveService {
       log.error("createMarketingAssetsFolder", "Failed to create marketing assets folder", err);
       throw err;
     }
+  }
+
+  static async fetchFileText({ fileId, mimeType }) {
+    const { text, buffer } = await DriveRepository.fetchFileContent({ fileId, mimeType });
+
+    if (text !== null) return text;
+
+    if (mimeType === "application/pdf") {
+      const result = await extractPdfText(buffer);
+
+      return result;
+    }
+
+    throw new Error(`Unsupported file type for text extraction: ${mimeType}`);
   }
 }
 

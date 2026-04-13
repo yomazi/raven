@@ -19,6 +19,7 @@ import authRoutes from "./auth/auth.routes.js";
 import googleAuthRoutes from "./auth/google.auth.routes.js";
 import driveRoutes from "./drive/drive.routes.js";
 import gmailRoutes from "./gmail/gmail.routes.js";
+import ollamaRoutes from "./ollama/ollama.routes.js";
 import showsRoutes from "./shows/shows.routes.js";
 import tasksRoutes from "./tasks/tasks.routes.js";
 
@@ -41,6 +42,7 @@ app.use("", googleAuthRoutes);
 app.use(routePrefix, authRoutes);
 app.use(routePrefix, driveRoutes);
 app.use(routePrefix, gmailRoutes);
+app.use(routePrefix, ollamaRoutes);
 app.use(routePrefix, showsRoutes);
 app.use(routePrefix, tasksRoutes);
 

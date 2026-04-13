@@ -53,4 +53,11 @@ router.post(
   Controller.createMarketingAssetsFolder
 );
 
+router.get(
+  "/drive/files/:fileId/text",
+  validate(Schemas.fetchFileText),
+  validateApiToken,
+  Controller.fetchFileText
+);
+
 export default router;

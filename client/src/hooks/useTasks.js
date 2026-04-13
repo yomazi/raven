@@ -1,6 +1,6 @@
+import { createTask, deleteTask, fetchTask, fetchTasks, updateTask } from "@api/tasks.api.js";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef } from "react";
-import { createTask, deleteTask, fetchTask, fetchTasks, updateTask } from "../api/tasks.api.js";
 
 // ─── query key factory ───────────────────────────────────────────────────────
 

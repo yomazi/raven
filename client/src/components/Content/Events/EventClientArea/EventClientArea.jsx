@@ -2,6 +2,7 @@
 import Banner from "@components/Content/shared/Banner/Banner.jsx";
 import BuildProperties from "@components/Content/shared/BuildProperties/BuildProperties.jsx";
 import ShowProperties from "@components/ShowProperties/ShowProperties.jsx";
+import TestBed from "@components/TestBed/TestBed.jsx";
 import { useShowById } from "@hooks/useShowById.js";
 import { Navigate, Route, Routes, useParams } from "react-router-dom";
 import styles from "./EventClientArea.module.css";
@@ -39,6 +40,7 @@ const EventClientArea = () => {
                 path="gmail/:threadId/:messageId"
                 element={<GmailContainer showFolderId={showFolderId} />}
               />
+              <Route path="test" element={<TestBed showFolderId={showFolderId} />} />
             </Routes>
           </div>
         </>

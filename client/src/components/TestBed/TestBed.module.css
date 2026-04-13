@@ -1,0 +1,112 @@
+/* client/src/components/TestBed/TestBed.module.css */
+
+.testBed {
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  max-width: 860px;
+}
+
+.heading {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--color-frost);
+  margin: 0;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-frost);
+  opacity: 0.6;
+}
+
+.textarea {
+  width: 100%;
+  background: var(--color-stone);
+  color: var(--color-frost);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  padding: 0.75rem;
+  font-family: inherit;
+  font-size: 0.85rem;
+  resize: vertical;
+  line-height: 1.5;
+}
+
+.textarea:focus {
+  outline: none;
+  border-color: var(--color-wyrd);
+}
+
+.pre {
+  background: var(--color-stone);
+  color: var(--color-frost);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  padding: 1rem;
+  font-size: 0.8rem;
+  line-height: 1.6;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.button {
+  align-self: flex-start;
+  background: var(--color-wyrd);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 0.5rem 1.25rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.button:hover:not(:disabled) {
+  opacity: 0.85;
+}
+
+.button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.error {
+  color: var(--color-ember);
+  font-size: 0.85rem;
+}
+
+.success {
+  color: var(--color-frost);
+  font-size: 0.85rem;
+  opacity: 0.7;
+}
+
+.section li {
+  padding: 0.1rem 0;
+}
+
+.fileItem {
+  color: var(--color-moonlight);
+  font-size: 0.9rem;
+
+  &:hover {
+    background-color: var(--color-dusk);
+  }
+}
+
+.fileItem.selected {
+  background-color: var(--color-wyrd);
+}

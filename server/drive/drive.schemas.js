@@ -48,6 +48,16 @@ class DriveSchemas {
       googleFolderId: Joi.string().required(),
     }),
   };
+
+  static fetchFileText = {
+    headers: authHeaderSchema,
+    params: Joi.object({
+      fileId: Joi.string().required(),
+    }),
+    query: Joi.object({
+      mimeType: Joi.string().required(),
+    }),
+  };
 }
 
 export default DriveSchemas;

@@ -52,6 +52,7 @@ const showLinks = [
   { route: "properties", label: "Properties" },
   { route: "build", label: "Build" },
   { route: "gmail", label: "Email" },
+  { route: "test", label: "Test" },
 ];
 
 const Nav = () => {

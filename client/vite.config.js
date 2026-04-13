@@ -27,6 +27,7 @@ export default defineConfig({
     alias: {
       "@shared": path.resolve(__dirname, "../shared"),
       "@svg": path.resolve(__dirname, "./src/assets/svg"),
+      "@api": path.resolve(__dirname, "./src/api"),
       "@hooks": path.resolve(__dirname, "./src/hooks"),
       "@store": path.resolve(__dirname, "./src/store"),
       "@components": path.resolve(__dirname, "./src/components"),

@@ -89,6 +89,18 @@ class DriveController {
       res.status(500).json({ success: false, error: err.message });
     }
   }
+
+  static async fetchFileText(req, res) {
+    try {
+      const { fileId } = req.params;
+      const { mimeType } = req.query;
+      const text = await DriveService.fetchFileText({ fileId, mimeType });
+      res.json({ success: true, text });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ success: false, error: err.message });
+    }
+  }
 }
 
 export default DriveController;
