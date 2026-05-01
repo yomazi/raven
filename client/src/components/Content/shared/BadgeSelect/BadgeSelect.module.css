@@ -101,8 +101,8 @@
 
 .badge[data-status="waiting_for_them"],
 .option[data-status="waiting_for_them"],
-.badge[data-status="waiting_for_Par"],
-.option[data-status="waiting_for_Par"] {
+.badge[data-status="waiting_for_us"],
+.option[data-status="waiting_for_us"] {
   color: var(--status-to_do-fg);
   background: var(--status-to_do-bg);
   border-color: var(--status-to_do-bd);
