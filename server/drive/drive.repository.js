@@ -291,7 +291,7 @@ class DriveRepository {
     // 1. Create the Marketing Assets subfolder
     const folderResponse = await drive.files.create({
       requestBody: {
-        name: "Marketing Assets",
+        name: "!Marketing Assets",
         mimeType: "application/vnd.google-apps.folder",
         parents: [folderId],
       },
@@ -314,7 +314,7 @@ class DriveRepository {
 
     return {
       folderId: marketingAssetsFolderId,
-      folderName: "Marketing Assets",
+      folderName: "!arketing Assets",
       docId: docResponse.data.id,
       docName: docResponse.data.name,
       docWebViewLink: docResponse.data.webViewLink,
