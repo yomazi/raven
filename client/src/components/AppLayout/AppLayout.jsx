@@ -6,6 +6,7 @@ import BuildClientArea from "@components/Content/Builds/BuildClientArea/BuildCli
 import BuildRoster from "@components/Content/Builds/BuildRoster/BuildRoster.jsx";
 import EventClientArea from "@components/Content/Events/EventClientArea/EventClientArea.jsx";
 import EventGrid from "@components/Content/Events/EventGrid/EventGrid.jsx";
+import ReportsPanel from "@components/Content/Reports/ReportsPanel.jsx";
 import TasksFilter from "@components/Content/Tasks/TasksFilter/TasksFilter.jsx";
 import TasksView from "@components/Content/Tasks/TasksView/TasksView.jsx";
 
@@ -21,6 +22,7 @@ const AppLayout = ({ mode }) => {
       builds: (
         <SplitPane resizable={true} leftPane={<BuildRoster />} rightPane={<BuildClientArea />} />
       ),
+      reports: <ReportsPanel />,
     }[mode] ?? null;
 
   return (

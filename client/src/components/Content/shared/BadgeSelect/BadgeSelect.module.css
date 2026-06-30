@@ -108,6 +108,13 @@
   border-color: var(--status-to_do-bd);
 }
 
+.badge[data-status="waiting_for_exec"],
+.option[data-status="waiting_for_exec"] {
+  color: var(--status-waiting_for_exec-fg);
+  background: var(--status-waiting_for_exec-bg);
+  border-color: var(--status-waiting_for_exec-bd);
+}
+
 /* ── Priority colors ───────────────────────────────────────────────────────── */
 
 .badge[data-priority="urgent"],

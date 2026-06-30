@@ -73,6 +73,10 @@
   --status-shrug-bg: #1e1c2a;
   --status-shrug-bd: #3a3650;
 
+  --status-waiting_for_exec-fg: #c084fc;
+  --status-waiting_for_exec-bg: #2a0d4a;
+  --status-waiting_for_exec-bd: #5a1a8a;
+
   /* Priority */
   --priority-urgent-fg: #ff4d4d;
   --priority-urgent-bg: #3a0d0d;

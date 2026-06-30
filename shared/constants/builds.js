@@ -18,6 +18,7 @@ export const CONTRACT_STATUS = [
   "drafted by them",
   "waiting for them",
   "waiting for us",
+  "waiting for exec",
   "blocked",
   "done",
 ];

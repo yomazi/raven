@@ -22,6 +22,8 @@ import gmailRoutes from "./gmail/gmail.routes.js";
 import ollamaRoutes from "./ollama/ollama.routes.js";
 import showsRoutes from "./shows/shows.routes.js";
 import tasksRoutes from "./tasks/tasks.routes.js";
+import reportsRoutes from "./reports/reports.routes.js";
+import ReportScheduler from "./reports/report-scheduler.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -32,7 +34,7 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(normalizeAuthHeader);
 
-connectDb();
+connectDb().then(() => ReportScheduler.start());
 
 // define API routes with versioning
 const version = "v1";
@@ -45,6 +47,7 @@ app.use(routePrefix, gmailRoutes);
 app.use(routePrefix, ollamaRoutes);
 app.use(routePrefix, showsRoutes);
 app.use(routePrefix, tasksRoutes);
+app.use(routePrefix, reportsRoutes);
 
 // set up Vite middleware for dev (Raven is local-only)
 
