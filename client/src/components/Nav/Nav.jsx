@@ -1,6 +1,6 @@
 import * as NavigationMenu from "@radix-ui/react-navigation-menu";
 import { useEffect, useRef, useState } from "react";
-import { NavLink, useLocation, useMatch } from "react-router-dom";
+import { NavLink, useLocation, useMatch, useNavigate } from "react-router-dom";
 import { useCreateMarketingAssetsFolder } from "../../hooks/useCreateMarketingAssetsFolder.js";
 import { useCreateSettlementWorkbook } from "../../hooks/useCreateSettlementWorkbook.js";
 import { useSyncShows } from "../../hooks/useSyncShows.js";
@@ -52,10 +52,14 @@ const showLinks = [
   { route: "properties", label: "Properties" },
   { route: "build", label: "Build" },
   { route: "gmail", label: "Email" },
-  { route: "test", label: "Test" },
+  {
+    label: "Workflows",
+    items: [{ route: "test", label: "Parse Offers & Contracts" }],
+  },
 ];
 
 const Nav = () => {
+  const navigate = useNavigate();
   const { mutate: sync } = useSyncShows();
   const { mutate: createWorkbook } = useCreateSettlementWorkbook();
   const { mutate: createMarketingAssetsFolder } = useCreateMarketingAssetsFolder();
@@ -116,14 +120,26 @@ const Nav = () => {
 
           <div className={styles.navSpacer} style={{ width: spacerWidth }} />
 
-          {showLinks.map(({ route, label }) => (
-            <NavItem
-              key={route}
-              to={`/shows/${selectedShow?.googleFolderId}/${route}`}
-              label={label}
-              disabled={!isSelectedShowVisible}
-            />
-          ))}
+          {showLinks.map((entry) =>
+            entry.items ? (
+              <NavDropdown
+                key={entry.label}
+                label={entry.label}
+                disabled={!isSelectedShowVisible}
+                items={entry.items.map((item) => ({
+                  label: item.label,
+                  onClick: () => navigate(`/shows/${selectedShow?.googleFolderId}/${item.route}`),
+                }))}
+              />
+            ) : (
+              <NavItem
+                key={entry.route}
+                to={`/shows/${selectedShow?.googleFolderId}/${entry.route}`}
+                label={entry.label}
+                disabled={!isSelectedShowVisible}
+              />
+            )
+          )}
         </NavigationMenu.List>
       </NavigationMenu.Root>
 

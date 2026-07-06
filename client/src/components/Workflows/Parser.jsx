@@ -1,20 +1,22 @@
-// client/src/components/TestBed/TestBed.jsx
+// client/src/components/Workflows/Parser.jsx
 
 import { fetchFileText, fetchFolderFiles } from "@api/drive.api.js";
 import { useContentExtraction } from "@hooks/useContentExtraction.js";
 import { useEffect, useState } from "react";
-import styles from "./TestBed.module.css";
+import GoogleDocIcon from "@svg/google-docs_rg.svg?react";
+import PdfIcon from "@svg/pdf_rg.svg?react";
+import styles from "./Parser.module.css";
 
 const PDF_MIME = "application/pdf";
 const GDOC_MIME = "application/vnd.google-apps.document";
 const SUPPORTED_TYPES = [PDF_MIME, GDOC_MIME];
 
 const FILE_ICONS = {
-  [PDF_MIME]: "📄",
-  [GDOC_MIME]: "📝",
+  [PDF_MIME]: <PdfIcon className={styles.fileIcon} />,
+  [GDOC_MIME]: <GoogleDocIcon className={styles.fileIcon} />,
 };
 
-const TestBed = ({ showFolderId }) => {
+const Parser = ({ showFolderId }) => {
   const [files, setFiles] = useState([]);
   const [isFetchingFiles, setIsFetchingFiles] = useState(false);
   const [filesError, setFilesError] = useState(null);
@@ -39,7 +41,6 @@ const TestBed = ({ showFolderId }) => {
     reset,
   } = useContentExtraction(showFolderId);
 
-  // Load folder contents on mount
   useEffect(() => {
     const load = async () => {
       setIsFetchingFiles(true);
@@ -56,7 +57,6 @@ const TestBed = ({ showFolderId }) => {
     load();
   }, [showFolderId]);
 
-  // Reset extraction state when selected file changes
   useEffect(() => {
     setFetchedText(null);
     setFetchTextError(null);
@@ -90,59 +90,65 @@ const TestBed = ({ showFolderId }) => {
   };
 
   return (
-    <div className={styles.testBed}>
-      <h2 className={styles.heading}>Contract Extraction — Test Bed</h2>
+    <div className={styles.parser}>
+      <h2 className={styles.heading}>Parse Offers & Contracts</h2>
 
-      {/* Step 1: Pick a file */}
-      <section className={styles.section}>
-        <label className={styles.label}>Step 1 — Select a file</label>
-        {isFetchingFiles && <p className={styles.muted}>Loading folder contents…</p>}
-        {filesError && <p className={styles.error}>{filesError}</p>}
-        {!isFetchingFiles && files.length === 0 && !filesError && (
-          <p className={styles.muted}>No supported files found (PDF or Google Doc).</p>
-        )}
-        {files.length > 0 && (
-          <ul className={styles.fileList}>
-            {files.map((file) => (
-              <li
-                key={file.id}
-                className={`${styles.fileItem} ${selectedFile?.id === file.id ? styles.selected : ""}`}
-                onClick={() => setSelectedFile(file)}
-              >
-                <span className={styles.fileIcon}>{FILE_ICONS[file.mimeType]}</span>
-                {file.name}
-              </li>
-            ))}
-          </ul>
-        )}
-        {selectedFile && (
-          <button className={styles.button} onClick={handleFetchText} disabled={isFetchingText}>
-            {isFetchingText ? "Fetching…" : "Fetch Text"}
-          </button>
-        )}
-        {fetchTextError && <p className={styles.error}>{fetchTextError}</p>}
-      </section>
-
-      {/* Step 2: Review fetched text */}
-      {fetchedText && (
-        <section className={styles.section}>
-          <label className={styles.label}>Step 2 — Review fetched text</label>
-          <pre className={styles.pre}>{fetchedText}</pre>
-          <button className={styles.button} onClick={handleExtract} disabled={isExtracting}>
-            {isExtracting ? "Extracting…" : "Extract"}
-          </button>
-          {isExtractionError && (
-            <p className={styles.error}>
-              Extraction failed: {extractionError?.message ?? "unknown error"}
-            </p>
+      <div className={styles.columns}>
+        {/* Left column — file picker */}
+        <div className={styles.leftCol}>
+          <span className={styles.label}>Files</span>
+          <div className={styles.colScroll}>
+            {isFetchingFiles && <p className={styles.muted}>Loading…</p>}
+            {filesError && <p className={styles.error}>{filesError}</p>}
+            {!isFetchingFiles && files.length === 0 && !filesError && (
+              <p className={styles.muted}>No supported files found.</p>
+            )}
+            {files.length > 0 && (
+              <ul className={styles.fileList}>
+                {files.map((file) => (
+                  <li
+                    key={file.id}
+                    className={`${styles.fileItem} ${selectedFile?.id === file.id ? styles.selected : ""}`}
+                    onClick={() => setSelectedFile(file)}
+                  >
+                    {FILE_ICONS[file.mimeType]}
+                    {file.name}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+          {selectedFile && (
+            <button className={styles.button} onClick={handleFetchText} disabled={isFetchingText}>
+              {isFetchingText ? "Fetching…" : "Fetch Text"}
+            </button>
           )}
-        </section>
-      )}
+          {fetchTextError && <p className={styles.error}>{fetchTextError}</p>}
+        </div>
 
-      {/* Step 3: Review and apply */}
+        {/* Right column — fetched text */}
+        {fetchedText && (
+          <div className={styles.rightCol}>
+            <span className={styles.label}>Text</span>
+            <div className={styles.colScroll}>
+              <pre className={styles.pre}>{fetchedText}</pre>
+            </div>
+            <button className={styles.button} onClick={handleExtract} disabled={isExtracting}>
+              {isExtracting ? "Extracting…" : "Extract"}
+            </button>
+            {isExtractionError && (
+              <p className={styles.error}>
+                Extraction failed: {extractionError?.message ?? "unknown error"}
+              </p>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* Full-width — parsed JSON */}
       {isExtracted && extracted && (
-        <section className={styles.section}>
-          <label className={styles.label}>Step 3 — Review and apply</label>
+        <div className={styles.results}>
+          <span className={styles.label}>Extracted Data</span>
           <pre className={styles.pre}>{JSON.stringify(extracted, null, 2)}</pre>
           <button
             className={styles.button}
@@ -157,10 +163,10 @@ const TestBed = ({ showFolderId }) => {
           {isApplyError && (
             <p className={styles.error}>Apply failed: {applyError?.message ?? "unknown error"}</p>
           )}
-        </section>
+        </div>
       )}
     </div>
   );
 };
 
-export default TestBed;
+export default Parser;

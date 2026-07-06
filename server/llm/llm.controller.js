@@ -1,11 +1,11 @@
-// server/ollama/ollama.controller.js
+// server/llm/llm.controller.js
 
-import OllamaService from "./ollama.service.js";
+import LlmService from "./llm.service.js";
 
-class OllamaController {
+class LlmController {
   static async health(req, res) {
     try {
-      const result = await OllamaService.health();
+      const result = await LlmService.health();
       res.json({ success: true, ...result });
     } catch (err) {
       console.error(err);
@@ -15,10 +15,8 @@ class OllamaController {
 
   static async extract(req, res) {
     try {
-      const { text, model } = req.body;
-
-      const result = await OllamaService.extract(text, { model });
-
+      const { text } = req.body;
+      const result = await LlmService.extract(text);
       res.json({ success: true, ...result });
     } catch (err) {
       console.error(err);
@@ -27,4 +25,4 @@ class OllamaController {
   }
 }
 
-export default OllamaController;
+export default LlmController;

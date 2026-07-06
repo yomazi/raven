@@ -1,6 +1,6 @@
 // client/src/hooks/useContractExtraction.js
 
-import { extractOfferLetter } from "@api/ollama.api.js";
+import { extractOfferLetter } from "@api/llm.api.js";
 import { patchShow } from "@api/shows.api.js";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 

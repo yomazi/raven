@@ -49,11 +49,15 @@ function buildCellValue(col, show) {
 // Sheets batchUpdate request builders
 // ---------------------------------------------------------------------------
 
-function freezeRowsRequest(sheetId, frozenRowCount) {
+function freezeRequest(sheetId, frozenRowCount, frozenColumnCount) {
+  const gridProperties = {};
+  const fields = [];
+  if (frozenRowCount != null) { gridProperties.frozenRowCount = frozenRowCount; fields.push("gridProperties.frozenRowCount"); }
+  if (frozenColumnCount != null) { gridProperties.frozenColumnCount = frozenColumnCount; fields.push("gridProperties.frozenColumnCount"); }
   return {
     updateSheetProperties: {
-      properties: { sheetId, gridProperties: { frozenRowCount } },
-      fields: "gridProperties.frozenRowCount",
+      properties: { sheetId, gridProperties },
+      fields: fields.join(","),
     },
   };
 }
@@ -248,6 +252,7 @@ class ReportService {
       sort = { date: 1 },
       columns,
       frozenRows = 1,
+      frozenColumns,
       headerStyle,
     } = definition;
 
@@ -278,7 +283,7 @@ class ReportService {
     const rowCount = shows.length;
     const requests = [];
 
-    requests.push(freezeRowsRequest(sheetId, frozenRows));
+    requests.push(freezeRequest(sheetId, frozenRows, frozenColumns));
     requests.push(headerFormatRequest(sheetId, columns.length, headerStyle));
 
     const autoWidthCols = [];

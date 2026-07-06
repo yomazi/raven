@@ -9,9 +9,9 @@
  */
 
 import contractStatus90DayOutlook from "./contract-status-90-day-outlook.js";
-import productionStatusReport from "./production-status.js";
+import buildBacklogReport from "./build-backlog.js";
 
-const definitions = [productionStatusReport, contractStatus90DayOutlook];
+const definitions = [buildBacklogReport, contractStatus90DayOutlook];
 
 const registry = Object.fromEntries(definitions.map((d) => [d.name, d]));
 

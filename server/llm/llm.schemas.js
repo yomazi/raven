@@ -1,9 +1,9 @@
-// server/ollama/ollama.schemas.js
+// server/llm/llm.schemas.js
 
 import Joi from "joi";
 import authHeaderSchema from "../auth/auth.header.schema.js";
 
-class OllamaSchemas {
+class LlmSchemas {
   static health = {
     headers: authHeaderSchema,
   };
@@ -12,9 +12,8 @@ class OllamaSchemas {
     headers: authHeaderSchema,
     body: Joi.object({
       text: Joi.string().min(1).required(),
-      model: Joi.string().optional(),
     }),
   };
 }
 
-export default OllamaSchemas;
+export default LlmSchemas;

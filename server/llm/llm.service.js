@@ -1,7 +1,41 @@
-// server/ollama/ollama.service.js
+// server/llm/llm.service.js
 
 import log from "../logging/log.js";
-import { ollamaChat, ollamaHealthCheck } from "../utilities/ollama-client.js";
+import { groqChat, groqHealthCheck } from "../utilities/groq-client.js";
+
+// ---------------------------------------------------------------------------
+// Preprocessing — strip addenda/boilerplate before sending to the LLM
+// ---------------------------------------------------------------------------
+
+const BOILERPLATE_MARKERS = [
+  /^ADDENDUM\b/im,
+  /^ADDITIONAL TERMS AND CONDITIONS/im,
+  /^TERMS AND CONDITIONS/im,
+  /^ARTIST[''']?S RIDER/im,
+  /^PRODUCTION RIDER/im,
+  /^TECHNICAL RIDER/im,
+  /^HOSPITALITY RIDER/im,
+];
+
+const FACE_PAGE_CHAR_LIMIT = 4000;
+
+function preprocessContract(text) {
+  let cutAt = text.length;
+
+  for (const marker of BOILERPLATE_MARKERS) {
+    const match = marker.exec(text);
+    if (match && match.index < cutAt) {
+      cutAt = match.index;
+    }
+  }
+
+  const trimmed = text.slice(0, cutAt).trim();
+
+  // Belt-and-suspenders: if no marker found, cap at face-page limit
+  return trimmed.length > FACE_PAGE_CHAR_LIMIT && cutAt === text.length
+    ? trimmed.slice(0, FACE_PAGE_CHAR_LIMIT)
+    : trimmed;
+}
 
 // ---------------------------------------------------------------------------
 // Schema constants — mirror Show model enums so the prompt is explicit
@@ -98,9 +132,7 @@ function parseExtractionResponse(raw) {
   }
 
   if (parsed.terms?.main?.backendType && !BACKEND_TYPES.includes(parsed.terms.main.backendType)) {
-    log.warn("ollama.service", "invalid backendType, nulling", {
-      value: parsed.terms.main.backendType,
-    });
+    log.warn("llm.service", "invalid backendType, nulling", { value: parsed.terms.main.backendType });
     parsed.terms.main.backendType = null;
   }
 
@@ -108,7 +140,7 @@ function parseExtractionResponse(raw) {
     parsed.production?.hospitality?.hospitalityType &&
     !HOSPITALITY_TYPES.includes(parsed.production.hospitality.hospitalityType)
   ) {
-    log.warn("ollama.service", "invalid hospitalityType, nulling", {
+    log.warn("llm.service", "invalid hospitalityType, nulling", {
       value: parsed.production.hospitality.hospitalityType,
     });
     parsed.production.hospitality.hospitalityType = null;
@@ -118,14 +150,14 @@ function parseExtractionResponse(raw) {
     parsed.production?.backline?.backlineType &&
     !BACKLINE_TYPES.includes(parsed.production.backline.backlineType)
   ) {
-    log.warn("ollama.service", "invalid backlineType, nulling", {
+    log.warn("llm.service", "invalid backlineType, nulling", {
       value: parsed.production.backline.backlineType,
     });
     parsed.production.backline.backlineType = null;
   }
 
   if (parsed.production?.merchCut && !MERCH_CUTS.includes(parsed.production.merchCut)) {
-    log.warn("ollama.service", "invalid merchCut, nulling", { value: parsed.production.merchCut });
+    log.warn("llm.service", "invalid merchCut, nulling", { value: parsed.production.merchCut });
     parsed.production.merchCut = null;
   }
 
@@ -136,28 +168,30 @@ function parseExtractionResponse(raw) {
 // Service
 // ---------------------------------------------------------------------------
 
-class OllamaService {
+class LlmService {
   static async health() {
-    return ollamaHealthCheck();
+    return groqHealthCheck();
   }
 
-  static async extract(documentText, options = {}) {
-    const { model } = options;
-
-    log.info("ollama.service", "starting extraction", {});
+  static async extract(documentText) {
+    const preprocessed = preprocessContract(documentText);
+    log.info("llm.service", "starting extraction", {
+      originalChars: documentText.length,
+      preprocessedChars: preprocessed.length,
+    });
 
     const messages = [
       { role: "system", content: SYSTEM_PROMPT },
-      { role: "user", content: `Here is the offer letter:\n\n${documentText}` },
+      { role: "user", content: `Here is the offer letter:\n\n${preprocessed}` },
     ];
 
-    const raw = await ollamaChat(messages, { model, temperature: 0.1, numCtx: 4096 });
+    const raw = await groqChat(messages);
     const extracted = parseExtractionResponse(raw);
 
-    log.info("ollama.service", "extraction complete", { extracted });
+    log.info("llm.service", "extraction complete", { extracted });
 
     return { extracted };
   }
 }
 
-export default OllamaService;
+export default LlmService;

@@ -1,11 +1,10 @@
-/* client/src/components/TestBed/TestBed.module.css */
+/* client/src/components/Workflows/Parser.module.css */
 
-.testBed {
+.parser {
   padding: 2rem;
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
-  max-width: 860px;
 }
 
 .heading {
@@ -15,10 +14,34 @@
   margin: 0;
 }
 
-.section {
+.columns {
+  display: grid;
+  grid-template-columns: 2fr 3fr;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.leftCol,
+.rightCol {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
+  height: 60vh;
+}
+
+.results {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.colScroll {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  min-height: 0;
 }
 
 .label {
@@ -30,22 +53,38 @@
   opacity: 0.6;
 }
 
-.textarea {
-  width: 100%;
-  background: var(--color-stone);
-  color: var(--color-frost);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 6px;
-  padding: 0.75rem;
-  font-family: inherit;
-  font-size: 0.85rem;
-  resize: vertical;
-  line-height: 1.5;
+.fileList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
 }
 
-.textarea:focus {
-  outline: none;
-  border-color: var(--color-wyrd);
+.fileItem {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.3rem 0.5rem;
+  border-radius: 4px;
+  color: var(--color-moonlight);
+  font-size: 0.9rem;
+  cursor: pointer;
+
+  &:hover {
+    background-color: var(--color-dusk);
+  }
+}
+
+.fileItem.selected {
+  background-color: var(--color-wyrd);
+}
+
+.fileIcon {
+  flex-shrink: 0;
+  width: 1.1rem;
+  height: 1.1rem;
 }
 
 .pre {
@@ -83,6 +122,12 @@
   cursor: not-allowed;
 }
 
+.muted {
+  color: var(--color-frost);
+  font-size: 0.85rem;
+  opacity: 0.5;
+}
+
 .error {
   color: var(--color-ember);
   font-size: 0.85rem;
@@ -92,21 +137,4 @@
   color: var(--color-frost);
   font-size: 0.85rem;
   opacity: 0.7;
-}
-
-.section li {
-  padding: 0.1rem 0;
-}
-
-.fileItem {
-  color: var(--color-moonlight);
-  font-size: 0.9rem;
-
-  &:hover {
-    background-color: var(--color-dusk);
-  }
-}
-
-.fileItem.selected {
-  background-color: var(--color-wyrd);
 }
