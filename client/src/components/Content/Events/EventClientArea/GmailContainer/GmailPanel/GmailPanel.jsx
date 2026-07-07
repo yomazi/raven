@@ -527,10 +527,32 @@ export default function GmailPanel({
   messageId: rawMessageId,
   onCompose,
 }) {
-  const toHex = (id) => (id ? BigInt(id).toString(16) : undefined);
+  // Gmail permalink ids come as e.g. "thread-f:123" or "msg-f:123", where
+  // the number is the id's plain decimal form (convert straight to hex for
+  // the API). Some links instead use "thread-a:r-123" / "msg-a:r-123" —
+  // that "a:r-" scheme is not a simple twos-complement encoding of the
+  // same id (confirmed by comparing a decoded "thread-a:r-" value against
+  // the real threadId Gmail returns for the matching message: they don't
+  // match), so we can't reliably decode it here.
+  //
+  // Because the route always carries a messageId alongside the threadId,
+  // we sidestep this: below, the thread is resolved from the *message's*
+  // own threadId (as reported by the Gmail API), not from this decoded
+  // value. This raw decode is kept only as a fallback for the case where
+  // a threadId shows up with no messageId to anchor off of.
+  const gmailIdToHex = (id) => {
+    if (!id) return undefined;
+    const match = /^(?:thread|msg)-[a-z]+:(\d+)$/.exec(id);
+    const digits = match ? match[1] : id;
+    try {
+      return BigInt(digits).toString(16);
+    } catch {
+      return undefined;
+    }
+  };
 
-  const threadId = rawThreadId ? toHex(rawThreadId.replace(/^thread-f:/, "")) : undefined;
-  const messageId = rawMessageId ? toHex(rawMessageId.replace(/^msg-f:/, "")) : undefined;
+  const threadId = gmailIdToHex(rawThreadId);
+  const messageId = gmailIdToHex(rawMessageId);
 
   const [stubs, setStubs] = useState([]);
   const [soloMsg, setSoloMsg] = useState(null);
@@ -554,41 +576,42 @@ export default function GmailPanel({
       };
     }
 
-    Promise.resolve().then(() => {
-      if (ignore) return;
-      setLoading(true);
-      setError(null);
+    setLoading(true);
+    setError(null);
 
-      if (threadId) {
-        fetchThread(threadId)
-          .then((data) => {
+    (async () => {
+      try {
+        if (messageId) {
+          // Resolve the thread off the message's own threadId (as reported
+          // by the Gmail API) rather than the URL's threadId — see the note
+          // on gmailIdToHex above for why that value can't be trusted.
+          const msg = await fetchMessage(messageId);
+          if (ignore) return;
+          try {
+            const thread = await fetchThread(msg.threadId);
             if (!ignore) {
-              setStubs(data.messages ?? []);
+              setStubs(thread.messages ?? []);
               setSoloMsg(null);
             }
-          })
-          .catch((e) => {
-            if (!ignore) setError(e.message);
-          })
-          .finally(() => {
-            if (!ignore) setLoading(false);
-          });
-      } else {
-        fetchMessage(messageId)
-          .then((data) => {
+          } catch {
             if (!ignore) {
-              setSoloMsg(data);
               setStubs([]);
+              setSoloMsg(msg);
             }
-          })
-          .catch((e) => {
-            if (!ignore) setError(e.message);
-          })
-          .finally(() => {
-            if (!ignore) setLoading(false);
-          });
+          }
+        } else {
+          const thread = await fetchThread(threadId);
+          if (!ignore) {
+            setStubs(thread.messages ?? []);
+            setSoloMsg(null);
+          }
+        }
+      } catch (e) {
+        if (!ignore) setError(e.message);
+      } finally {
+        if (!ignore) setLoading(false);
       }
-    });
+    })();
 
     return () => {
       ignore = true;
