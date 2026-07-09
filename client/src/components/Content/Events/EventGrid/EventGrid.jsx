@@ -170,7 +170,8 @@ const EventGrid = () => {
       }
 
       // the "Escape" key clears the filter input and removes the quick filter, even if you're currently typing in the filter input
-      if (e.key === "Escape") {
+      // — unless some other overlay (e.g. the recipient picker's dropdown) has claimed Escape for itself
+      if (e.key === "Escape" && !useRavenStore.getState().suppressGridEscapeClear) {
         e.preventDefault();
         e.stopPropagation();
         filterInputRef.current.value = "";

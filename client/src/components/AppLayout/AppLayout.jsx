@@ -4,6 +4,7 @@ import Nav from "@components/Nav/Nav";
 
 import BuildClientArea from "@components/Content/Builds/BuildClientArea/BuildClientArea.jsx";
 import BuildRoster from "@components/Content/Builds/BuildRoster/BuildRoster.jsx";
+import ContactsPanel from "@components/Content/Contacts/ContactsPanel.jsx";
 import EventClientArea from "@components/Content/Events/EventClientArea/EventClientArea.jsx";
 import EventGrid from "@components/Content/Events/EventGrid/EventGrid.jsx";
 import ReportsPanel from "@components/Content/Reports/ReportsPanel.jsx";
@@ -23,6 +24,7 @@ const AppLayout = ({ mode }) => {
         <SplitPane resizable={true} leftPane={<BuildRoster />} rightPane={<BuildClientArea />} />
       ),
       reports: <ReportsPanel />,
+      contacts: <ContactsPanel />,
     }[mode] ?? null;
 
   return (

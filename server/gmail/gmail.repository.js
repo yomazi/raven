@@ -1,11 +1,29 @@
 import { google } from "googleapis";
 
 import AuthService from "../auth/auth.service.js";
+import DriveRepository from "../drive/drive.repository.js";
 
 class GmailRepository {
   static async #getGmailClient() {
     const auth = await AuthService.getGoogleClient();
     return google.gmail({ version: "v1", auth });
+  }
+
+  /**
+   * Resolves { driveFileId, filename, mimeType } references (picked from the
+   * show's Drive folder in the composer) into the { filename, mimeType, buffer }
+   * shape #buildRawMessage expects, by downloading each file's bytes from Drive.
+   */
+  static async #fetchDriveAttachments(refs = []) {
+    return Promise.all(
+      refs.map(async ({ driveFileId, filename, mimeType }) => {
+        const { buffer } = await DriveRepository.fetchFileContent({
+          fileId: driveFileId,
+          mimeType,
+        });
+        return { filename, mimeType, buffer };
+      })
+    );
   }
 
   static #header(headers = [], name) {
@@ -242,10 +260,17 @@ class GmailRepository {
    * POST /api/v1/gmail/messages/send
    * Compose and send a new message (no thread context).
    */
-  static async sendMessage({ to, subject, body, from, sentLabels }) {
+  static async sendMessage({ to, subject, body, from, sentLabels, attachments }) {
     const gmail = await GmailRepository.#getGmailClient();
 
-    const raw = GmailRepository.#buildRawMessage({ from, to, subject, body });
+    const resolvedAttachments = await GmailRepository.#fetchDriveAttachments(attachments);
+    const raw = GmailRepository.#buildRawMessage({
+      from,
+      to,
+      subject,
+      body,
+      attachments: resolvedAttachments,
+    });
 
     const response = await gmail.users.messages.send({
       userId: "me",
@@ -266,7 +291,7 @@ class GmailRepository {
    * Sets In-Reply-To and References headers so Gmail threads the reply correctly.
    * Optionally applies labels to the thread and the sent message.
    */
-  static async replyToMessage({ messageId, body, from, threadLabels, sentLabels }) {
+  static async replyToMessage({ messageId, body, from, threadLabels, sentLabels, attachments }) {
     const gmail = await GmailRepository.#getGmailClient();
 
     // Fetch the original message to get threading headers and recipients
@@ -284,6 +309,7 @@ class GmailRepository {
     // Build References chain: existing references + original Message-ID
     const refsChain = [origReferences, origMessageId].filter(Boolean).join(" ");
 
+    const resolvedAttachments = await GmailRepository.#fetchDriveAttachments(attachments);
     const raw = GmailRepository.#buildRawMessage({
       from,
       to: allRecipients,
@@ -291,6 +317,7 @@ class GmailRepository {
       body,
       inReplyTo: origMessageId,
       references: refsChain,
+      attachments: resolvedAttachments,
     });
 
     const response = await gmail.users.messages.send({
@@ -316,7 +343,7 @@ class GmailRepository {
    * Re-attaches all original attachments and quotes the original body.
    * Optionally applies labels to the thread and the sent message.
    */
-  static async forwardMessage({ messageId, to, body, from, threadLabels, sentLabels }) {
+  static async forwardMessage({ messageId, to, body, from, threadLabels, sentLabels, attachments }) {
     const gmail = await GmailRepository.#getGmailClient();
 
     const orig = await GmailRepository.getMessage({ messageId });
@@ -334,23 +361,27 @@ class GmailRepository {
       orig.body ?? "",
     ].join("\n");
 
-    // Fetch all original attachment binaries in parallel
-    const attachments = await Promise.all(
-      (orig.attachments ?? []).map(async (att) => {
-        const { data } = await GmailRepository.getAttachment({
-          messageId,
-          attachmentId: att.attachmentId,
-        });
-        return { filename: att.filename, mimeType: att.mimeType, buffer: data };
-      })
-    );
+    // Fetch all original attachment binaries in parallel, plus any newly
+    // picked Drive files, and carry both along on the forwarded message.
+    const [originalAttachments, driveAttachments] = await Promise.all([
+      Promise.all(
+        (orig.attachments ?? []).map(async (att) => {
+          const { data } = await GmailRepository.getAttachment({
+            messageId,
+            attachmentId: att.attachmentId,
+          });
+          return { filename: att.filename, mimeType: att.mimeType, buffer: data };
+        })
+      ),
+      GmailRepository.#fetchDriveAttachments(attachments),
+    ]);
 
     const raw = GmailRepository.#buildRawMessage({
       from,
       to,
       subject: orig.subject?.startsWith("Fwd:") ? orig.subject : `Fwd: ${orig.subject}`,
       body: quotedBody,
-      attachments,
+      attachments: [...originalAttachments, ...driveAttachments],
     });
 
     const response = await gmail.users.messages.send({

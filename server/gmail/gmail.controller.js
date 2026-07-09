@@ -45,8 +45,15 @@ class GmailController {
 
   static async sendMessage(req, res) {
     try {
-      const { to, subject, body, from, sentLabels } = req.body;
-      const result = await GmailService.sendMessage({ to, subject, body, from, sentLabels });
+      const { to, subject, body, from, sentLabels, attachments } = req.body;
+      const result = await GmailService.sendMessage({
+        to,
+        subject,
+        body,
+        from,
+        sentLabels,
+        attachments,
+      });
       res.json({ success: true, ...result });
     } catch (err) {
       console.error(err);
@@ -57,13 +64,14 @@ class GmailController {
   static async replyToMessage(req, res) {
     try {
       const { messageId } = req.params;
-      const { body, from, threadLabels, sentLabels } = req.body;
+      const { body, from, threadLabels, sentLabels, attachments } = req.body;
       const result = await GmailService.replyToMessage({
         messageId,
         body,
         from,
         threadLabels,
         sentLabels,
+        attachments,
       });
       res.json({ success: true, ...result });
     } catch (err) {
@@ -75,7 +83,7 @@ class GmailController {
   static async forwardMessage(req, res) {
     try {
       const { messageId } = req.params;
-      const { to, body, from, threadLabels, sentLabels } = req.body;
+      const { to, body, from, threadLabels, sentLabels, attachments } = req.body;
       const result = await GmailService.forwardMessage({
         messageId,
         to,
@@ -83,6 +91,7 @@ class GmailController {
         from,
         threadLabels,
         sentLabels,
+        attachments,
       });
       res.json({ success: true, ...result });
     } catch (err) {

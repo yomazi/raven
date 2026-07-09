@@ -54,6 +54,7 @@
 
 .fieldLabel {
   font-size: 0.85rem;
+  line-height: 1.2;
   text-transform: uppercase;
   color: var(--color-rune);
   width: 3.7rem;
@@ -69,9 +70,159 @@
   border: none;
   outline: none;
   font-size: 0.9rem;
+  line-height: 1.2;
   background: transparent;
   color: var(--color-moonlight);
   padding: 2px 0;
+}
+
+/* ── Recipient picker ─────────────────────────────────────────────────────── */
+
+.recipientPicker {
+  padding: 6px 14px 10px calc(3.7rem + 6px + 14px);
+  border-bottom: 1px solid var(--color-stone);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.quickPicks {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.quickPickBtn {
+  font-size: 0.78rem;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--color-stone);
+  background: transparent;
+  color: var(--color-rune);
+  cursor: pointer;
+  transition:
+    background 100ms ease,
+    border-color 100ms ease,
+    color 100ms ease;
+}
+
+.quickPickBtn:hover:not(:disabled) {
+  background: var(--color-stone);
+  color: var(--color-frost);
+}
+
+.quickPickBtn[data-active] {
+  background: color-mix(in srgb, var(--color-wyrd) 22%, transparent);
+  border-color: var(--color-wyrd);
+  color: var(--color-frost);
+}
+
+.quickPickBtn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.moreBtn {
+  font-size: 0.76rem;
+  padding: 4px 8px;
+  border: none;
+  background: transparent;
+  color: var(--color-rune);
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.moreBtn:hover {
+  color: var(--color-frost);
+}
+
+.moreList {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  max-height: 10rem;
+  overflow-y: auto;
+  border: 1px solid var(--color-stone);
+  border-radius: 6px;
+  padding: 4px;
+}
+
+.moreRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 6px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 100ms ease;
+}
+
+.moreRow:hover {
+  background: var(--color-stone);
+}
+
+.moreRow input[type="checkbox"] {
+  accent-color: var(--color-wyrd);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.moreName {
+  font-size: 0.82rem;
+  color: var(--color-moonlight);
+  white-space: nowrap;
+}
+
+.moreHint {
+  font-size: 0.74rem;
+  color: var(--color-rune);
+  opacity: 0.7;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ── Attachment picker ────────────────────────────────────────────────────── */
+
+.attachmentPicker {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 4px 0;
+}
+
+.attachmentChips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.attachmentChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.78rem;
+  color: var(--color-frost);
+  background: var(--color-stone);
+  border-radius: 4px;
+  padding: 3px 6px 3px 10px;
+}
+
+.attachmentRemoveBtn {
+  border: none;
+  cursor: pointer;
+  background: transparent;
+  color: var(--color-ember);
+  font-size: 11px;
+  padding: 2px 4px;
+  border-radius: 3px;
+  line-height: 1;
+}
+
+.attachmentRemoveBtn:hover {
+  background: color-mix(in srgb, var(--color-ember) 20%, transparent);
 }
 
 .toolbar {

@@ -19,34 +19,43 @@ export const fetchAttachment = async (messageId, attachmentId) => {
   return response.data;
 };
 
-export const sendMessage = async ({ to, subject, body, from, sentLabels }) => {
+export const sendMessage = async ({ to, subject, body, from, sentLabels, attachments }) => {
   const { data } = await apiClient.post("/gmail/messages/send", {
     to,
     subject,
     body,
     from,
     sentLabels,
+    attachments,
   });
   return data;
 };
 
-export const replyToMessage = async (messageId, { body, from, threadLabels, sentLabels }) => {
+export const replyToMessage = async (
+  messageId,
+  { body, from, threadLabels, sentLabels, attachments }
+) => {
   const { data } = await apiClient.post(`/gmail/messages/${messageId}/reply`, {
     body,
     from,
     threadLabels,
     sentLabels,
+    attachments,
   });
   return data;
 };
 
-export const forwardMessage = async (messageId, { to, body, from, threadLabels, sentLabels }) => {
+export const forwardMessage = async (
+  messageId,
+  { to, body, from, threadLabels, sentLabels, attachments }
+) => {
   const { data } = await apiClient.post(`/gmail/messages/${messageId}/forward`, {
     to,
     body,
     from,
     threadLabels,
     sentLabels,
+    attachments,
   });
   return data;
 };

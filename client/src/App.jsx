@@ -19,6 +19,7 @@ function App() {
             <Route path="/shows/:showFolderId/*" element={<AppLayout mode="events" />} />
             <Route path="/tasks/*" element={<AppLayout mode="tasks" />} />
             <Route path="/reports" element={<AppLayout mode="reports" />} />
+            <Route path="/contacts" element={<AppLayout mode="contacts" />} />
             <Route path="/builds/:showFolderId" element={<AppLayout mode="builds" />} />
             <Route path="/builds" element={<AppLayout mode="builds" />} />
           </Routes>

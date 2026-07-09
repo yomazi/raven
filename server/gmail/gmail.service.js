@@ -13,21 +13,22 @@ class GmailService {
     return GmailRepository.getAttachment({ messageId, attachmentId });
   }
 
-  static async sendMessage({ to, subject, body, from, sentLabels }) {
-    return GmailRepository.sendMessage({ to, subject, body, from, sentLabels });
+  static async sendMessage({ to, subject, body, from, sentLabels, attachments }) {
+    return GmailRepository.sendMessage({ to, subject, body, from, sentLabels, attachments });
   }
 
-  static async replyToMessage({ messageId, body, from, threadLabels, sentLabels }) {
+  static async replyToMessage({ messageId, body, from, threadLabels, sentLabels, attachments }) {
     return GmailRepository.replyToMessage({
       messageId,
       body,
       from,
       threadLabels,
       sentLabels,
+      attachments,
     });
   }
 
-  static async forwardMessage({ messageId, to, body, from, threadLabels, sentLabels }) {
+  static async forwardMessage({ messageId, to, body, from, threadLabels, sentLabels, attachments }) {
     return GmailRepository.forwardMessage({
       messageId,
       to,
@@ -35,6 +36,7 @@ class GmailService {
       from,
       threadLabels,
       sentLabels,
+      attachments,
     });
   }
 

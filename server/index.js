@@ -17,8 +17,10 @@ import { connectDb } from "./utilities/db.js";
 // routes
 import authRoutes from "./auth/auth.routes.js";
 import googleAuthRoutes from "./auth/google.auth.routes.js";
+import contactsRoutes from "./contacts/contacts.routes.js";
 import driveRoutes from "./drive/drive.routes.js";
 import gmailRoutes from "./gmail/gmail.routes.js";
+import groupsRoutes from "./groups/groups.routes.js";
 import llmRoutes from "./llm/llm.routes.js";
 import showsRoutes from "./shows/shows.routes.js";
 import tasksRoutes from "./tasks/tasks.routes.js";
@@ -42,8 +44,10 @@ const routePrefix = `/api/${version}`;
 
 app.use("", googleAuthRoutes);
 app.use(routePrefix, authRoutes);
+app.use(routePrefix, contactsRoutes);
 app.use(routePrefix, driveRoutes);
 app.use(routePrefix, gmailRoutes);
+app.use(routePrefix, groupsRoutes);
 app.use(routePrefix, llmRoutes);
 app.use(routePrefix, showsRoutes);
 app.use(routePrefix, tasksRoutes);

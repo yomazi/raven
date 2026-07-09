@@ -6,7 +6,7 @@ import styles from "./GmailContainer.module.css";
 import GmailEditor from "./GmailEditor/GmailEditor.jsx";
 import GmailPanel from "./GmailPanel/GmailPanel.jsx";
 
-const GmailContainer = ({ showFolderId }) => {
+const GmailContainer = ({ showFolderId, show }) => {
   const { threadId, messageId } = useParams();
   const [editorState, setEditorState] = useState(null); // null | { mode, message }
 
@@ -34,6 +34,7 @@ const GmailContainer = ({ showFolderId }) => {
           <div className={`${styles.overlay} ${editorVisible ? styles.overlayVisible : ""}`}>
             <GmailEditor
               showFolderId={showFolderId}
+              show={show}
               mode={editorState.mode}
               message={editorState.message}
               onClose={handleClose}
@@ -44,7 +45,9 @@ const GmailContainer = ({ showFolderId }) => {
     );
   }
 
-  return <GmailEditor showFolderId={showFolderId} mode="new" message={null} onClose={null} />;
+  return (
+    <GmailEditor showFolderId={showFolderId} show={show} mode="new" message={null} onClose={null} />
+  );
 };
 
 export default GmailContainer;

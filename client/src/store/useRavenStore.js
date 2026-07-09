@@ -34,6 +34,13 @@ const useRavenStore = create(
       leftPaneWidth: 750,
       setLeftPaneWidth: (width) => set({ leftPaneWidth: width }),
 
+      // ── escape-key arbitration — lets an open overlay (e.g. the
+      // recipient picker's "more recipients" dropdown) claim Escape for
+      // itself without EventGrid's global Escape-clears-filter shortcut
+      // also firing on the same keypress.
+      suppressGridEscapeClear: false,
+      setSuppressGridEscapeClear: (val) => set({ suppressGridEscapeClear: val }),
+
       // ── task filters
       filterStatus: ["to_do", "in_progress", "blocked"],
       filterPriority: [],
