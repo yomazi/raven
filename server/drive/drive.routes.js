@@ -53,6 +53,34 @@ router.post(
   Controller.createMarketingAssetsFolder
 );
 
+router.post(
+  "/drive/contract-folder",
+  validate(Schemas.createContractFolder),
+  validateApiToken,
+  Controller.createContractFolder
+);
+
+router.post(
+  "/drive/contracts/:contractId/archive",
+  validate(Schemas.archiveContractFolder),
+  validateApiToken,
+  Controller.archiveContractFolder
+);
+
+router.get(
+  "/drive/folders/:folderId/importable-contract-folders",
+  validate(Schemas.listImportableContractFolders),
+  validateApiToken,
+  Controller.listImportableContractFolders
+);
+
+router.post(
+  "/drive/contract-folder/import",
+  validate(Schemas.importContractFolder),
+  validateApiToken,
+  Controller.importContractFolder
+);
+
 router.get(
   "/drive/files/:fileId/text",
   validate(Schemas.fetchFileText),

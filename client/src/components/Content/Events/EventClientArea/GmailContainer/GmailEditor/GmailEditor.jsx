@@ -303,8 +303,34 @@ function stripNamingConvention(filename) {
   return idx === -1 ? filename : filename.slice(idx + 3);
 }
 
-function AttachmentPicker({ showFolderId, attachments, onChange }) {
-  const { data: allFiles = [] } = useDriveFiles(showFolderId);
+// Folder options for the attachment picker: the show's root folder, its
+// Marketing Assets subfolder (if created), and each active contract's
+// subfolder — mirrors the folder layout shows actually have on Drive.
+function useAttachmentFolderOptions(showFolderId, show) {
+  const options = [{ id: showFolderId, label: "Show folder" }];
+
+  const marketingAssetsId = show?.drive?.folderIds?.marketingAssets;
+  if (marketingAssetsId) {
+    options.push({ id: marketingAssetsId, label: "Marketing Assets" });
+  }
+
+  for (const contract of show?.build?.contracts ?? []) {
+    if (contract.archived) continue;
+    options.push({ id: contract.folderId, label: contract.folderName });
+  }
+
+  return options;
+}
+
+function AttachmentPicker({ showFolderId, show, attachments, onChange }) {
+  const folderOptions = useAttachmentFolderOptions(showFolderId, show);
+  const [selectedFolderId, setSelectedFolderId] = useState(showFolderId);
+
+  useEffect(() => {
+    setSelectedFolderId(showFolderId);
+  }, [showFolderId]);
+
+  const { data: allFiles = [] } = useDriveFiles(selectedFolderId);
   // Only PDFs are supported as attachments for now — Google Docs/Sheets/Slides
   // aren't real downloadable files without an export step we don't need yet.
   const files = allFiles.filter((f) => f.mimeType === "application/pdf");
@@ -331,6 +357,20 @@ function AttachmentPicker({ showFolderId, attachments, onChange }) {
     <div className={styles.field}>
       <span className={styles.fieldLabel}>Attach:</span>
       <div className={styles.attachmentPicker}>
+        {folderOptions.length > 1 && (
+          <select
+            className={styles.fieldSelect}
+            value={selectedFolderId ?? ""}
+            onChange={(e) => setSelectedFolderId(e.target.value)}
+            disabled={!showFolderId}
+          >
+            {folderOptions.map((f) => (
+              <option key={f.id} value={f.id}>
+                {f.label}
+              </option>
+            ))}
+          </select>
+        )}
         <select
           className={styles.fieldSelect}
           value=""
@@ -338,7 +378,7 @@ function AttachmentPicker({ showFolderId, attachments, onChange }) {
           disabled={!showFolderId}
         >
           <option value="" disabled>
-            {showFolderId ? "Attach a PDF from the show folder…" : "No show folder selected"}
+            {showFolderId ? "Attach a PDF…" : "No show folder selected"}
           </option>
           {files.map((f) => (
             <option key={f.id} value={f.id}>
@@ -629,6 +669,7 @@ const GmailEditor = ({ showFolderId, show, mode, message, onClose }) => {
 
         <AttachmentPicker
           showFolderId={showFolderId}
+          show={show}
           attachments={attachments}
           onChange={setAttachments}
         />

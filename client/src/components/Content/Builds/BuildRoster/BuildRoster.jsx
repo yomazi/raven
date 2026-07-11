@@ -203,7 +203,6 @@ export default function BuildRoster() {
           <div className={`ag-theme-alpine-dark ${styles.grid}`} ref={gridContainerRef}>
             <AgGridReact
               ref={gridRef}
-              valueCache={true}
               theme={theme}
               rowHeight={28}
               headerHeight={36}

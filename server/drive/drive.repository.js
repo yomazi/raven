@@ -9,6 +9,8 @@ const PRODUCTION_FOLDER_REGEX = /^(\d{1,2}-\d{1,2}-\d{2,4})\s+(.+?)(\s+\(multipl
 const YEAR_FOLDER_REGEX = /^(\d{4})\s+Program$/;
 const MONTH_FOLDER_REGEX = /^\d{4}-\d{2}\s+\w+$/;
 
+export const CONTRACT_FOLDER_PREFIX = "contract - ";
+
 class DriveRepository {
   static async #getDriveClient() {
     const auth = await AuthService.getGoogleClient();
@@ -319,6 +321,56 @@ class DriveRepository {
       docName: docResponse.data.name,
       docWebViewLink: docResponse.data.webViewLink,
     };
+  }
+
+  static async createContractFolder({ folderId, signee }) {
+    const drive = await DriveRepository.#getDriveClient();
+
+    const folderResponse = await drive.files.create({
+      requestBody: {
+        name: `${CONTRACT_FOLDER_PREFIX}${signee.trim()}`,
+        mimeType: "application/vnd.google-apps.folder",
+        parents: [folderId],
+      },
+      fields: "id, name",
+      supportsAllDrives: true,
+    });
+
+    return {
+      folderId: folderResponse.data.id,
+      folderName: folderResponse.data.name,
+    };
+  }
+
+  static async archiveContractFolder({ folderId, currentName }) {
+    const drive = await DriveRepository.#getDriveClient();
+
+    const response = await drive.files.update({
+      fileId: folderId,
+      requestBody: { name: `!archived - ${currentName}` },
+      fields: "id, name",
+      supportsAllDrives: true,
+    });
+
+    return { folderId: response.data.id, folderName: response.data.name };
+  }
+
+  static async listSubfolders({ folderId }) {
+    const drive = await DriveRepository.#getDriveClient();
+    return DriveRepository.#listFolders(drive, folderId);
+  }
+
+  static async renameFolder({ folderId, name }) {
+    const drive = await DriveRepository.#getDriveClient();
+
+    const response = await drive.files.update({
+      fileId: folderId,
+      requestBody: { name },
+      fields: "id, name",
+      supportsAllDrives: true,
+    });
+
+    return { folderId: response.data.id, folderName: response.data.name };
   }
 
   static async fetchFileContent({ fileId, mimeType }) {

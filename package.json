@@ -12,6 +12,8 @@
     "migrate:dry": "npm run migrate:dry --prefix server",
     "migrate:down": "npm run migrate:down --prefix server",
     "migrate:new": "npm run migrate:new --prefix server",
+    "backfill:contract-folders": "npm run backfill:contract-folders --prefix server",
+    "backfill:contract-folders:dry": "npm run backfill:contract-folders:dry --prefix server",
     "dev": "npm run dev:server",
     "dev:server": "npm --prefix server run dev",
     "start": "npm run start:server",

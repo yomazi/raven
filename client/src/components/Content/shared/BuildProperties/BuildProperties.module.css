@@ -259,6 +259,33 @@
   cursor: pointer;
 }
 
+/* ── Radio group ───────────────────────────────────────────────────────────── */
+
+.radioGroup {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 1.25rem;
+}
+
+.radioLabel {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.9rem;
+  line-height: 1;
+  color: var(--color-moonlight);
+  cursor: pointer;
+}
+
+.radio {
+  width: 0.9rem;
+  height: 0.9rem;
+  margin: 0;
+  accent-color: var(--color-rune);
+  cursor: pointer;
+}
+
 /* ── Gmail links ───────────────────────────────────────────────────────────── */
 
 .gmailLinks {

@@ -32,7 +32,12 @@ export const useShowProperties = (show) => {
   }, []);
 
   const save = useCallback(() => {
-    patch(form);
+    // build.contract / build.contracts are mutated live by their own
+    // dedicated endpoints (see useShowContracts) as soon as they change,
+    // not staged in this draft — sending the stale copy captured when the
+    // form loaded would clobber any contract added/edited/archived since.
+    const { contract: _contract, contracts: _contracts, ...restBuild } = form.build ?? {};
+    patch({ ...form, build: restBuild });
     // isDirty clears in the patch success callback, not here,
     // so a failed save does not falsely clear the dirty state.
   }, [form, patch]);

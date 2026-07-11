@@ -26,6 +26,7 @@ const GmailContainer = ({ showFolderId, show }) => {
       <div className={styles.container}>
         <GmailPanel
           showFolderId={showFolderId}
+          show={show}
           threadId={threadId}
           messageId={messageId}
           onCompose={handleCompose}

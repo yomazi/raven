@@ -85,6 +85,31 @@
   cursor: pointer;
 }
 
+.radioGroup {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.radioLabel {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.9rem;
+  line-height: 1;
+  color: var(--color-moonlight);
+  cursor: pointer;
+}
+
+.radio {
+  width: 14px;
+  height: 14px;
+  margin: 0;
+  accent-color: var(--color-wyrd);
+  cursor: pointer;
+}
+
 .switchRoot {
   width: 42px;
   height: 24px;
@@ -237,6 +262,16 @@ input[type="number"] {
   display: flex;
   flex-direction: column;
   gap: 12px;
+}
+
+.addRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.addRow .input {
+  flex: 1;
 }
 
 .subSectionTitleRow {

@@ -7,6 +7,7 @@ import SvgCopyTwoCells from "@svg/copy-two-cells_rg.svg?react";
 import SvgFolderClosed from "@svg/folder--closed_google.svg?react";
 import SvgFolderOpen from "@svg/folder--open_google.svg?react";
 import SvgSchedule from "@svg/schedule_google.svg?react";
+import SvgUnknown from "@svg/unknown_google.svg?react";
 import { useState } from "react";
 import gridStyles from "./Grid.module.css";
 
@@ -128,15 +129,39 @@ export const ScheduleHeaderRenderer = ({ progressSort, column }) => {
   );
 };
 
-export const ScheduleRenderer = ({ value }) => {
+function haveAllScheduleDatesPassed(schedule) {
+  const now = Date.now();
+  const dates = [schedule?.announceDateTime, schedule?.onSaleDateTime]
+    .filter(Boolean)
+    .map((d) => new Date(d).getTime());
+  return dates.length > 0 && dates.every((t) => t < now);
+}
+
+export const ScheduleRenderer = ({ value, data }) => {
+  const releaseMode = value?.releaseMode ?? "asap";
+
+  if (releaseMode === "tbd") {
+    return (
+      <div className={gridStyles.scheduleCell} title="Release TBD">
+        <SvgUnknown />
+      </div>
+    );
+  }
+
+  // Dates aren't cleared when a show switches modes (schedule data is
+  // preserved across mode changes), so a show can still have leftover
+  // announce/on-sale dates while marked ASAP — the icon must stay hidden
+  // regardless of those lingering values.
+  if (releaseMode === "asap") return null;
+
+  if (value?.time == null) return null;
+
+  const allPassed = haveAllScheduleDatesPassed(data?.schedule);
+
   return (
-    <>
-      {value != null && (
-        <div className={gridStyles.scheduleCell}>
-          <SvgSchedule />
-        </div>
-      )}
-    </>
+    <div className={`${gridStyles.scheduleCell} ${allPassed ? gridStyles.scheduleCellPast : ""}`}>
+      <SvgSchedule />
+    </div>
   );
 };
 

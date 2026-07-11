@@ -2,22 +2,34 @@ import Show from "../models/Show.js";
 import { flatten } from "./shows.utilities.js";
 
 class ShowsRepository {
-  static async upsertOne(show) {
-    return Show.findOneAndUpdate(
-      { googleFolderId: show.googleFolderId },
-      { $set: show },
-      { upsert: true, new: true }
-    );
+  // setOnInsert lets callers seed fields that should only be written the
+  // first time a show doc is created (e.g. a default performance) without
+  // clobbering real data on every later re-sync of an existing show, since
+  // $setOnInsert is a no-op when the upsert matches an existing document.
+  static async upsertOne(show, setOnInsert = null) {
+    const update = { $set: show };
+    if (setOnInsert) update.$setOnInsert = setOnInsert;
+
+    return Show.findOneAndUpdate({ googleFolderId: show.googleFolderId }, update, {
+      upsert: true,
+      new: true,
+    });
   }
 
-  static async upsertMany(shows) {
-    const operations = shows.map((show) => ({
-      updateOne: {
-        filter: { googleFolderId: show.googleFolderId },
-        update: { $set: show },
-        upsert: true,
-      },
-    }));
+  static async upsertMany(shows, setOnInsertFn = null) {
+    const operations = shows.map((show) => {
+      const update = { $set: show };
+      const setOnInsert = setOnInsertFn?.(show);
+      if (setOnInsert) update.$setOnInsert = setOnInsert;
+
+      return {
+        updateOne: {
+          filter: { googleFolderId: show.googleFolderId },
+          update,
+          upsert: true,
+        },
+      };
+    });
     const result = await Show.bulkWrite(operations);
     return result;
   }
@@ -43,6 +55,22 @@ class ShowsRepository {
 
   static async updateDriveAssets(googleFolderId, driveUpdate) {
     return Show.findOneAndUpdate({ googleFolderId }, { $set: driveUpdate }, { new: true });
+  }
+
+  static async addContract(googleFolderId, contract) {
+    return Show.findOneAndUpdate(
+      { googleFolderId },
+      { $push: { "build.contracts": contract } },
+      { new: true, runValidators: true }
+    );
+  }
+
+  static async setContractArchived(googleFolderId, contractId, archived) {
+    return Show.findOneAndUpdate(
+      { googleFolderId, "build.contracts._id": contractId },
+      { $set: { "build.contracts.$.archived": archived } },
+      { new: true, runValidators: true }
+    );
   }
 
   static async patch(googleFolderId, updates) {

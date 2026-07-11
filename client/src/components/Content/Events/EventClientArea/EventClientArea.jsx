@@ -40,7 +40,7 @@ const EventClientArea = () => {
                 path="gmail/:threadId/:messageId"
                 element={<GmailContainer showFolderId={showFolderId} show={show} />}
               />
-              <Route path="test" element={<Parser showFolderId={showFolderId} />} />
+              <Route path="test" element={<Parser showFolderId={showFolderId} show={show} />} />
             </Routes>
           </div>
         </>

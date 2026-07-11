@@ -37,6 +37,12 @@
   pointer-events: none;
 }
 
+.lockIcon {
+  font-size: 0.7em;
+  margin-right: 0.35em;
+  line-height: 1;
+}
+
 /* ── Status colors ─────────────────────────────────────────────────────────── */
 
 .badge[data-status="n/a"],

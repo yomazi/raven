@@ -105,17 +105,28 @@ export const columnDefs = [
     maxWidth: 50,
     sortable: true,
     suppressAutoSize: true,
+    // AG Grid only re-renders a cell when this valueGetter's return value
+    // changes (see ag-grid-community's rowNode.updateData) — the renderer
+    // also needs to know releaseMode, so it has to ride along in the value
+    // itself, not just be read separately off `data` in the cellRenderer.
+    // Returning a fresh object every call means it's always treated as
+    // "changed" and the cell always redraws, which is what we want here.
     valueGetter: ({ data }) => {
       const s = data?.schedule;
       const d = s?.announceDateTime ?? s?.onSaleDateTime;
-      return d ? new Date(d).getTime() : null;
+      return {
+        time: d ? new Date(d).getTime() : null,
+        releaseMode: s?.releaseMode ?? "asap",
+      };
     },
     cellRenderer: ScheduleRenderer,
     comparator: (a, b, _nodeA, _nodeB, isDescending) => {
-      if (a === null && b === null) return 0;
-      if (a === null) return 1; // nulls always sink regardless of direction
-      if (b === null) return -1;
-      return isDescending ? b - a : a - b;
+      const at = a?.time ?? null;
+      const bt = b?.time ?? null;
+      if (at === null && bt === null) return 0;
+      if (at === null) return 1; // nulls always sink regardless of direction
+      if (bt === null) return -1;
+      return isDescending ? bt - at : at - bt;
     },
   },
   {

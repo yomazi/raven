@@ -20,6 +20,7 @@ class DriveController {
     try {
       const { folderId } = req.params;
       const files = await DriveService.listFolderFiles({ folderId });
+      res.set("Cache-Control", "no-store");
       res.json({ success: true, files });
     } catch (err) {
       console.error(err);
@@ -83,6 +84,52 @@ class DriveController {
     try {
       const { googleFolderId } = req.body;
       const result = await DriveService.createMarketingAssetsFolder({ googleFolderId });
+      res.json({ success: true, ...result });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ success: false, error: err.message });
+    }
+  }
+
+  static async createContractFolder(req, res) {
+    try {
+      const { googleFolderId, signee } = req.body;
+      const result = await DriveService.createContractFolder({ googleFolderId, signee });
+      res.json({ success: true, ...result });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ success: false, error: err.message });
+    }
+  }
+
+  static async archiveContractFolder(req, res) {
+    try {
+      const { contractId } = req.params;
+      const { googleFolderId } = req.body;
+      const result = await DriveService.archiveContractFolder({ googleFolderId, contractId });
+      res.json({ success: true, ...result });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ success: false, error: err.message });
+    }
+  }
+
+  static async listImportableContractFolders(req, res) {
+    try {
+      const { folderId } = req.params;
+      const folders = await DriveService.listImportableContractFolders({ googleFolderId: folderId });
+      res.set("Cache-Control", "no-store");
+      res.json({ success: true, folders });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ success: false, error: err.message });
+    }
+  }
+
+  static async importContractFolder(req, res) {
+    try {
+      const { googleFolderId, subfolderId } = req.body;
+      const result = await DriveService.importContractFolder({ googleFolderId, subfolderId });
       res.json({ success: true, ...result });
     } catch (err) {
       console.error(err);

@@ -14,6 +14,8 @@
     "migrate:dry": "node migrations/runner.js --dry-run",
     "migrate:down": "node migrations/runner.js --down",
     "migrate:new": "node migrations/new-migration.js",
+    "backfill:contract-folders": "node migrations/one-off/backfill-contract-folders.js",
+    "backfill:contract-folders:dry": "node migrations/one-off/backfill-contract-folders.js --dry-run",
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "nodemon index.js",
     "start": "node index.js"

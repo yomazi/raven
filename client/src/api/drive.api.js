@@ -23,3 +23,30 @@ export const uploadToDrive = async ({ blob, filename, mimeType, folderId }) => {
   const { data } = await apiClient.post("/drive/upload", fd);
   return data;
 };
+
+export const createContractFolder = async (googleFolderId, signee) => {
+  const { data } = await apiClient.post("/drive/contract-folder", { googleFolderId, signee });
+  return data;
+};
+
+export const archiveContractFolder = async (googleFolderId, contractId) => {
+  const { data } = await apiClient.post(`/drive/contracts/${contractId}/archive`, {
+    googleFolderId,
+  });
+  return data;
+};
+
+export const fetchImportableContractFolders = async (googleFolderId) => {
+  const { data } = await apiClient.get(
+    `/drive/folders/${googleFolderId}/importable-contract-folders`
+  );
+  return data.folders;
+};
+
+export const importContractFolder = async (googleFolderId, subfolderId) => {
+  const { data } = await apiClient.post("/drive/contract-folder/import", {
+    googleFolderId,
+    subfolderId,
+  });
+  return data;
+};

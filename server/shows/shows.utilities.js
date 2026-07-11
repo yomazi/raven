@@ -8,18 +8,19 @@ import {
   ROLLUP_STATUS,
   SETUP_FIELDS,
 } from "../../shared/constants/builds.js";
-import { deriveAllRollups } from "../../shared/functions/builds.js";
+import { deriveAllRollups, deriveContractFieldStatus } from "../../shared/functions/builds.js";
 
 // ---------------------------------------------------------------------------
 // CONTRACT_STATUS_DATE_MAP
-// Maps contract status values to the date field they should auto-populate.
+// Maps a contract's status value to the date field on that contract record
+// that should auto-populate when it transitions to that status.
 // ---------------------------------------------------------------------------
 
 export const CONTRACT_STATUS_DATE_MAP = {
   "drafted by us": "dateDrafted",
   "drafted by them": "dateDrafted",
   "waiting for them": "dateSigned",
-  "waiting for Par": "dateSigned",
+  "waiting for us": "dateSigned",
   done: "dateFEC",
 };
 
@@ -97,24 +98,36 @@ export function processBuildSideEffects(flatUpdates, currentBuild) {
     extra["build.dateConfirmed"] = now;
   }
 
-  // -- contract date auto-population ------------------------------------------
-  if (flatUpdates["build.contract"]) {
-    const newStatus = flatUpdates["build.contract"];
-    const oldStatus = currentBuild.contract;
-    const dateField = CONTRACT_STATUS_DATE_MAP[newStatus];
+  // -- per-contract date auto-population & rollup recompute -------------------
+  // build.contracts arrives as a whole replacement array (flatten() treats
+  // arrays as opaque leaves), so diff it against the current array by _id to
+  // find which contract(s), if any, changed status.
+  if (flatUpdates["build.contracts"]) {
+    const newContracts = flatUpdates["build.contracts"];
+    const oldById = new Map((currentBuild.contracts ?? []).map((c) => [String(c._id), c]));
 
-    if (dateField) {
-      extra[`build.${dateField}`] = now;
-    }
+    const patchedContracts = newContracts.map((contract) => {
+      const old = oldById.get(String(contract._id));
+      const oldStatus = old?.status ?? null;
+      const newStatus = contract.status;
 
-    if (newStatus !== oldStatus) {
+      if (!old || newStatus === oldStatus) return contract;
+
+      const dateField = CONTRACT_STATUS_DATE_MAP[newStatus];
+
       events.push({
         type: "contract_status_changed",
         date: now,
-        from: oldStatus ?? null,
+        from: oldStatus,
         to: newStatus,
+        contractId: contract._id,
       });
-    }
+
+      return dateField ? { ...contract, [dateField]: now } : contract;
+    });
+
+    extra["build.contracts"] = patchedContracts;
+    extra["build.contract"] = deriveContractFieldStatus(patchedContracts);
   }
 
   // -- sis_released event -----------------------------------------------------

@@ -53,6 +53,15 @@
   opacity: 0.6;
 }
 
+.folderSelect {
+  background: var(--color-stone);
+  color: var(--color-moonlight);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 4px;
+  padding: 0.3rem 0.5rem;
+  font-size: 0.85rem;
+}
+
 .fileList {
   list-style: none;
   margin: 0;

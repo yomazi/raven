@@ -226,6 +226,10 @@
   height: 18px;
 }
 
+.scheduleCellPast {
+  opacity: 0.4;
+}
+
 .rollupDot {
   width: 0.9rem;
   height: 0.9rem;

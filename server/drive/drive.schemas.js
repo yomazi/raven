@@ -49,6 +49,39 @@ class DriveSchemas {
     }),
   };
 
+  static createContractFolder = {
+    headers: authHeaderSchema,
+    body: Joi.object({
+      googleFolderId: Joi.string().required(),
+      signee: Joi.string().required(),
+    }),
+  };
+
+  static archiveContractFolder = {
+    headers: authHeaderSchema,
+    params: Joi.object({
+      contractId: Joi.string().required(),
+    }),
+    body: Joi.object({
+      googleFolderId: Joi.string().required(),
+    }),
+  };
+
+  static listImportableContractFolders = {
+    headers: authHeaderSchema,
+    params: Joi.object({
+      folderId: Joi.string().required(),
+    }),
+  };
+
+  static importContractFolder = {
+    headers: authHeaderSchema,
+    body: Joi.object({
+      googleFolderId: Joi.string().required(),
+      subfolderId: Joi.string().required(),
+    }),
+  };
+
   static fetchFileText = {
     headers: authHeaderSchema,
     params: Joi.object({

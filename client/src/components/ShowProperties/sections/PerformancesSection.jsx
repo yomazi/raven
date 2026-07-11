@@ -21,6 +21,13 @@ export default function PerformancesSection({ show, setField }) {
     setField("performances", updated);
   };
 
+  const removePerformance = (index) => {
+    setField(
+      "performances",
+      performances.filter((_, i) => i !== index)
+    );
+  };
+
   return (
     <section id="performances" className={styles.section}>
       <SectionHeader title="Performances" />
@@ -29,7 +36,14 @@ export default function PerformancesSection({ show, setField }) {
 
       {performances.map((perf, i) => (
         <div key={i} className={styles.subSection}>
-          <h4 className={styles.subSectionTitle}>Performance {i + 1}</h4>
+          <div className={styles.subSectionTitleRow}>
+            <h4 className={styles.subSectionTitle}>Performance {i + 1}</h4>
+            {performances.length > 1 && (
+              <button className={styles.removeButton} onClick={() => removePerformance(i)}>
+                Remove
+              </button>
+            )}
+          </div>
 
           <div className={styles.fieldGrid}>
             <label className={styles.label}>Date</label>

@@ -4,9 +4,7 @@ import { useShowProperties } from "../../hooks/useShowProperties.js";
 import BillingSection from "./sections/BillingSection.jsx";
 import ContactSection from "./sections/ContactSection.jsx";
 import CoreSection from "./sections/CoreSection.jsx";
-import DriveSection from "./sections/DriveSection.jsx";
 import MarketingAssetsSection from "./sections/MarketingAssetsSection.jsx";
-import OfferSection from "./sections/OfferSection.jsx";
 import OtherSection from "./sections/OtherSection.jsx";
 import PerformancesSection from "./sections/PerformancesSection.jsx";
 import ProductionSection from "./sections/ProductionSection.jsx";
@@ -19,17 +17,15 @@ import ValidationPane from "./ValidationPane/ValidationPane.jsx";
 
 const SECTIONS = [
   { id: "core", label: "Core" },
-  { id: "billing", label: "Billing" },
-  { id: "performances", label: "Performances" },
-  { id: "set-length", label: "Set Length" },
-  { id: "contact", label: "Contact" },
-  { id: "offer", label: "Offer" },
   { id: "schedule", label: "Schedule" },
+  { id: "performances", label: "Performances" },
+  { id: "terms", label: "Contracts" },
+  { id: "set-length", label: "Set Length" },
+  { id: "contact", label: "Contact List" },
   { id: "ticket-prices", label: "Ticket Prices" },
-  { id: "terms", label: "Terms" },
-  { id: "marketing-assets", label: "Marketing Assets" },
   { id: "production", label: "Production" },
-  { id: "drive", label: "Drive" },
+  { id: "billing", label: "Billing" },
+  { id: "marketing-assets", label: "Marketing Assets" },
   { id: "other", label: "Other" },
 ];
 
@@ -65,11 +61,14 @@ export default function ShowProperties({ showFolderId }) {
         <div ref={(el) => (sectionRefs.current.core = el)}>
           <CoreSection show={form} setField={setField} />
         </div>
-        <div ref={(el) => (sectionRefs.current.billing = el)}>
-          <BillingSection show={form} setField={setField} />
+        <div ref={(el) => (sectionRefs.current.schedule = el)}>
+          <ScheduleSection show={form} setField={setField} />
         </div>
         <div ref={(el) => (sectionRefs.current.performances = el)}>
           <PerformancesSection show={form} setField={setField} />
+        </div>
+        <div ref={(el) => (sectionRefs.current.terms = el)}>
+          <TermsSection show={form} setField={setField} />
         </div>
         <div ref={(el) => (sectionRefs.current["set-length"] = el)}>
           <SetLengthSection show={form} setField={setField} />
@@ -77,26 +76,17 @@ export default function ShowProperties({ showFolderId }) {
         <div ref={(el) => (sectionRefs.current.contact = el)}>
           <ContactSection show={form} setField={setField} />
         </div>
-        <div ref={(el) => (sectionRefs.current.offer = el)}>
-          <OfferSection show={form} setField={setField} />
-        </div>
-        <div ref={(el) => (sectionRefs.current.schedule = el)}>
-          <ScheduleSection show={form} setField={setField} />
-        </div>
         <div ref={(el) => (sectionRefs.current["ticket-prices"] = el)}>
           <TicketPricesSection show={form} setField={setField} />
-        </div>
-        <div ref={(el) => (sectionRefs.current.terms = el)}>
-          <TermsSection show={form} setField={setField} />
-        </div>
-        <div ref={(el) => (sectionRefs.current["marketing-assets"] = el)}>
-          <MarketingAssetsSection show={form} setField={setField} />
         </div>
         <div ref={(el) => (sectionRefs.current.production = el)}>
           <ProductionSection show={form} setField={setField} />
         </div>
-        <div ref={(el) => (sectionRefs.current.drive = el)}>
-          <DriveSection show={form} />
+        <div ref={(el) => (sectionRefs.current.billing = el)}>
+          <BillingSection show={form} setField={setField} />
+        </div>
+        <div ref={(el) => (sectionRefs.current["marketing-assets"] = el)}>
+          <MarketingAssetsSection show={form} setField={setField} />
         </div>
         <div ref={(el) => (sectionRefs.current.other = el)}>
           <OtherSection show={form} setField={setField} />

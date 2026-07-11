@@ -2,7 +2,7 @@ import log from "../logging/log.js";
 import ShowsService from "../shows/shows.service.js";
 import { ProgrammingDrive } from "../utilities/constants.js";
 import { extractPdfText } from "../utilities/pdf.js";
-import DriveRepository from "./drive.repository.js";
+import DriveRepository, { CONTRACT_FOLDER_PREFIX } from "./drive.repository.js";
 
 class DriveService {
   static async syncShows({ fromDate = null } = {}) {
@@ -125,6 +125,23 @@ class DriveService {
 
       await ShowsService.updateDriveAssets(show.driveId, driveUpdate);
 
+      // 7. Create a default contract folder, named after the show — staff
+      // can archive it from Properties if this show doesn't end up needing one.
+      const contractFolder = await DriveRepository.createContractFolder({
+        folderId: show.driveId,
+        signee: show.artist,
+      });
+
+      await ShowsService.addContract(show.driveId, {
+        signee: show.artist,
+        folderId: contractFolder.folderId,
+        folderName: contractFolder.folderName,
+      });
+
+      log.info("createShowFolder", "Default contract folder created", {
+        folderName: contractFolder.folderName,
+      });
+
       return { ...show, workbook };
     } catch (err) {
       log.error("createShowFolder", "Failed to create show folder", err);
@@ -219,6 +236,125 @@ class DriveService {
       return result;
     } catch (err) {
       log.error("createMarketingAssetsFolder", "Failed to create marketing assets folder", err);
+      throw err;
+    }
+  }
+
+  static async createContractFolder({ googleFolderId, signee }) {
+    log.info("createContractFolder", "Creating contract folder", { googleFolderId, signee });
+
+    try {
+      const show = await ShowsService.getByGoogleFolderId(googleFolderId);
+      if (!show) throw new Error(`Show not found for folder ID: ${googleFolderId}`);
+
+      const folder = await DriveRepository.createContractFolder({
+        folderId: googleFolderId,
+        signee,
+      });
+
+      const updatedShow = await ShowsService.addContract(googleFolderId, {
+        signee,
+        folderId: folder.folderId,
+        folderName: folder.folderName,
+      });
+
+      log.info("createContractFolder", "Contract folder created", {
+        folderName: folder.folderName,
+        folderId: folder.folderId,
+      });
+
+      return { ...folder, show: updatedShow };
+    } catch (err) {
+      log.error("createContractFolder", "Failed to create contract folder", err);
+      throw err;
+    }
+  }
+
+  static async archiveContractFolder({ googleFolderId, contractId }) {
+    log.info("archiveContractFolder", "Archiving contract folder", { googleFolderId, contractId });
+
+    try {
+      const show = await ShowsService.getByGoogleFolderId(googleFolderId);
+      if (!show) throw new Error(`Show not found for folder ID: ${googleFolderId}`);
+
+      const contract = (show.build?.contracts ?? []).find((c) => String(c._id) === contractId);
+      if (!contract) throw new Error(`Contract not found: ${contractId}`);
+
+      const folder = await DriveRepository.archiveContractFolder({
+        folderId: contract.folderId,
+        currentName: contract.folderName,
+      });
+
+      const updatedShow = await ShowsService.archiveContract(googleFolderId, contractId);
+
+      log.info("archiveContractFolder", "Contract folder archived", {
+        folderName: folder.folderName,
+        folderId: folder.folderId,
+      });
+
+      return { ...folder, show: updatedShow };
+    } catch (err) {
+      log.error("archiveContractFolder", "Failed to archive contract folder", err);
+      throw err;
+    }
+  }
+
+  // Subfolders of the show's root folder that aren't already tied to a
+  // contract (active or archived) or the Marketing Assets folder — the set
+  // eligible to be imported as a new contract's folder.
+  static async listImportableContractFolders({ googleFolderId }) {
+    const show = await ShowsService.getByGoogleFolderId(googleFolderId);
+    if (!show) throw new Error(`Show not found for folder ID: ${googleFolderId}`);
+
+    const usedFolderIds = new Set(
+      [
+        ...(show.build?.contracts ?? []).map((c) => c.folderId),
+        show.drive?.folderIds?.marketingAssets,
+      ].filter(Boolean)
+    );
+
+    const subfolders = await DriveRepository.listSubfolders({ folderId: googleFolderId });
+    return subfolders.filter((f) => !usedFolderIds.has(f.id));
+  }
+
+  static async importContractFolder({ googleFolderId, subfolderId }) {
+    log.info("importContractFolder", "Importing contract folder", { googleFolderId, subfolderId });
+
+    try {
+      const show = await ShowsService.getByGoogleFolderId(googleFolderId);
+      if (!show) throw new Error(`Show not found for folder ID: ${googleFolderId}`);
+
+      const alreadyLinked = (show.build?.contracts ?? []).some((c) => c.folderId === subfolderId);
+      if (alreadyLinked) throw new Error("That folder is already linked to a contract.");
+
+      const subfolders = await DriveRepository.listSubfolders({ folderId: googleFolderId });
+      const target = subfolders.find((f) => f.id === subfolderId);
+      if (!target) throw new Error("Folder not found in this show's Drive folder.");
+
+      const signee = target.name.startsWith(CONTRACT_FOLDER_PREFIX)
+        ? target.name.slice(CONTRACT_FOLDER_PREFIX.length).trim()
+        : target.name.trim();
+
+      let folderName = target.name;
+      if (!folderName.startsWith(CONTRACT_FOLDER_PREFIX)) {
+        const renamed = await DriveRepository.renameFolder({
+          folderId: subfolderId,
+          name: `${CONTRACT_FOLDER_PREFIX}${folderName}`,
+        });
+        folderName = renamed.folderName;
+      }
+
+      const updatedShow = await ShowsService.addContract(googleFolderId, {
+        signee: signee || folderName,
+        folderId: subfolderId,
+        folderName,
+      });
+
+      log.info("importContractFolder", "Contract folder imported", { folderName, folderId: subfolderId });
+
+      return { folderId: subfolderId, folderName, signee, show: updatedShow };
+    } catch (err) {
+      log.error("importContractFolder", "Failed to import contract folder", err);
       throw err;
     }
   }

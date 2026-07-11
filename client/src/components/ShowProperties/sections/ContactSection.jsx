@@ -22,7 +22,7 @@ export default function ContactSection({ show, setField }) {
 
   return (
     <section id="contact" className={styles.section}>
-      <SectionHeader title="Contact" />
+      <SectionHeader title="Contact List" />
 
       {contacts.length === 0 && <p className={styles.empty}>No contacts defined.</p>}
 

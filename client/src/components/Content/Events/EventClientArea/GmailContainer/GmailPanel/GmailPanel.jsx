@@ -12,8 +12,9 @@
  *   onCompose    ({ mode, message }) => void
  */
 
-import { uploadToDrive } from "@api/drive.api.js";
+import { createContractFolder, uploadToDrive } from "@api/drive.api.js";
 import { fetchAttachment, fetchDriveFiles, fetchMessage, fetchThread } from "@api/gmail.api.js";
+import { useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useRef, useState } from "react";
 import styles from "./GmailPanel.module.css";
 import {
@@ -53,20 +54,43 @@ function shortSender(from = "") {
 
 // ─── NamingForm ───────────────────────────────────────────────────────────────
 
-function NamingForm({ att, messageId, folderId, onUploaded, onCancel }) {
-  const [team, setTeam] = useState(TEAMS[0].code);
-  const [doctypeKey, setDoctypeKey] = useState(() => (DOCTYPES[TEAMS[0].code] ?? [])[0]?.key ?? "");
+// "contract" and "offer" documents belong in a specific contract's Drive
+// subfolder rather than the show's root — this decides whether that
+// target-folder picker should show for the current team/doctype selection.
+function needsContractFolder(team, doctypeKey) {
+  return team === "prg" && (doctypeKey === "contract" || doctypeKey === "offer");
+}
+
+// The two effects below only fire on a *change* to team/doctypeKey (each
+// compares against a ref seeded with the current value) — they never run on
+// mount, so `stage`'s initial value has to be computed the same way here,
+// otherwise it silently stays "" (while the <select> visually shows the
+// first option anyway, since a controlled value with no matching option
+// falls back to it) and filename generation skips the stage/version segment.
+const DEFAULT_TEAM = TEAMS[0].code;
+const DEFAULT_DOCTYPE_KEY = (DOCTYPES[DEFAULT_TEAM] ?? [])[0]?.key ?? "";
+const DEFAULT_STAGE =
+  getStageOptions((DOCTYPES[DEFAULT_TEAM] ?? []).find((d) => d.key === DEFAULT_DOCTYPE_KEY) ?? null)[0]
+    ?.value ?? "";
+
+function NamingForm({ att, messageId, folderId, contracts = [], onUploaded, onCancel }) {
+  const [team, setTeam] = useState(DEFAULT_TEAM);
+  const [doctypeKey, setDoctypeKey] = useState(DEFAULT_DOCTYPE_KEY);
   const [subtype, setSubtype] = useState("");
   const [customSubtype, setCustomSubtype] = useState("");
   const [paymentType, setPaymentType] = useState("");
   const [customPaymentType, setCustomPaymentType] = useState("");
-  const [stage, setStage] = useState("");
+  const [stage, setStage] = useState(DEFAULT_STAGE);
   const [suggestedName, setSuggestedName] = useState("");
   const [editedName, setEditedName] = useState("");
   const [folderFiles, setFolderFiles] = useState(null);
   const [loadingFolder, setLoadingFolder] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [err, setErr] = useState(null);
+  const [contractFolderId, setContractFolderId] = useState("");
+  const [isCreatingContract, setIsCreatingContract] = useState(false);
+  const [newSigneeName, setNewSigneeName] = useState("");
+  const queryClient = useQueryClient();
 
   const doctypeOptions = DOCTYPES[team] ?? [];
   const doctypeConfig = doctypeOptions.find((d) => d.key === doctypeKey) ?? null;
@@ -75,6 +99,24 @@ function NamingForm({ att, messageId, folderId, onUploaded, onCancel }) {
   const hasPaymentTypes = !!doctypeConfig?.paymentTypes;
   const effectiveSubtype = subtype === "__custom__" ? customSubtype : subtype;
   const effectivePaymentType = paymentType === "__custom__" ? customPaymentType : paymentType;
+
+  // Shown for contract/offer doctypes even with zero existing contracts —
+  // that's exactly the case where you need "+ New contract…" to create one
+  // without leaving the upload flow.
+  const showsContractPicker = needsContractFolder(team, doctypeKey);
+  // Auto-select the only contract when there's just one; otherwise require a choice.
+  useEffect(() => {
+    if (!showsContractPicker) {
+      setContractFolderId("");
+      setIsCreatingContract(false);
+    } else if (contracts.length === 1) {
+      setContractFolderId(contracts[0].folderId);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [showsContractPicker, contracts.length]);
+
+  const targetFolderId = showsContractPicker ? contractFolderId || null : folderId;
+  const canUpload = isCreatingContract ? newSigneeName.trim().length > 0 : !!targetFolderId;
 
   const prevTeam = useRef(team);
   useEffect(() => {
@@ -108,14 +150,24 @@ function NamingForm({ att, messageId, folderId, onUploaded, onCancel }) {
   }, [doctypeKey, team]);
 
   useEffect(() => {
-    if (!folderId) return;
+    if (isCreatingContract) {
+      // No folder yet, but it'll be brand new (and therefore empty) once
+      // created on upload — preview the filename against an empty folder
+      // now instead of waiting for a real one to exist.
+      setFolderFiles([]);
+      return;
+    }
+    if (!targetFolderId) {
+      setFolderFiles(null);
+      return;
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
     setLoadingFolder(true);
-    fetchDriveFiles(folderId)
+    fetchDriveFiles(targetFolderId)
       .then((files) => setFolderFiles(files.map((f) => f.name)))
       .catch(() => setFolderFiles([]))
       .finally(() => setLoadingFolder(false));
-  }, [folderId]);
+  }, [targetFolderId, isCreatingContract]);
 
   useEffect(() => {
     if (!doctypeKey || folderFiles === null) return;
@@ -155,6 +207,10 @@ function NamingForm({ att, messageId, folderId, onUploaded, onCancel }) {
   }, [team, doctypeKey, effectiveSubtype, effectivePaymentType, stage, folderFiles, att.filename]);
 
   const handleUpload = useCallback(async () => {
+    if (isCreatingContract && !newSigneeName.trim()) {
+      setErr("Enter a signee name for the new contract.");
+      return;
+    }
     if (!editedName.trim()) {
       setErr("Filename cannot be empty.");
       return;
@@ -162,19 +218,44 @@ function NamingForm({ att, messageId, folderId, onUploaded, onCancel }) {
     setUploading(true);
     setErr(null);
     try {
+      // Creating a new contract is folded into this same click — no separate
+      // "Create" step first — so the folder only needs to exist by the time
+      // we're actually about to upload into it.
+      let uploadFolderId = targetFolderId;
+      if (isCreatingContract) {
+        const result = await createContractFolder(folderId, newSigneeName.trim());
+        if (result.show) {
+          queryClient.setQueryData(["show", folderId], result.show);
+        }
+        uploadFolderId = result.folderId;
+        setContractFolderId(result.folderId);
+        setIsCreatingContract(false);
+        setNewSigneeName("");
+      }
+
       const blob = await fetchAttachment(messageId, att.attachmentId);
       await uploadToDrive({
         blob,
         filename: editedName.trim(),
         mimeType: att.mimeType,
-        folderId,
+        folderId: uploadFolderId,
       });
       onUploaded(editedName.trim());
     } catch (e) {
       setErr(e.message);
       setUploading(false);
     }
-  }, [editedName, att, messageId, folderId, onUploaded]);
+  }, [
+    isCreatingContract,
+    newSigneeName,
+    editedName,
+    att,
+    messageId,
+    targetFolderId,
+    folderId,
+    queryClient,
+    onUploaded,
+  ]);
 
   return (
     <div className={styles.namingForm}>
@@ -213,6 +294,53 @@ function NamingForm({ att, messageId, folderId, onUploaded, onCancel }) {
           )}
         </div>
       </div>
+
+      {showsContractPicker && (
+        <div className={styles.nRow}>
+          <div className={`${styles.nField} ${styles.flexOne}`}>
+            <span className={styles.nLabel}>Contract</span>
+            <select
+              className={styles.nSelect}
+              value={isCreatingContract ? "__new__" : contractFolderId}
+              onChange={(e) => {
+                const val = e.target.value;
+                if (val === "__new__") {
+                  setContractFolderId("");
+                  setIsCreatingContract(true);
+                } else {
+                  setIsCreatingContract(false);
+                  setContractFolderId(val);
+                }
+              }}
+            >
+              <option value="" disabled>
+                — select a contract —
+              </option>
+              {contracts.map((c) => (
+                <option key={c._id} value={c.folderId}>
+                  {c.signee}
+                </option>
+              ))}
+              <option value="__new__">+ New contract…</option>
+            </select>
+          </div>
+
+          {isCreatingContract && (
+            <div className={`${styles.nField} ${styles.flexOne}`}>
+              <span className={styles.nLabel}>Signee name</span>
+              <input
+                className={styles.nInput}
+                value={newSigneeName}
+                onChange={(e) => setNewSigneeName(e.target.value)}
+                placeholder="Artist or management firm…"
+                onKeyDown={(e) => e.key === "Enter" && canUpload && handleUpload()}
+                autoFocus
+              />
+              <span className={styles.nHint}>Creates the contract folder and uploads into it.</span>
+            </div>
+          )}
+        </div>
+      )}
 
       {hasSubtypes && (
         <div className={styles.nRow}>
@@ -333,9 +461,20 @@ function NamingForm({ att, messageId, folderId, onUploaded, onCancel }) {
         <button
           className={`${styles.sendBtn} ${uploading ? styles.sendBusy : null}`}
           onClick={handleUpload}
-          disabled={uploading || loadingFolder}
+          disabled={uploading || loadingFolder || !canUpload}
+          title={
+            !canUpload
+              ? isCreatingContract
+                ? "Enter a signee name"
+                : "Select a contract to upload to"
+              : undefined
+          }
         >
-          {uploading ? "Uploading…" : "Upload to Drive"}
+          {uploading
+            ? isCreatingContract
+              ? "Creating contract…"
+              : "Uploading…"
+            : "Upload to Drive"}
         </button>
       </div>
     </div>
@@ -344,7 +483,7 @@ function NamingForm({ att, messageId, folderId, onUploaded, onCancel }) {
 
 // ─── AttachmentRow ─────────────────────────────────────────────────────────────
 
-function AttachmentRow({ att, messageId, folderId, uploadKey, uploadedNames, onUploaded }) {
+function AttachmentRow({ att, messageId, folderId, contracts, uploadKey, uploadedNames, onUploaded }) {
   const [showForm, setShowForm] = useState(false);
   const isDone = uploadedNames.has(uploadKey);
 
@@ -386,6 +525,7 @@ function AttachmentRow({ att, messageId, folderId, uploadKey, uploadedNames, onU
           att={att}
           messageId={messageId}
           folderId={folderId}
+          contracts={contracts}
           onUploaded={handleUploaded}
           onCancel={() => setShowForm(false)}
         />
@@ -400,6 +540,7 @@ function MessageGroup({
   stub,
   isFocused,
   folderId,
+  contracts,
   uploadedNames,
   onUploaded,
   defaultOpen,
@@ -479,6 +620,7 @@ function MessageGroup({
                         att={att}
                         messageId={msg.id}
                         folderId={folderId}
+                        contracts={contracts}
                         uploadKey={key}
                         uploadedNames={uploadedNames}
                         onUploaded={onUploaded}
@@ -523,10 +665,12 @@ function MessageGroup({
 
 export default function GmailPanel({
   showFolderId,
+  show,
   threadId: rawThreadId,
   messageId: rawMessageId,
   onCompose,
 }) {
+  const activeContracts = (show?.build?.contracts ?? []).filter((c) => !c.archived);
   // Gmail permalink ids come as e.g. "thread-f:123" or "msg-f:123", where
   // the number is the id's plain decimal form (convert straight to hex for
   // the API). Some links instead use "thread-a:r-123" / "msg-a:r-123" —
@@ -698,6 +842,7 @@ export default function GmailPanel({
             stub={stub}
             isFocused={stub.id === selectedId}
             folderId={showFolderId}
+            contracts={activeContracts}
             uploadedNames={uploadedNames}
             onUploaded={handleUploaded}
             defaultOpen={stub.id === focusedId || messageStubs.length === 1}

@@ -149,7 +149,7 @@ const productionStatusReport = {
       background: statusBackground("sisReleased"),
     },
     {
-      header: "Contract",
+      header: "Contracts",
       key: "build.contract",
       align: "CENTER",
       width: 130,

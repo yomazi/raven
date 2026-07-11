@@ -13,6 +13,22 @@ export function deriveRollup(values) {
   return ROLLUP_STATUS.IN_PROGRESS;
 }
 
+// ---------------------------------------------------------------------------
+// deriveContractFieldStatus
+// Rolls up build.contracts[] into the single BASE_STATUS-compatible value
+// stored at build.contract (n/a/to do/in progress/blocked/done). Zero (or
+// all-archived) contracts is n/a — not every show needs one.
+// ---------------------------------------------------------------------------
+
+export function deriveContractFieldStatus(contracts = []) {
+  const active = contracts.filter((c) => !c.archived);
+  if (active.length === 0) return "n/a";
+  if (active.some((c) => c.status === "blocked")) return "blocked";
+  if (active.every((c) => c.status === "done")) return "done";
+  if (active.every((c) => c.status === "to do")) return "to do";
+  return "in progress"; // any drafted/waiting mix, or a to-do/done mix
+}
+
 export function deriveAllRollups(build) {
   if (!build)
     return {

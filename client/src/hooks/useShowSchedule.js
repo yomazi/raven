@@ -95,7 +95,7 @@ export function useShowSchedule(show) {
 
 const FIELD_LABELS = {
   notes: "Announce / on sale notes",
-  releaseAsap: "Release ASAP",
+  releaseMode: "Release schedule",
   announceDateTime: "Announce date/time",
   onSaleDateTime: "On sale date/time",
   presales: "Presales",

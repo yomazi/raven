@@ -4,8 +4,9 @@ import BadgeSelect from "@components/Content/shared/BadgeSelect/BadgeSelect.jsx"
 import { useShowBuild } from "@hooks/useShowBuild.js";
 import { useShowSchedule } from "@hooks/useShowSchedule.js";
 import * as Accordion from "@radix-ui/react-accordion";
-import { BASE_STATUS, CONTRACT_STATUS, ROLLUP_STATUS } from "@shared/constants/builds.js";
+import { BASE_STATUS, ROLLUP_STATUS } from "@shared/constants/builds.js";
 import { deriveAllRollups } from "@shared/functions/builds.js";
+import { RELEASE_MODES, RELEASE_MODE_LABELS } from "@shared/constants/schedule.js";
 import { useCallback, useRef, useState } from "react";
 import styles from "./BuildProperties.module.css";
 
@@ -37,7 +38,18 @@ function RollupBadge({ value, disabled }) {
 // FieldRow
 // ---------------------------------------------------------------------------
 
-function FieldRow({ label, field, value, options, onChange, dateValue, dateLabel }) {
+function FieldRow({
+  label,
+  field,
+  value,
+  options,
+  onChange,
+  dateValue,
+  dateLabel,
+  readonly,
+  disabled,
+  title,
+}) {
   const labels = Object.fromEntries(options.map((o) => [o, o]));
   return (
     <div className={styles.fieldRow}>
@@ -48,6 +60,9 @@ function FieldRow({ label, field, value, options, onChange, dateValue, dateLabel
         labels={labels}
         variant="status"
         onChange={(newVal) => onChange(field, newVal)}
+        readonly={readonly}
+        disabled={disabled}
+        title={title}
       />
       {dateValue && (
         <span className={styles.autoDate} title={dateLabel}>
@@ -252,68 +267,92 @@ function PresaleRow({ presale, index, onUpdate, onRemove }) {
 // ScheduleSection
 // ---------------------------------------------------------------------------
 
-function ScheduleSection({ schedule, setField, addPresale, updatePresale, removePresale }) {
+function ScheduleSection({
+  schedule,
+  initialNotes,
+  setField,
+  addPresale,
+  updatePresale,
+  removePresale,
+}) {
   const presales = schedule.presales ?? [];
+  const releaseMode = schedule.releaseMode ?? "asap";
+  const isOnSchedule = releaseMode === "on-schedule";
+  const showDates = releaseMode === "on-schedule" || releaseMode === "tbd";
 
   const handleBlurNotes = useCallback((e) => setField("notes", e.target.value), [setField]);
 
   return (
     <div className={styles.contextPane}>
       <div className={styles.scheduleGrid}>
-        <span className={styles.scheduleLabel}>Release ASAP</span>
-        <input
-          type="checkbox"
-          className={styles.checkbox}
-          checked={schedule.releaseAsap ?? false}
-          onChange={(e) => setField("releaseAsap", e.target.checked)}
-        />
-
-        <span className={styles.scheduleLabel}>Announce Date</span>
-        <input
-          type="datetime-local"
-          className={styles.dateInput}
-          value={toDateTimeLocal(schedule.announceDateTime)}
-          disabled={schedule.releaseAsap}
-          onChange={(e) =>
-            setField("announceDateTime", e.target.value ? new Date(e.target.value) : null)
-          }
-        />
-
-        <span className={styles.scheduleLabel}>On Sale Date</span>
-        <input
-          type="datetime-local"
-          className={styles.dateInput}
-          value={toDateTimeLocal(schedule.onSaleDateTime)}
-          disabled={schedule.releaseAsap}
-          onChange={(e) =>
-            setField("onSaleDateTime", e.target.value ? new Date(e.target.value) : null)
-          }
-        />
-      </div>
-
-      {presales.length > 0 && (
-        <div className={styles.presalesGroup}>
-          {presales.map((presale, i) => (
-            <PresaleRow
-              key={i}
-              presale={presale}
-              index={i}
-              onUpdate={updatePresale}
-              onRemove={removePresale}
-            />
+        <span className={styles.scheduleLabel}>Release</span>
+        <div className={styles.radioGroup}>
+          {RELEASE_MODES.map((mode) => (
+            <label key={mode} className={styles.radioLabel}>
+              <input
+                type="radio"
+                name="build-release-mode"
+                className={styles.radio}
+                checked={releaseMode === mode}
+                onChange={() => setField("releaseMode", mode)}
+              />
+              {RELEASE_MODE_LABELS[mode]}
+            </label>
           ))}
         </div>
-      )}
 
-      <button className={styles.addPresaleBtn} onClick={addPresale}>
-        + Add Presale
-      </button>
+        {showDates && (
+          <>
+            <span className={styles.scheduleLabel}>Announce Date</span>
+            <input
+              type="datetime-local"
+              className={styles.dateInput}
+              value={toDateTimeLocal(schedule.announceDateTime)}
+              onChange={(e) =>
+                setField("announceDateTime", e.target.value ? new Date(e.target.value) : null)
+              }
+            />
+
+            <span className={styles.scheduleLabel}>On Sale Date</span>
+            <input
+              type="datetime-local"
+              className={styles.dateInput}
+              value={toDateTimeLocal(schedule.onSaleDateTime)}
+              onChange={(e) =>
+                setField("onSaleDateTime", e.target.value ? new Date(e.target.value) : null)
+              }
+            />
+          </>
+        )}
+      </div>
+
+      {isOnSchedule && (
+        <>
+          {presales.length > 0 && (
+            <div className={styles.presalesGroup}>
+              {presales.map((presale, i) => (
+                <PresaleRow
+                  key={i}
+                  presale={presale}
+                  index={i}
+                  onUpdate={updatePresale}
+                  onRemove={removePresale}
+                />
+              ))}
+            </div>
+          )}
+
+          <button className={styles.addPresaleBtn} onClick={addPresale}>
+            + Add Presale
+          </button>
+        </>
+      )}
 
       <div className={styles.fieldRow}>
         <span className={styles.fieldLabel}>Announce / On Sale notes</span>
         <textarea
           className={styles.textarea}
-          defaultValue={schedule.notes ?? ""}
+          defaultValue={initialNotes ?? ""}
           onBlur={handleBlurNotes}
           rows={2}
         />
@@ -375,8 +414,16 @@ export default function BuildProperties({ show }) {
   return (
     <div className={styles.section}>
       {/* ── Schedule ──────────────────────────────────────────────────── */}
+      {/* initialNotes reads straight off `show` (always in sync with the
+          current show prop) rather than the `schedule` state from
+          useShowSchedule, which only catches up to a new show via an effect
+          — one render behind the key change below, so an uncontrolled
+          field seeded from it would remount showing the *previous* show's
+          value instead of this one's. */}
       <ScheduleSection
+        key={show?.googleFolderId}
         schedule={schedule}
+        initialNotes={show?.schedule?.notes}
         setField={setScheduleField}
         addPresale={addPresale}
         updatePresale={updatePresale}
@@ -387,9 +434,13 @@ export default function BuildProperties({ show }) {
       <div className={styles.contextPane}>
         <div className={styles.fieldRow}>
           <span className={styles.fieldLabel}>Notes:</span>
+          {/* defaultValue reads straight off `show` for the same reason as
+              ScheduleSection's initialNotes above — `build` state from
+              useShowBuild lags a render behind this key change. */}
           <textarea
+            key={show?.googleFolderId}
             className={styles.textarea}
-            defaultValue={build.notes ?? ""}
+            defaultValue={show?.build?.notes ?? ""}
             onBlur={handleBlurText("notes")}
             rows={3}
           />
@@ -508,18 +559,13 @@ export default function BuildProperties({ show }) {
 
         <PhaseSection title="Close" value="close" rollup={rollups.close} disabled>
           <FieldRow
-            label="Contract"
+            label="Contracts"
             field="contract"
             value={build.contract}
-            options={CONTRACT_STATUS}
-            onChange={setBuildField}
-          />
-          <DateRow
-            label="Contract last checkin"
-            field="contractLastCheckin"
-            value={build.contractLastCheckin}
-            onChange={setBuildField}
-            overdue={isOverdue(build.contractLastCheckin)}
+            options={BASE_STATUS}
+            onChange={() => {}}
+            disabled
+            title="Computed from the Contracts section in Properties — edit individual contracts there."
           />
           <FieldRow
             label="Livestream"
@@ -535,39 +581,6 @@ export default function BuildProperties({ show }) {
             options={BASE_STATUS}
             onChange={setBuildField}
           />
-          <div className={styles.checkboxRow}>
-            <span className={styles.fieldLabel}>We drafted contract</span>
-            <input
-              type="checkbox"
-              className={styles.checkbox}
-              checked={build.weDraftedContract ?? false}
-              onChange={(e) => setBuildField("weDraftedContract", e.target.checked)}
-            />
-          </div>
-          {build.dateDrafted && (
-            <div className={styles.autoDateRow}>
-              <span className={styles.fieldLabel}>Date drafted</span>
-              <span className={styles.autoDate}>
-                {new Date(build.dateDrafted).toLocaleDateString()}
-              </span>
-            </div>
-          )}
-          {build.dateSigned && (
-            <div className={styles.autoDateRow}>
-              <span className={styles.fieldLabel}>Date signed</span>
-              <span className={styles.autoDate}>
-                {new Date(build.dateSigned).toLocaleDateString()}
-              </span>
-            </div>
-          )}
-          {build.dateFEC && (
-            <div className={styles.autoDateRow}>
-              <span className={styles.fieldLabel}>Date FEC</span>
-              <span className={styles.autoDate}>
-                {new Date(build.dateFEC).toLocaleDateString()}
-              </span>
-            </div>
-          )}
           {build.dateCloseComplete && (
             <div className={styles.phaseComplete}>
               Close complete {new Date(build.dateCloseComplete).toLocaleDateString()}

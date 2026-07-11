@@ -12,7 +12,6 @@ export const BASE_STATUS = ["n/a", "to do", "in progress", "blocked", "done"];
 // ---------------------------------------------------------------------------
 
 export const CONTRACT_STATUS = [
-  "n/a",
   "to do",
   "drafted by us",
   "drafted by them",

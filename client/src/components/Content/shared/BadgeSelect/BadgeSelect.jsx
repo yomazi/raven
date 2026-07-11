@@ -14,7 +14,11 @@
 //   labels      object   — { [value]: displayLabel }
 //   variant     string   — "status" | "priority"
 //   onChange    fn       — (newValue) => void
-//   readonly    bool     — renders badge without interaction
+//   readonly    bool     — renders badge without interaction, same appearance as active
+//   disabled    bool     — renders badge without interaction, dimmed with a lock icon —
+//                          use for values computed elsewhere (e.g. rolled up from a
+//                          different section) so it visually reads as "not editable here"
+//   title       string   — native tooltip on the badge
 //   openOnMount bool     — opens dropdown immediately on mount (for AG Grid adapter)
 
 import { useEffect, useRef, useState } from "react";
@@ -39,6 +43,8 @@ export default function BadgeSelect({
   variant = "status",
   onChange,
   readonly,
+  disabled,
+  title,
   openOnMount = false,
 }) {
   const [open, setOpen] = useState(openOnMount);
@@ -128,7 +134,7 @@ export default function BadgeSelect({
   }, [open]);
 
   function handleToggle() {
-    if (readonly) return;
+    if (readonly || disabled) return;
     if (!open) {
       // Close whatever is currently open, register ourselves
       currentBadge.close?.();
@@ -171,17 +177,23 @@ export default function BadgeSelect({
     <>
       <div
         ref={badgeRef}
-        className={`${styles.badge} ${readonly ? styles.readonly : ""}`}
+        className={`${styles.badge} ${readonly ? styles.readonly : ""} ${disabled ? styles.disabled : ""}`}
         {...dataAttr(variant, value)}
         onClick={handleToggle}
         role="button"
-        tabIndex={readonly ? -1 : 0}
+        tabIndex={readonly || disabled ? -1 : 0}
         onKeyDown={(e) => {
           if (e.key === "Enter" || e.key === " ") handleToggle();
         }}
         aria-haspopup="listbox"
         aria-expanded={open}
+        title={title}
       >
+        {disabled && (
+          <span className={styles.lockIcon} aria-hidden="true">
+            🔒
+          </span>
+        )}
         {labels[value] ?? value}
       </div>
       {open && createPortal(dropdown, document.body)}

@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import { BASE_STATUS, CONTRACT_STATUS } from "../../shared/constants/builds.js";
+import { RELEASE_MODES } from "../../shared/constants/schedule.js";
 
 const { Schema } = mongoose;
 
@@ -25,9 +26,22 @@ const buildEventSchema = new Schema(
     to: { type: String },
     value: { type: Schema.Types.Mixed },
     note: { type: String },
+    contractId: { type: Schema.Types.ObjectId },
   },
   { _id: false }
 );
+
+const contractSchema = new Schema({
+  signee: { type: String, required: true },
+  status: { type: String, enum: CONTRACT_STATUS, default: "to do" },
+  folderId: { type: String, required: true },
+  folderName: { type: String, required: true },
+  lastCheckin: { type: Date },
+  dateDrafted: { type: Date },
+  dateSigned: { type: Date },
+  dateFEC: { type: Date },
+  archived: { type: Boolean, default: false },
+});
 
 const buildSchema = new Schema(
   {
@@ -56,12 +70,10 @@ const buildSchema = new Schema(
     dateBuildComplete: { type: Date }, // auto-set when Build rollup hits 'done'
 
     // --- Close ---
-    contract: { type: String, enum: CONTRACT_STATUS, default: "to do" },
-    contractLastCheckin: { type: Date },
-    weDraftedContract: { type: Boolean },
-    dateDrafted: { type: Date }, // auto-set on contract status change
-    dateSigned: { type: Date }, // auto-set on contract status change
-    dateFEC: { type: Date }, // auto-set when contract is 'done'
+    // Server-computed rollup of contracts[] — see deriveContractFieldStatus.
+    // Not directly editable by clients.
+    contract: { type: String, enum: BASE_STATUS, default: "n/a" },
+    contracts: { type: [contractSchema], default: [] },
     livestream: { type: String, enum: BASE_STATUS, default: "n/a" },
     workbook: { type: String, enum: BASE_STATUS, default: "to do" },
     dateCloseComplete: { type: Date }, // auto-set when Close rollup hits 'done'
@@ -224,7 +236,7 @@ const ShowSchema = new Schema(
 
     // schedule
     schedule: {
-      releaseAsap: { type: Boolean, default: false },
+      releaseMode: { type: String, enum: RELEASE_MODES, default: "asap" },
       announceDateTime: { type: Date },
       onSaleDateTime: { type: Date },
       presales: [presaleSchema],

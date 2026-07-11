@@ -18,6 +18,7 @@ class ShowsController {
 
       if (!show) return res.status(404).json({ success: false, error: "Show not found" });
 
+      res.set("Cache-Control", "no-store");
       res.json({ success: true, show });
     } catch (err) {
       console.error(err);

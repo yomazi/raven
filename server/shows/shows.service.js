@@ -1,4 +1,5 @@
 import log from "../logging/log.js";
+import { deriveContractFieldStatus } from "../../shared/functions/builds.js";
 import ShowsRepository from "./shows.repository.js";
 import { flatten, processBuildSideEffects, processPhaseCompletions } from "./shows.utilities.js";
 
@@ -14,14 +15,25 @@ class ShowsService {
     };
   }
 
+  // Seeded only on first insert (see ShowsRepository's setOnInsert) so every
+  // show starts with one performance to fill in, matching the Properties
+  // UI's own "+ Add Performance" default shape.
+  static #defaultPerformance(date) {
+    return { date, doorTime: null, showTime: null, hasLivestream: false, performanceCode: "" };
+  }
+
   static async upsertOne(driveShow) {
     const mapped = ShowsService.#mapDriveShowToDocument(driveShow);
-    return ShowsRepository.upsertOne(mapped);
+    return ShowsRepository.upsertOne(mapped, {
+      performances: [ShowsService.#defaultPerformance(mapped.date)],
+    });
   }
 
   static async upsertMany(driveShows, fromDate = null) {
     const mapped = driveShows.map(ShowsService.#mapDriveShowToDocument);
-    const result = await ShowsRepository.upsertMany(mapped);
+    const result = await ShowsRepository.upsertMany(mapped, (show) => ({
+      performances: [ShowsService.#defaultPerformance(show.date)],
+    }));
 
     const googleFolderIds = mapped.map((s) => s.googleFolderId);
     const deletedCount = await ShowsRepository.softDeleteWhereNotIn(googleFolderIds, fromDate);
@@ -47,6 +59,34 @@ class ShowsService {
 
   static async updateDriveAssets(googleFolderId, driveUpdate) {
     return ShowsRepository.updateDriveAssets(googleFolderId, driveUpdate);
+  }
+
+  // Direct, targeted contract-array mutations — bypass the generic patch
+  // pipeline (no side-effect date stamping needed for create/archive), but
+  // still keep the computed build.contract rollup in sync.
+  static async addContract(googleFolderId, { signee, folderId, folderName }) {
+    const show = await ShowsRepository.addContract(googleFolderId, {
+      signee,
+      folderId,
+      folderName,
+      status: "to do",
+    });
+    if (!show) return null;
+
+    const contracts = show.build?.contracts ?? [];
+    return ShowsRepository.patch(googleFolderId, {
+      "build.contract": deriveContractFieldStatus(contracts),
+    });
+  }
+
+  static async archiveContract(googleFolderId, contractId) {
+    const show = await ShowsRepository.setContractArchived(googleFolderId, contractId, true);
+    if (!show) return null;
+
+    const contracts = show.build?.contracts ?? [];
+    return ShowsRepository.patch(googleFolderId, {
+      "build.contract": deriveContractFieldStatus(contracts),
+    });
   }
 
   static #computeWarnings(show) {
@@ -110,24 +150,24 @@ class ShowsService {
     // schedule
     const { schedule } = show;
     if (schedule) {
-      if (schedule.releaseAsap && schedule.presales?.length > 0) {
+      if (schedule.releaseMode === "asap" && schedule.presales?.length > 0) {
         warnings.push({
           code: "ASAP_WITH_PRESALES",
-          message: "Release ASAP is true but presales are defined.",
+          message: "Release ASAP is selected but presales are defined.",
           sectionAnchor: "schedule",
         });
       }
-      if (!schedule.releaseAsap && !schedule.announceDateTime) {
+      if (schedule.releaseMode === "on-schedule" && !schedule.announceDateTime) {
         warnings.push({
           code: "MISSING_ANNOUNCE_DATE",
-          message: "Announce date is required when not releasing ASAP.",
+          message: "Announce date is required when releasing on schedule.",
           sectionAnchor: "schedule",
         });
       }
-      if (!schedule.releaseAsap && !schedule.onSaleDateTime) {
+      if (schedule.releaseMode === "on-schedule" && !schedule.onSaleDateTime) {
         warnings.push({
           code: "MISSING_ON_SALE_DATE",
-          message: "On sale date is required when not releasing ASAP.",
+          message: "On sale date is required when releasing on schedule.",
           sectionAnchor: "schedule",
         });
       }

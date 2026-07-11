@@ -16,7 +16,34 @@ const FILE_ICONS = {
   [GDOC_MIME]: <GoogleDocIcon className={styles.fileIcon} />,
 };
 
-const Parser = ({ showFolderId }) => {
+// Folder options: the show's root folder, its Marketing Assets subfolder (if
+// created), and each active contract's subfolder — same layout used by the
+// Email attachment picker, so offer letters and signed contracts filed into
+// a contract's own subfolder are visible here too.
+function useParserFolderOptions(showFolderId, show) {
+  const options = [{ id: showFolderId, label: "Show folder" }];
+
+  const marketingAssetsId = show?.drive?.folderIds?.marketingAssets;
+  if (marketingAssetsId) {
+    options.push({ id: marketingAssetsId, label: "Marketing Assets" });
+  }
+
+  for (const contract of show?.build?.contracts ?? []) {
+    if (contract.archived) continue;
+    options.push({ id: contract.folderId, label: contract.folderName });
+  }
+
+  return options;
+}
+
+const Parser = ({ showFolderId, show }) => {
+  const folderOptions = useParserFolderOptions(showFolderId, show);
+  const [selectedFolderId, setSelectedFolderId] = useState(showFolderId);
+
+  useEffect(() => {
+    setSelectedFolderId(showFolderId);
+  }, [showFolderId]);
+
   const [files, setFiles] = useState([]);
   const [isFetchingFiles, setIsFetchingFiles] = useState(false);
   const [filesError, setFilesError] = useState(null);
@@ -42,11 +69,13 @@ const Parser = ({ showFolderId }) => {
   } = useContentExtraction(showFolderId);
 
   useEffect(() => {
+    if (!selectedFolderId) return;
     const load = async () => {
       setIsFetchingFiles(true);
       setFilesError(null);
+      setSelectedFile(null);
       try {
-        const all = await fetchFolderFiles(showFolderId);
+        const all = await fetchFolderFiles(selectedFolderId);
         setFiles(all.filter((f) => SUPPORTED_TYPES.includes(f.mimeType)));
       } catch (err) {
         setFilesError(err.message ?? "Failed to load folder contents.");
@@ -55,7 +84,7 @@ const Parser = ({ showFolderId }) => {
       }
     };
     load();
-  }, [showFolderId]);
+  }, [selectedFolderId]);
 
   useEffect(() => {
     setFetchedText(null);
@@ -97,6 +126,19 @@ const Parser = ({ showFolderId }) => {
         {/* Left column — file picker */}
         <div className={styles.leftCol}>
           <span className={styles.label}>Files</span>
+          {folderOptions.length > 1 && (
+            <select
+              className={styles.folderSelect}
+              value={selectedFolderId ?? ""}
+              onChange={(e) => setSelectedFolderId(e.target.value)}
+            >
+              {folderOptions.map((f) => (
+                <option key={f.id} value={f.id}>
+                  {f.label}
+                </option>
+              ))}
+            </select>
+          )}
           <div className={styles.colScroll}>
             {isFetchingFiles && <p className={styles.muted}>Loading…</p>}
             {filesError && <p className={styles.error}>{filesError}</p>}

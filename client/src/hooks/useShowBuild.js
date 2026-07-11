@@ -109,9 +109,6 @@ const FIELD_LABELS = {
   marketingAssetsCompiled: "Marketing assets",
   marketingAssetsLastCheckin: "Assets last checkin",
   sisReleased: "SIS released",
-  contract: "Contract",
-  contractLastCheckin: "Contract last checkin",
-  weDraftedContract: "We drafted contract",
   livestream: "Livestream",
   workbook: "Workbook",
 };
