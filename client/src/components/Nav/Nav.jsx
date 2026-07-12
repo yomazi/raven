@@ -128,13 +128,13 @@ const Nav = () => {
                 disabled={!isSelectedShowVisible}
                 items={entry.items.map((item) => ({
                   label: item.label,
-                  onClick: () => navigate(`/shows/${selectedShow?.googleFolderId}/${item.route}`),
+                  onClick: () => navigate(`/roster/${selectedShow?.googleFolderId}/${item.route}`),
                 }))}
               />
             ) : (
               <NavItem
                 key={entry.route}
-                to={`/shows/${selectedShow?.googleFolderId}/${entry.route}`}
+                to={`/roster/${selectedShow?.googleFolderId}/${entry.route}`}
                 label={entry.label}
                 disabled={!isSelectedShowVisible}
               />

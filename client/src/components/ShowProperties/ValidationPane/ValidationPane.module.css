@@ -48,12 +48,7 @@
   margin-right: 0.3rem;
 }
 
-.saveButton {
-  background-color: var(--color-wyrd);
-}
-
 .saveButton:hover:not(:disabled) {
-  background-color: var(--color-void);
   opacity: 0.85;
 }
 

@@ -1,8 +1,7 @@
 import * as Tabs from "@radix-ui/react-tabs";
 import ChecklistIcon from "@svg/checklist_google.svg?react";
-import ConstructionIcon from "@svg/construction_google.svg?react";
 import ContactsIcon from "@svg/contacts_google.svg?react";
-import EventIcon from "@svg/events_google.svg?react";
+import RosterIcon from "@svg/roster_google.svg?react";
 import ScheduleIcon from "@svg/schedule_google.svg?react";
 import { NavLink, useLocation } from "react-router-dom";
 import styles from "./Switcher.module.css";
@@ -11,14 +10,13 @@ const Switcher = () => {
   const location = useLocation();
 
   // Determine the active tab based on the current URL path
-  const currentPath = location.pathname.split("/")[1] || "events";
+  const currentPath = location.pathname.split("/")[1] || "roster";
 
   const views = [
-    { id: "shows", route: "/shows/default/", label: "Shows", icon: <EventIcon /> },
-    { id: "tasks", route: "/tasks/", label: "Tasks", icon: <ChecklistIcon /> },
-    { id: "builds", route: "/builds/", label: "Builds", icon: <ConstructionIcon /> },
-    { id: "reports", route: "/reports", label: "Reports", icon: <ScheduleIcon /> },
     { id: "contacts", route: "/contacts", label: "Contacts", icon: <ContactsIcon /> },
+    { id: "roster", route: "/roster/", label: "Roster", icon: <RosterIcon /> },
+    { id: "tasks", route: "/tasks/", label: "Tasks", icon: <ChecklistIcon /> },
+    { id: "schedules", route: "/schedules", label: "Schedules", icon: <ScheduleIcon /> },
   ];
 
   return (

@@ -56,6 +56,7 @@
   white-space: normal;
   word-break: break-word;
   line-height: 1.4;
+  color: var(--color-moonlight);
 }
 
 .dateCell {
@@ -63,6 +64,7 @@
   font-variant-numeric: tabular-nums;
   font-size: 0.8rem;
   font-weight: 100;
+  color: var(--color-moonlight);
 }
 
 .artistCell {
@@ -71,7 +73,7 @@
   font-weight: 100;
   overflow: hidden;
   white-space: nowrap;
-  color: var(--color-frost);
+  color: var(--color-moonlight);
   text-overflow: ellipsis;
 }
 

@@ -12,16 +12,17 @@ function App() {
         <Overlay />
         <BrowserRouter>
           <Routes>
-            {/* Redirect root "/" to default show */}
-            <Route path="/" element={<Navigate to={`/shows/default/`} replace />} />
+            {/* Redirect root "/" to the roster */}
+            <Route path="/" element={<Navigate to="/roster" replace />} />
 
-            {/* All show-specific routes */}
-            <Route path="/shows/:showFolderId/*" element={<AppLayout mode="events" />} />
+            <Route path="/roster/:showFolderId/*" element={<AppLayout mode="roster" />} />
+            <Route path="/roster" element={<AppLayout mode="roster" />} />
             <Route path="/tasks/*" element={<AppLayout mode="tasks" />} />
-            <Route path="/reports" element={<AppLayout mode="reports" />} />
+            <Route path="/schedules" element={<AppLayout mode="schedules" />} />
             <Route path="/contacts" element={<AppLayout mode="contacts" />} />
-            <Route path="/builds/:showFolderId" element={<AppLayout mode="builds" />} />
-            <Route path="/builds" element={<AppLayout mode="builds" />} />
+
+            {/* Catch-all for any unrecognized route */}
+            <Route path="*" element={<AppLayout mode="notfound" />} />
           </Routes>
         </BrowserRouter>
       </ToastProvider>

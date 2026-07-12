@@ -316,7 +316,7 @@ class DriveRepository {
 
     return {
       folderId: marketingAssetsFolderId,
-      folderName: "!arketing Assets",
+      folderName: "!Marketing Assets",
       docId: docResponse.data.id,
       docName: docResponse.data.name,
       docWebViewLink: docResponse.data.webViewLink,

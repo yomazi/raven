@@ -30,15 +30,15 @@ ModuleRegistry.registerModules([AllCommunityModule]);
 
 const theme = themeAlpine.withPart(colorSchemeDark).withParams({
   cellHorizontalPadding: 8,
-  borderColor: "#3d2f8a",
-  rowBorder: { color: "#1d1828", width: 1 },
-  headerBackgroundColor: "#110e1a",
-  headerTextColor: "#f0e8d0",
-  oddRowBackgroundColor: "#303030",
-  rowHoverColor: "#2e2648",
-  selectedRowBackgroundColor: "#4a3d78",
-  foregroundColor: "#e3e3e3",
-  iconColor: "#e3e3e3",
+  borderColor: "var(--color-wyrd-dim)",
+  rowBorder: { color: "var(--color-dusk)", width: 1 },
+  headerBackgroundColor: "var(--color-void)",
+  headerTextColor: "var(--color-moonlight)",
+  oddRowBackgroundColor: "var(--grid-gray-lighter)",
+  rowHoverColor: "var(--color-wyrd-muted)",
+  selectedRowBackgroundColor: "var(--color-wyrd-dim)",
+  foregroundColor: "var(--color-frost)",
+  iconColor: "var(--color-frost)",
 });
 
 // ─── cell renderers ───────────────────────────────────────────────────────────

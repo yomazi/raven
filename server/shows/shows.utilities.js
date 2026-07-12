@@ -154,6 +154,37 @@ export function processBuildSideEffects(flatUpdates, currentBuild) {
 }
 
 // ---------------------------------------------------------------------------
+// processScheduleSideEffects
+// Called before the patch is written, against already-flattened updates.
+// Returns extra fields to merge into the update payload.
+// ---------------------------------------------------------------------------
+
+export function processScheduleSideEffects(flatUpdates, currentSchedule) {
+  const extra = {};
+
+  // -- default announce/on-sale dates when switching to "on-schedule" -------
+  // Give the user a sensible starting point (today at 1pm) instead of
+  // leaving them blank, but never touch a date that's already set or that
+  // this same patch is explicitly setting. Checked with a falsy test (not
+  // just `=== undefined`) because the staged "Show Properties" editor sends
+  // the whole form on save, so an untouched date arrives as an explicit
+  // `null` rather than an absent key.
+  if (flatUpdates["schedule.releaseMode"] === "on-schedule") {
+    const todayAt1pm = new Date();
+    todayAt1pm.setHours(13, 0, 0, 0);
+
+    if (!currentSchedule.announceDateTime && !flatUpdates["schedule.announceDateTime"]) {
+      extra["schedule.announceDateTime"] = todayAt1pm;
+    }
+    if (!currentSchedule.onSaleDateTime && !flatUpdates["schedule.onSaleDateTime"]) {
+      extra["schedule.onSaleDateTime"] = todayAt1pm;
+    }
+  }
+
+  return { extra };
+}
+
+// ---------------------------------------------------------------------------
 // processPhaseCompletions
 // Called after the patch is written. Compares old and new build state,
 // stamps or clears phase completion dates, and logs phase events.

@@ -11,6 +11,11 @@
   height: 100%;
 }
 
+.empty {
+  margin: 1rem;
+  color: var(--color-moonlight);
+}
+
 .routeContainer {
   flex: 1;
   overflow: auto;

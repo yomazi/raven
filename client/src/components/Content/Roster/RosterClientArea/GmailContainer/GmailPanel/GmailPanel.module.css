@@ -93,8 +93,8 @@
   margin: 6px 14px 2px;
   padding: 5px 10px;
   font-size: 11px;
-  color: #92400e;
-  background: #fef3c7;
+  color: var(--status-to_do-fg);
+  background: var(--status-to_do-bg);
   border-radius: 6px;
 }
 
@@ -130,7 +130,7 @@
 
 .groupChevron {
   font-size: 10px;
-  color: #bbb;
+  color: var(--status-shrug-fg);
   flex-shrink: 0;
 }
 
@@ -158,7 +158,7 @@
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.07em;
-  color: #3730a3;
+  color: var(--color-wyrd);
   border-radius: 99px;
   padding: 1px 5px;
   flex-shrink: 0;
@@ -166,13 +166,13 @@
 
 .groupDate {
   font-size: 10px;
-  color: #bbb;
+  color: var(--status-shrug-fg);
   white-space: nowrap;
 }
 
 .groupAttCount {
   font-size: 10px;
-  color: #999;
+  color: var(--status-shrug-fg);
   white-space: nowrap;
   flex-shrink: 0;
 }
@@ -184,13 +184,13 @@
 
 .loadingRow {
   font-size: 11px;
-  color: #aaa;
+  color: var(--status-shrug-fg);
   padding: 4px 0;
 }
 
 .groupSnippet {
   font-size: 0.85rem;
-  color: #888;
+  color: var(--status-shrug-fg);
   line-height: 1.5;
   margin-bottom: 8px;
   overflow: hidden;
@@ -207,7 +207,7 @@
 
 .noAtts {
   font-size: 11px;
-  color: #ccc;
+  color: var(--status-shrug-fg);
   text-align: center;
   padding: 6px 0;
 }
@@ -230,7 +230,7 @@
   width: 30px;
   height: 30px;
   border-radius: 5px;
-  color: #3730a3;
+  color: var(--color-wyrd);
   font-size: 8px;
   font-weight: 700;
   letter-spacing: 0.04em;
@@ -256,20 +256,25 @@
 
 .attMeta {
   font-size: 10px;
-  color: #bbb;
+  color: var(--status-shrug-fg);
   margin-top: 1px;
 }
 
 .uploadedAs {
   font-size: 10px;
-  color: #166534;
+  color: var(--color-fen);
   margin-top: 2px;
   word-break: break-all;
 }
 
+.uploadedLink {
+  color: var(--color-frost);
+  text-decoration: underline;
+}
+
 .errText {
   font-size: 11px;
-  color: #b91c1c;
+  color: var(--alert);
   margin-top: 3px;
 }
 
@@ -293,8 +298,8 @@
 }
 
 .chipDone {
-  border: 1px solid #bbf7d0;
-  color: #166534;
+  border: 1px solid color-mix(in srgb, var(--color-fen) 40%, transparent);
+  color: var(--color-fen);
   cursor: default;
 }
 
@@ -327,7 +332,7 @@
 .nLabel {
   font-size: 10px;
   font-weight: 600;
-  color: #888;
+  color: var(--status-shrug-fg);
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
@@ -363,13 +368,13 @@
 
 .nHint {
   font-size: 11px;
-  color: #aaa;
+  color: var(--status-shrug-fg);
   font-style: italic;
 }
 
 .nResetBtn {
   font-size: 10px;
-  color: #6366f1;
+  color: var(--color-wyrd);
   border: none;
   cursor: pointer;
   padding: 0;
@@ -408,7 +413,7 @@
 }
 
 .routingBox {
-  border: 1px solid #bbf7d0;
+  border: 1px solid color-mix(in srgb, var(--color-fen) 40%, transparent);
   border-radius: 6px;
   padding: 8px 10px;
   display: flex;
@@ -419,14 +424,14 @@
 .routingLabel {
   font-size: 10px;
   font-weight: 600;
-  color: #166534;
+  color: var(--color-fen);
   text-transform: uppercase;
   letter-spacing: 0.06em;
 }
 
 .routingDetail {
   font-size: 11px;
-  color: #444;
+  color: var(--color-frost);
 }
 
 .routingPills {
@@ -439,16 +444,16 @@
 
 .routingPillHead {
   font-size: 10px;
-  color: #888;
+  color: var(--status-shrug-fg);
   flex-shrink: 0;
 }
 
 .routingPill {
   font-size: 10px;
-  color: #166534;
+  color: var(--color-fen);
   border-radius: 99px;
   padding: 1px 7px;
-  border: 1px solid #bbf7d0;
+  border: 1px solid color-mix(in srgb, var(--color-fen) 40%, transparent);
 }
 
 .field {
@@ -461,7 +466,7 @@
 
 .fieldLabel {
   font-size: 11px;
-  color: #bbb;
+  color: var(--status-shrug-fg);
   width: 44px;
   flex-shrink: 0;
   font-weight: 500;
@@ -473,8 +478,8 @@
   border: none;
   outline: none;
   font-size: 12px;
-  background-color: #fff;
-  color: #111;
+  background-color: var(--grid-gray-darker);
+  color: var(--color-moonlight);
   padding: 2px 0;
 }
 
@@ -488,8 +493,8 @@
   resize: vertical;
   outline: none;
   font-family: inherit;
-  background-color: #fff;
-  color: #111;
+  background-color: var(--grid-gray-darker);
+  color: var(--color-moonlight);
   box-sizing: border-box;
   min-height: 90px;
 }
@@ -505,7 +510,7 @@
 }
 
 .orange {
-  color: #d97706;
+  color: var(--color-ember);
 }
 
 .ghostBtn {
@@ -525,7 +530,7 @@
   font-size: 0.8rem;
   font-weight: 600;
   cursor: pointer;
-  color: #fff;
+  color: white;
 }
 
 .sendBusy {
@@ -534,7 +539,7 @@
 }
 
 .sendDone {
-  background: #166534;
+  background: var(--color-fen);
 }
 
 .msgActions {

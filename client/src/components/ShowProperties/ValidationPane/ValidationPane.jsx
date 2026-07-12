@@ -14,7 +14,7 @@ export default function ValidationPane({ warnings, onSave, isPending, isDirty, s
         <div className={styles.toolbarRight}>
           <div className={styles.tooltip}>(CTRL+S or click)</div>
           <button
-            className={styles.saveButton}
+            className={`primary ${styles.saveButton}`}
             onClick={onSave}
             disabled={isPending}
             data-saving={isPending}

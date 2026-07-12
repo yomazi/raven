@@ -57,7 +57,7 @@ export default function ContactsPanel() {
       <section className={styles.section}>
         <div className={styles.sectionHeader}>
           <span className={styles.heading}>Groups</span>
-          <button className={styles.addBtn} onClick={openCreateGroup}>
+          <button className="primary" onClick={openCreateGroup}>
             + New Group
           </button>
         </div>
@@ -102,7 +102,7 @@ export default function ContactsPanel() {
       <section className={styles.section}>
         <div className={styles.sectionHeader}>
           <span className={styles.heading}>Contacts</span>
-          <button className={styles.addBtn} onClick={openCreateContact}>
+          <button className="primary" onClick={openCreateContact}>
             + New Contact
           </button>
         </div>

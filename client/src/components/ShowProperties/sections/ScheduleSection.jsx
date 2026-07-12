@@ -16,15 +16,28 @@ export default function ScheduleSection({ show, setField }) {
   const isOnSchedule = releaseMode === "on-schedule";
   const showDates = releaseMode === "on-schedule" || releaseMode === "tbd";
 
+  // While "On Schedule" is selected, the first presale is locked to the
+  // announce/on-sale dates — editing either propagates to the other.
   const updatePresale = (index, field, value) => {
     const updated = presales.map((p, i) => (i === index ? { ...p, [field]: value } : p));
     setField("schedule.presales", updated);
+
+    if (index !== 0 || !isOnSchedule) return;
+    if (field === "startDateTime") setField("schedule.announceDateTime", value);
+    if (field === "endDateTime") setField("schedule.onSaleDateTime", value);
   };
 
   const addPresale = () => {
+    // The first presale added while "On Schedule" is selected is locked to
+    // the announce/on-sale dates; later presales start blank.
+    const lockToSchedule = presales.length === 0 && isOnSchedule;
     setField("schedule.presales", [
       ...presales,
-      { name: "Donor Presale", startDateTime: null, endDateTime: null },
+      {
+        name: "Donor Presale",
+        startDateTime: lockToSchedule ? (schedule.announceDateTime ?? null) : null,
+        endDateTime: lockToSchedule ? (schedule.onSaleDateTime ?? null) : null,
+      },
     ]);
   };
 
@@ -32,6 +45,39 @@ export default function ScheduleSection({ show, setField }) {
     setField(
       "schedule.presales",
       presales.filter((_, i) => i !== index)
+    );
+  };
+
+  // Switching to "On Schedule" defaults empty announce/on-sale dates to
+  // today at 1pm, without touching dates that are already set.
+  const handleReleaseModeChange = (mode) => {
+    setField("schedule.releaseMode", mode);
+    if (mode !== "on-schedule") return;
+
+    const defaultTime = new Date();
+    defaultTime.setHours(13, 0, 0, 0);
+
+    if (!schedule.announceDateTime) setField("schedule.announceDateTime", defaultTime);
+    if (!schedule.onSaleDateTime) setField("schedule.onSaleDateTime", defaultTime);
+  };
+
+  // While "On Schedule" is selected, the first presale is locked to the
+  // announce/on-sale dates — editing either propagates to the other.
+  const handleAnnounceDateChange = (value) => {
+    setField("schedule.announceDateTime", value);
+    if (!isOnSchedule || presales.length === 0) return;
+    setField(
+      "schedule.presales",
+      presales.map((p, i) => (i === 0 ? { ...p, startDateTime: value } : p))
+    );
+  };
+
+  const handleOnSaleDateChange = (value) => {
+    setField("schedule.onSaleDateTime", value);
+    if (!isOnSchedule || presales.length === 0) return;
+    setField(
+      "schedule.presales",
+      presales.map((p, i) => (i === 0 ? { ...p, endDateTime: value } : p))
     );
   };
 
@@ -49,7 +95,7 @@ export default function ScheduleSection({ show, setField }) {
                 name="release-mode"
                 className={styles.radio}
                 checked={releaseMode === mode}
-                onChange={() => setField("schedule.releaseMode", mode)}
+                onChange={() => handleReleaseModeChange(mode)}
               />
               {RELEASE_MODE_LABELS[mode]}
             </label>
@@ -68,10 +114,7 @@ export default function ScheduleSection({ show, setField }) {
             type="datetime-local"
             value={toDateTimeLocal(schedule.announceDateTime)}
             onChange={(e) =>
-              setField(
-                "schedule.announceDateTime",
-                e.target.value ? new Date(e.target.value) : null
-              )
+              handleAnnounceDateChange(e.target.value ? new Date(e.target.value) : null)
             }
           />
 
@@ -84,10 +127,7 @@ export default function ScheduleSection({ show, setField }) {
             type="datetime-local"
             value={toDateTimeLocal(schedule.onSaleDateTime)}
             onChange={(e) =>
-              setField(
-                "schedule.onSaleDateTime",
-                e.target.value ? new Date(e.target.value) : null
-              )
+              handleOnSaleDateChange(e.target.value ? new Date(e.target.value) : null)
             }
           />
         </div>

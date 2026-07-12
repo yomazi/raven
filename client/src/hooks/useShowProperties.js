@@ -8,11 +8,12 @@ export const useShowProperties = (show) => {
 
   const { mutate: patch, isPending } = usePatchShow(show?.googleFolderId, (updatedShow) => {
     setTimeout(() => {
+      // Replace the whole draft with the server's response, not just
+      // `validation` — the server can compute/default other fields too
+      // (e.g. schedule dates when switching release mode to "on-schedule"),
+      // and those need to show up in the form after a successful save.
       // eslint-disable-next-line react-hooks/set-state-in-effect
-      setForm((prev) => ({
-        ...prev,
-        validation: updatedShow.validation,
-      }));
+      setForm(updatedShow);
       setIsDirty(false);
     }, 0);
   });

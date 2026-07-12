@@ -36,7 +36,7 @@ const useRavenStore = create(
 
       // ── escape-key arbitration — lets an open overlay (e.g. the
       // recipient picker's "more recipients" dropdown) claim Escape for
-      // itself without EventGrid's global Escape-clears-filter shortcut
+      // itself without RosterGrid's global Escape-clears-filter shortcut
       // also firing on the same keypress.
       suppressGridEscapeClear: false,
       setSuppressGridEscapeClear: (val) => set({ suppressGridEscapeClear: val }),

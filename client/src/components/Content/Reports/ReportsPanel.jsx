@@ -61,7 +61,7 @@ function ReportRow({ report, schedule }) {
       <div className={styles.rowHeader}>
         <span className={styles.reportName}>{report.name}</span>
         <button
-          className={styles.runBtn}
+          className={`primary ${styles.runBtn}`}
           onClick={() => generate(report.name)}
           disabled={isGenerating}
         >

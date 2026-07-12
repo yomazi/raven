@@ -52,19 +52,6 @@
   color: var(--color-frost);
 }
 
-.runBtn {
-  font-family: var(--font-ui);
-  font-size: 0.8rem;
-  padding: 0.3rem 0.8rem;
-  background: var(--color-wyrd);
-  color: var(--color-void);
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: opacity 100ms ease;
-  white-space: nowrap;
-}
-
 .runBtn:hover:not(:disabled) {
   opacity: 0.85;
 }
@@ -203,11 +190,11 @@
 }
 
 .ok {
-  color: var(--status-done-fg, #6aaa72);
+  color: var(--status-done-fg);
 }
 
 .err {
-  color: var(--status-blocked-fg, #e05c5c);
+  color: var(--status-blocked-fg);
 }
 
 .sheetLink {

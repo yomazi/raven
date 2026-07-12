@@ -1,5 +1,3 @@
-// client/src/components/Content/Events/ShowProperties/sections/BuildSection/BuildProperties.jsx
-
 import BadgeSelect from "@components/Content/shared/BadgeSelect/BadgeSelect.jsx";
 import { useShowBuild } from "@hooks/useShowBuild.js";
 import { useShowSchedule } from "@hooks/useShowSchedule.js";
@@ -271,6 +269,7 @@ function ScheduleSection({
   schedule,
   initialNotes,
   setField,
+  setReleaseMode,
   addPresale,
   updatePresale,
   removePresale,
@@ -294,7 +293,7 @@ function ScheduleSection({
                 name="build-release-mode"
                 className={styles.radio}
                 checked={releaseMode === mode}
-                onChange={() => setField("releaseMode", mode)}
+                onChange={() => setReleaseMode(mode)}
               />
               {RELEASE_MODE_LABELS[mode]}
             </label>
@@ -398,6 +397,7 @@ export default function BuildProperties({ show }) {
   const {
     schedule,
     setField: setScheduleField,
+    setReleaseMode,
     addPresale,
     updatePresale,
     removePresale,
@@ -425,6 +425,7 @@ export default function BuildProperties({ show }) {
         schedule={schedule}
         initialNotes={show?.schedule?.notes}
         setField={setScheduleField}
+        setReleaseMode={setReleaseMode}
         addPresale={addPresale}
         updatePresale={updatePresale}
         removePresale={removePresale}

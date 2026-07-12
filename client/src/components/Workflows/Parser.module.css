@@ -112,7 +112,7 @@
 .button {
   align-self: flex-start;
   background: var(--color-wyrd);
-  color: #fff;
+  color: white;
   border: none;
   border-radius: 6px;
   padding: 0.5rem 1.25rem;

@@ -194,13 +194,13 @@ function RecipientPicker({ to, onChange }) {
     const handleKeyDown = (e) => {
       if (e.key === "Escape") setExpanded(false);
     };
-    // EventGrid installs its own Escape handler on `window` with
+    // RosterGrid installs its own Escape handler on `window` with
     // { capture: true } and calls stopPropagation(), which stops the event
     // before it ever reaches `document` — so ours has to live on the same
     // node/phase to still be called (stopPropagation doesn't block other
     // listeners on the same target, only propagation to other targets).
     window.addEventListener("keydown", handleKeyDown, { capture: true });
-    // Tell EventGrid to skip its own Escape-clears-filter shortcut while
+    // Tell RosterGrid to skip its own Escape-clears-filter shortcut while
     // this dropdown is open, so closing it doesn't also clear the grid filter.
     useRavenStore.getState().setSuppressGridEscapeClear(true);
     return () => {

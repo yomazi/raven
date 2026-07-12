@@ -152,11 +152,11 @@ button:focus-visible {
 }
 
 button.primary {
-  background: var(--color-wyrd);
+  background: var(--color-wyrd-muted);
 }
 
 button.primary:hover {
-  background-color: var(--color-void);
+  background-color: var(--color-stone);
 }
 
 button svg {

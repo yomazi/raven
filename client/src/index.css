@@ -5,7 +5,7 @@
   font-size: 16px;
 
   color-scheme: light dark;
-  background-color: #110e1a;
+  background-color: var(--color-void);
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;

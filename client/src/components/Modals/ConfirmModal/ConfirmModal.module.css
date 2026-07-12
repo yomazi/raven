@@ -68,7 +68,7 @@
   font-weight: 600;
   padding: 0.38rem 1rem;
   background: var(--color-wyrd);
-  color: #fff;
+  color: white;
   border: none;
   border-radius: 5px;
   cursor: pointer;
@@ -80,7 +80,7 @@
 }
 
 .btnConfirm[data-danger] {
-  background: #c0392b;
+  background: var(--alert);
 }
 
 .btnConfirm[data-danger]:hover {

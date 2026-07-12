@@ -1,19 +1,18 @@
-// ClientArea.jsx
 import Banner from "@components/Content/shared/Banner/Banner.jsx";
 import BuildProperties from "@components/Content/shared/BuildProperties/BuildProperties.jsx";
 import ShowProperties from "@components/ShowProperties/ShowProperties.jsx";
 import Parser from "@components/Workflows/Parser.jsx";
 import { useShowById } from "@hooks/useShowById.js";
 import { Navigate, Route, Routes, useParams } from "react-router-dom";
-import styles from "./EventClientArea.module.css";
 import GmailContainer from "./GmailContainer/GmailContainer.jsx";
+import styles from "./RosterClientArea.module.css";
 
-const EventClientArea = () => {
+const RosterClientArea = () => {
   const { showFolderId } = useParams();
   const { data: show, isError, error } = useShowById(showFolderId, { retry: false });
 
   if (!showFolderId) {
-    return <Navigate to={`/shows/default/`} replace />;
+    return <div className={styles.empty}>Select a show from the roster.</div>;
   }
 
   return (
@@ -35,7 +34,10 @@ const EventClientArea = () => {
                 element={<ShowProperties key={showFolderId} showFolderId={showFolderId} />}
               />
               <Route path="build" element={<BuildProperties show={show} />} />
-              <Route path="gmail" element={<GmailContainer showFolderId={showFolderId} show={show} />} />
+              <Route
+                path="gmail"
+                element={<GmailContainer showFolderId={showFolderId} show={show} />}
+              />
               <Route
                 path="gmail/:threadId/:messageId"
                 element={<GmailContainer showFolderId={showFolderId} show={show} />}
@@ -49,4 +51,4 @@ const EventClientArea = () => {
   );
 };
 
-export default EventClientArea;
+export default RosterClientArea;

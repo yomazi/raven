@@ -17,6 +17,6 @@ const reportScheduleSchema = new Schema(
   { timestamps: true }
 );
 
-const ReportSchedule = mongoose.model("ReportSchedule", reportScheduleSchema);
+const ReportSchedule = mongoose.model("ReportSchedule", reportScheduleSchema, "ReportSchedules");
 
 export default ReportSchedule;

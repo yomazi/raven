@@ -54,11 +54,13 @@ function shortSender(from = "") {
 
 // ─── NamingForm ───────────────────────────────────────────────────────────────
 
-// "contract" and "offer" documents belong in a specific contract's Drive
-// subfolder rather than the show's root — this decides whether that
-// target-folder picker should show for the current team/doctype selection.
-function needsContractFolder(team, doctypeKey) {
-  return team === "prg" && (doctypeKey === "contract" || doctypeKey === "offer");
+// Programming, Production, and Finance documents belong in a specific
+// contract's Drive subfolder rather than the show's root — this decides
+// whether that target-folder picker should show for the current team.
+// Marketing bypasses this entirely (fixed "!Marketing Assets" folder), and
+// Box Office has no folder-routing rule of its own yet.
+function needsContractFolder(team) {
+  return team === "prg" || team === "prod" || team === "fin";
 }
 
 // The two effects below only fire on a *change* to team/doctypeKey (each
@@ -73,7 +75,15 @@ const DEFAULT_STAGE =
   getStageOptions((DOCTYPES[DEFAULT_TEAM] ?? []).find((d) => d.key === DEFAULT_DOCTYPE_KEY) ?? null)[0]
     ?.value ?? "";
 
-function NamingForm({ att, messageId, folderId, contracts = [], onUploaded, onCancel }) {
+function NamingForm({
+  att,
+  messageId,
+  folderId,
+  contracts = [],
+  marketingFolderId = null,
+  onUploaded,
+  onCancel,
+}) {
   const [team, setTeam] = useState(DEFAULT_TEAM);
   const [doctypeKey, setDoctypeKey] = useState(DEFAULT_DOCTYPE_KEY);
   const [subtype, setSubtype] = useState("");
@@ -92,6 +102,7 @@ function NamingForm({ att, messageId, folderId, contracts = [], onUploaded, onCa
   const [newSigneeName, setNewSigneeName] = useState("");
   const queryClient = useQueryClient();
 
+  const isMarketing = team === "mkt";
   const doctypeOptions = DOCTYPES[team] ?? [];
   const doctypeConfig = doctypeOptions.find((d) => d.key === doctypeKey) ?? null;
   const stageOptions = getStageOptions(doctypeConfig);
@@ -100,10 +111,10 @@ function NamingForm({ att, messageId, folderId, contracts = [], onUploaded, onCa
   const effectiveSubtype = subtype === "__custom__" ? customSubtype : subtype;
   const effectivePaymentType = paymentType === "__custom__" ? customPaymentType : paymentType;
 
-  // Shown for contract/offer doctypes even with zero existing contracts —
-  // that's exactly the case where you need "+ New contract…" to create one
-  // without leaving the upload flow.
-  const showsContractPicker = needsContractFolder(team, doctypeKey);
+  // Shown for Programming, Production, and Finance docs even with zero
+  // existing contracts — that's exactly the case where you need
+  // "+ New contract…" to create one without leaving the upload flow.
+  const showsContractPicker = needsContractFolder(team);
   // Auto-select the only contract when there's just one; otherwise require a choice.
   useEffect(() => {
     if (!showsContractPicker) {
@@ -115,7 +126,11 @@ function NamingForm({ att, messageId, folderId, contracts = [], onUploaded, onCa
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [showsContractPicker, contracts.length]);
 
-  const targetFolderId = showsContractPicker ? contractFolderId || null : folderId;
+  const targetFolderId = isMarketing
+    ? marketingFolderId
+    : showsContractPicker
+      ? contractFolderId || null
+      : folderId;
   const canUpload = isCreatingContract ? newSigneeName.trim().length > 0 : !!targetFolderId;
 
   const prevTeam = useRef(team);
@@ -150,6 +165,11 @@ function NamingForm({ att, messageId, folderId, contracts = [], onUploaded, onCa
   }, [doctypeKey, team]);
 
   useEffect(() => {
+    if (isMarketing) {
+      // No prefix/version to compute for Marketing — skip the scan.
+      setFolderFiles([]);
+      return;
+    }
     if (isCreatingContract) {
       // No folder yet, but it'll be brand new (and therefore empty) once
       // created on upload — preview the filename against an empty folder
@@ -167,9 +187,15 @@ function NamingForm({ att, messageId, folderId, contracts = [], onUploaded, onCa
       .then((files) => setFolderFiles(files.map((f) => f.name)))
       .catch(() => setFolderFiles([]))
       .finally(() => setLoadingFolder(false));
-  }, [targetFolderId, isCreatingContract]);
+  }, [targetFolderId, isCreatingContract, isMarketing]);
 
   useEffect(() => {
+    if (isMarketing) {
+      // No filename prefix for Marketing — upload under the original name.
+      setSuggestedName(att.filename);
+      setEditedName(att.filename);
+      return;
+    }
     if (!doctypeKey || folderFiles === null) return;
     const config = (DOCTYPES[team] ?? []).find((d) => d.key === doctypeKey) ?? null;
     const stageOpts = getStageOptions(config);
@@ -204,7 +230,16 @@ function NamingForm({ att, messageId, folderId, contracts = [], onUploaded, onCa
     // eslint-disable-next-line react-hooks/exhaustive-deps
     setSuggestedName(name);
     setEditedName(name);
-  }, [team, doctypeKey, effectiveSubtype, effectivePaymentType, stage, folderFiles, att.filename]);
+  }, [
+    team,
+    doctypeKey,
+    effectiveSubtype,
+    effectivePaymentType,
+    stage,
+    folderFiles,
+    att.filename,
+    isMarketing,
+  ]);
 
   const handleUpload = useCallback(async () => {
     if (isCreatingContract && !newSigneeName.trim()) {
@@ -240,7 +275,7 @@ function NamingForm({ att, messageId, folderId, contracts = [], onUploaded, onCa
         mimeType: att.mimeType,
         folderId: uploadFolderId,
       });
-      onUploaded(editedName.trim());
+      onUploaded({ filename: editedName.trim(), folderId: uploadFolderId });
     } catch (e) {
       setErr(e.message);
       setUploading(false);
@@ -270,29 +305,31 @@ function NamingForm({ att, messageId, folderId, contracts = [], onUploaded, onCa
             ))}
           </select>
         </div>
-        <div className={styles.nField}>
-          <span className={styles.nLabel}>Document type</span>
-          {doctypeOptions.length > 0 ? (
-            <select
-              className={styles.nSelect}
-              value={doctypeKey}
-              onChange={(e) => setDoctypeKey(e.target.value)}
-            >
-              {doctypeOptions.map((d) => (
-                <option key={d.key} value={d.key}>
-                  {d.label}
-                </option>
-              ))}
-            </select>
-          ) : (
-            <input
-              className={styles.nInput}
-              value={doctypeKey}
-              onChange={(e) => setDoctypeKey(e.target.value)}
-              placeholder="doctype"
-            />
-          )}
-        </div>
+        {!isMarketing && (
+          <div className={styles.nField}>
+            <span className={styles.nLabel}>Document type</span>
+            {doctypeOptions.length > 0 ? (
+              <select
+                className={styles.nSelect}
+                value={doctypeKey}
+                onChange={(e) => setDoctypeKey(e.target.value)}
+              >
+                {doctypeOptions.map((d) => (
+                  <option key={d.key} value={d.key}>
+                    {d.label}
+                  </option>
+                ))}
+              </select>
+            ) : (
+              <input
+                className={styles.nInput}
+                value={doctypeKey}
+                onChange={(e) => setDoctypeKey(e.target.value)}
+                placeholder="doctype"
+              />
+            )}
+          </div>
+        )}
       </div>
 
       {showsContractPicker && (
@@ -466,7 +503,9 @@ function NamingForm({ att, messageId, folderId, contracts = [], onUploaded, onCa
             !canUpload
               ? isCreatingContract
                 ? "Enter a signee name"
-                : "Select a contract to upload to"
+                : isMarketing
+                  ? "!Marketing Assets folder not set up for this show"
+                  : "Select a contract to upload to"
               : undefined
           }
         >
@@ -483,17 +522,28 @@ function NamingForm({ att, messageId, folderId, contracts = [], onUploaded, onCa
 
 // ─── AttachmentRow ─────────────────────────────────────────────────────────────
 
-function AttachmentRow({ att, messageId, folderId, contracts, uploadKey, uploadedNames, onUploaded }) {
+function AttachmentRow({
+  att,
+  messageId,
+  folderId,
+  contracts,
+  marketingFolderId,
+  uploadKey,
+  uploadedNames,
+  onUploaded,
+}) {
   const [showForm, setShowForm] = useState(false);
   const isDone = uploadedNames.has(uploadKey);
 
   const handleUploaded = useCallback(
-    (finalName) => {
-      onUploaded(uploadKey, finalName);
+    (result) => {
+      onUploaded(uploadKey, result);
       setShowForm(false);
     },
     [uploadKey, onUploaded]
   );
+
+  const uploaded = uploadedNames.get(uploadKey);
 
   return (
     <div className={styles.attWrap}>
@@ -506,7 +556,24 @@ function AttachmentRow({ att, messageId, folderId, contracts, uploadKey, uploade
           <div className={styles.attMeta}>
             {att.mimeType} · {formatBytes(att.size)}
           </div>
-          {isDone && <div className={styles.uploadedAs}>✓ {uploadedNames.get(uploadKey)}</div>}
+          {isDone && (
+            <div className={styles.uploadedAs}>
+              ✓ {uploaded?.filename}
+              {uploaded?.folderId && (
+                <>
+                  {" · "}
+                  <a
+                    className={styles.uploadedLink}
+                    href={`https://drive.google.com/drive/folders/${uploaded.folderId}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    View folder
+                  </a>
+                </>
+              )}
+            </div>
+          )}
         </div>
         {!isDone && (
           <button
@@ -526,6 +593,7 @@ function AttachmentRow({ att, messageId, folderId, contracts, uploadKey, uploade
           messageId={messageId}
           folderId={folderId}
           contracts={contracts}
+          marketingFolderId={marketingFolderId}
           onUploaded={handleUploaded}
           onCancel={() => setShowForm(false)}
         />
@@ -541,6 +609,7 @@ function MessageGroup({
   isFocused,
   folderId,
   contracts,
+  marketingFolderId,
   uploadedNames,
   onUploaded,
   defaultOpen,
@@ -603,7 +672,7 @@ function MessageGroup({
         <div className={styles.groupBody}>
           {loading && <div className={styles.loadingRow}>Loading…</div>}
           {err && (
-            <div className={styles.loadingRow} style={{ color: "#b91c1c" }}>
+            <div className={styles.loadingRow} style={{ color: "var(--alert)" }}>
               {err}
             </div>
           )}
@@ -621,6 +690,7 @@ function MessageGroup({
                         messageId={msg.id}
                         folderId={folderId}
                         contracts={contracts}
+                        marketingFolderId={marketingFolderId}
                         uploadKey={key}
                         uploadedNames={uploadedNames}
                         onUploaded={onUploaded}
@@ -671,6 +741,7 @@ export default function GmailPanel({
   onCompose,
 }) {
   const activeContracts = (show?.build?.contracts ?? []).filter((c) => !c.archived);
+  const marketingFolderId = show?.drive?.folderIds?.marketingAssets ?? null;
   // Gmail permalink ids come as e.g. "thread-f:123" or "msg-f:123", where
   // the number is the id's plain decimal form (convert straight to hex for
   // the API). Some links instead use "thread-a:r-123" / "msg-a:r-123" —
@@ -762,8 +833,8 @@ export default function GmailPanel({
     };
   }, [threadId, messageId]);
 
-  const handleUploaded = useCallback((key, finalName) => {
-    setUploadedNames((prev) => new Map([...prev, [key, finalName]]));
+  const handleUploaded = useCallback((key, result) => {
+    setUploadedNames((prev) => new Map([...prev, [key, result]]));
   }, []);
 
   const messageStubs = stubs.length > 0 ? stubs : soloMsg ? [soloMsg] : [];
@@ -814,7 +885,7 @@ export default function GmailPanel({
       <div className={styles.body}>
         {loading && <div className={styles.stateRow}>Loading…</div>}
         {error && (
-          <div className={styles.stateRow} style={{ color: "#b91c1c" }}>
+          <div className={styles.stateRow} style={{ color: "var(--alert)" }}>
             Error: {error}
           </div>
         )}
@@ -843,6 +914,7 @@ export default function GmailPanel({
             isFocused={stub.id === selectedId}
             folderId={showFolderId}
             contracts={activeContracts}
+            marketingFolderId={marketingFolderId}
             uploadedNames={uploadedNames}
             onUploaded={handleUploaded}
             defaultOpen={stub.id === focusedId || messageStubs.length === 1}

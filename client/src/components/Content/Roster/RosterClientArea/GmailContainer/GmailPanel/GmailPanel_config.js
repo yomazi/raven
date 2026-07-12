@@ -156,6 +156,7 @@ export const DOCTYPES = {
   fin: [
     { key: "w9", label: "W9", stages: "none" },
     { key: "w8ben", label: "W8-BEN", stages: "none" },
+    { key: "ACH info", label: "ACH Info", stages: "none" },
     {
       key: "payment",
       label: "Payment Confirmation",

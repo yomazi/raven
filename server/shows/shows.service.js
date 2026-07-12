@@ -1,7 +1,12 @@
 import log from "../logging/log.js";
 import { deriveContractFieldStatus } from "../../shared/functions/builds.js";
 import ShowsRepository from "./shows.repository.js";
-import { flatten, processBuildSideEffects, processPhaseCompletions } from "./shows.utilities.js";
+import {
+  flatten,
+  processBuildSideEffects,
+  processPhaseCompletions,
+  processScheduleSideEffects,
+} from "./shows.utilities.js";
 
 class ShowsService {
   static #mapDriveShowToDocument(driveShow) {
@@ -235,6 +240,7 @@ class ShowsService {
     if (!current) return null;
 
     const previousBuild = current.build?.toObject?.() ?? current.build ?? {};
+    const previousSchedule = current.schedule?.toObject?.() ?? current.schedule ?? {};
 
     // 2. Flatten updates so all checks use dot-notation keys consistently
     const flatUpdates = flatten(updates);
@@ -245,7 +251,10 @@ class ShowsService {
       previousBuild
     );
 
-    const mergedUpdates = { ...flatUpdates, ...preExtra };
+    // 3b. Compute schedule side effects (extra fields)
+    const { extra: scheduleExtra } = processScheduleSideEffects(flatUpdates, previousSchedule);
+
+    const mergedUpdates = { ...flatUpdates, ...preExtra, ...scheduleExtra };
 
     // 4. Write the patch
     const show = await ShowsRepository.patch(googleFolderId, mergedUpdates);

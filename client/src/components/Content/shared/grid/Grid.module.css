@@ -99,6 +99,7 @@
   display: flex;
   width: 22px;
   height: 22px;
+  color: var(--color-moonlight);
 }
 
 .folderLinkCell:hover .iconFolderClosed {
@@ -143,6 +144,7 @@
   text-overflow: ellipsis;
   font-size: 0.85rem;
   font-weight: 100;
+  color: var(--color-moonlight);
 }
 
 .artistNameCell:hover {
@@ -155,6 +157,7 @@
   font-variant-numeric: tabular-nums;
   font-size: 0.85rem;
   font-weight: 100;
+  color: var(--color-moonlight);
 }
 
 .copyDateAndArtistLinkCell,
@@ -164,7 +167,7 @@
   width: 22px;
   height: 22px;
   align-items: center;
-  color: #a8b2b8;
+  color: var(--status-shrug-fg);
 }
 
 .copyDateAndArtistLinkCell:active,
@@ -178,7 +181,7 @@
   width: 18px;
   height: 18px;
   align-items: center;
-  color: #a8b2b8;
+  color: var(--status-shrug-fg);
   top: 0;
 }
 
@@ -195,7 +198,7 @@
 }
 
 .checkboxChecked {
-  color: #a8b2b8;
+  color: var(--status-shrug-fg);
 }
 
 .textCell {
@@ -224,6 +227,7 @@
 .scheduleCell {
   width: 18px;
   height: 18px;
+  color: var(--color-moonlight);
 }
 
 .scheduleCellPast {
@@ -338,7 +342,7 @@
   width: 26px;
   height: 26px;
   margin: -2px; /* pulls the element outward equally on all sides */
-  color: #fff;
+  color: white;
 }
 
 :global(.ag-cell:hover) .copyDateAndArtistLinkCell,
@@ -347,7 +351,7 @@
   height: 26px;
   margin: -2px;
   padding-top: 0;
-  color: #fff;
+  color: white;
 }
 
 :global(.ag-cell:hover) .addTaskCell {
@@ -355,7 +359,7 @@
   height: 26px;
   margin: -4px;
   padding-top: 1px;
-  color: #fff;
+  color: white;
 }
 
 :global(.ag-cell:hover) .checkboxCell {

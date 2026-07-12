@@ -2,12 +2,11 @@ import SplitPane from "@components/Content/SplitPane";
 import Header from "@components/Header/Header";
 import Nav from "@components/Nav/Nav";
 
-import BuildClientArea from "@components/Content/Builds/BuildClientArea/BuildClientArea.jsx";
-import BuildRoster from "@components/Content/Builds/BuildRoster/BuildRoster.jsx";
 import ContactsPanel from "@components/Content/Contacts/ContactsPanel.jsx";
-import EventClientArea from "@components/Content/Events/EventClientArea/EventClientArea.jsx";
-import EventGrid from "@components/Content/Events/EventGrid/EventGrid.jsx";
+import NotFoundPanel from "@components/Content/NotFound/NotFoundPanel.jsx";
 import ReportsPanel from "@components/Content/Reports/ReportsPanel.jsx";
+import RosterClientArea from "@components/Content/Roster/RosterClientArea/RosterClientArea.jsx";
+import RosterGrid from "@components/Content/Roster/RosterGrid/RosterGrid.jsx";
 import TasksFilter from "@components/Content/Tasks/TasksFilter/TasksFilter.jsx";
 import TasksView from "@components/Content/Tasks/TasksView/TasksView.jsx";
 
@@ -16,21 +15,19 @@ import styles from "./AppLayout.module.css";
 const AppLayout = ({ mode }) => {
   const content =
     {
-      events: (
-        <SplitPane resizable={true} leftPane={<EventGrid />} rightPane={<EventClientArea />} />
-      ),
       tasks: <SplitPane resizable={false} leftPane={<TasksFilter />} rightPane={<TasksView />} />,
-      builds: (
-        <SplitPane resizable={true} leftPane={<BuildRoster />} rightPane={<BuildClientArea />} />
-      ),
-      reports: <ReportsPanel />,
+      schedules: <ReportsPanel />,
       contacts: <ContactsPanel />,
-    }[mode] ?? null;
+      roster: (
+        <SplitPane resizable={true} leftPane={<RosterGrid />} rightPane={<RosterClientArea />} />
+      ),
+      notfound: <NotFoundPanel />,
+    }[mode] ?? <NotFoundPanel />;
 
   return (
     <div className={styles.appLayout}>
       <Header mode={mode} />
-      {mode == "events" && <Nav />}
+      {mode == "roster" && <Nav />}
       {content}
     </div>
   );

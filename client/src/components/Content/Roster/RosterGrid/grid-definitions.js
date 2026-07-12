@@ -1,9 +1,14 @@
-// client/src/components/Content/Builds/BuildRoster/grid-definitions.js
+// client/src/components/Content/Roster/RosterGrid/grid-definitions.js
+//
+// Roster toggles between two grid configs — a "shows" layout and a "builds"
+// layout — so both sets of column definitions live here side by side.
 
 import {
   AddTaskIconRenderer,
   ArtistNameRenderer,
   CheckboxRenderer,
+  CopyArtistLinkRenderer,
+  CopyDateAndArtistLinkRenderer,
   DateRenderer,
   FolderIconRenderer,
   RollupCellRenderer,
@@ -19,7 +24,76 @@ import {
 import { deriveRollup } from "@shared/functions/builds.js";
 
 // ---------------------------------------------------------------------------
-// Rollup value getters
+// Shows column definitions
+// ---------------------------------------------------------------------------
+
+export const showsColumnDefs = [
+  {
+    headerName: "",
+    field: "copyDateAndArtistLink",
+    cellRenderer: CopyDateAndArtistLinkRenderer,
+    cellClass: "ag-center-aligned-cell",
+    width: 60,
+    minWidth: 60,
+    maxWidth: 60,
+    suppressAutoSize: true,
+  },
+  {
+    headerName: "",
+    field: "copyArtistLink",
+    cellRenderer: CopyArtistLinkRenderer,
+    width: 50,
+    minWidth: 50,
+    maxWidth: 50,
+    suppressAutoSize: true,
+  },
+  {
+    headerName: "",
+    cellRenderer: AddTaskIconRenderer,
+    width: 50,
+    minWidth: 50,
+    maxWidth: 50,
+    suppressAutoSize: true,
+  },
+  {
+    headerName: "Date",
+    field: "date",
+    width: 110,
+    minWidth: 110,
+    maxWidth: 110,
+    cellRenderer: DateRenderer,
+    suppressAutoSize: true,
+  },
+  {
+    headerName: "Artist",
+    field: "artist",
+    flex: 1,
+    cellRenderer: ArtistNameRenderer,
+  },
+  {
+    headerName: "Multi",
+    field: "isMulti",
+    cellRenderer: CheckboxRenderer,
+    cellClass: "ag-center-aligned-cell",
+    width: 100,
+    minWidth: 100,
+    maxWidth: 100,
+    suppressAutoSize: true,
+  },
+  {
+    headerName: "",
+    field: "folder",
+    cellRenderer: FolderIconRenderer,
+    cellClass: "ag-center-aligned-cell raven-grid-cell",
+    width: 50,
+    minWidth: 50,
+    maxWidth: 50,
+    sortable: false,
+  },
+];
+
+// ---------------------------------------------------------------------------
+// Builds column definitions
 // ---------------------------------------------------------------------------
 
 function setupValueGetter({ data }) {
@@ -34,12 +108,8 @@ function closeValueGetter({ data }) {
   return deriveRollup(CLOSE_FIELDS.map((f) => data.build?.[f] ?? "n/a"));
 }
 
-// ---------------------------------------------------------------------------
-// Rollup sort comparator
 // Priority order for sorting: blocked > in progress > not started > n/a > done
 // (done floats to the bottom since it needs no attention)
-// ---------------------------------------------------------------------------
-
 const ROLLUP_SORT_ORDER = [
   ROLLUP_STATUS.BLOCKED,
   ROLLUP_STATUS.IN_PROGRESS,
@@ -52,11 +122,7 @@ function rollupComparator(a, b) {
   return ROLLUP_SORT_ORDER.indexOf(a) - ROLLUP_SORT_ORDER.indexOf(b);
 }
 
-// ---------------------------------------------------------------------------
-// Column definitions
-// ---------------------------------------------------------------------------
-
-export const columnDefs = [
+export const buildsColumnDefs = [
   {
     headerName: "",
     cellRenderer: AddTaskIconRenderer,
@@ -121,6 +187,12 @@ export const columnDefs = [
     },
     cellRenderer: ScheduleRenderer,
     comparator: (a, b, _nodeA, _nodeB, isDescending) => {
+      // ASAP shows sink below On Schedule / TBD regardless of sort direction,
+      // even if they have leftover announce/on-sale dates from a prior mode.
+      const aAsap = (a?.releaseMode ?? "asap") === "asap";
+      const bAsap = (b?.releaseMode ?? "asap") === "asap";
+      if (aAsap !== bAsap) return aAsap ? 1 : -1;
+
       const at = a?.time ?? null;
       const bt = b?.time ?? null;
       if (at === null && bt === null) return 0;

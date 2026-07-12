@@ -1,0 +1,64 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  flex: 1;
+  min-height: 0;
+  padding: 2rem;
+  text-align: center;
+}
+
+.logo {
+  width: 96px;
+  height: 96px;
+  object-fit: contain;
+  opacity: 0.5;
+  margin-bottom: 0.5rem;
+}
+
+.code {
+  font-family: "RavenDots", sans-serif;
+  text-transform: uppercase;
+  font-size: 3rem;
+  color: var(--color-moonlight);
+  margin: 0;
+}
+
+.message {
+  color: var(--color-rune);
+  font-size: 0.95rem;
+  margin: 0 0 1rem;
+}
+
+.path {
+  color: var(--color-frost);
+  font-family: "Google Sans Code", monospace;
+  background-color: var(--color-stone);
+  padding: 0.15rem 0.4rem;
+  border-radius: 0.25rem;
+}
+
+.homeLink {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 0.25rem;
+  border: 1px solid transparent;
+  padding: 0.7rem 0.9rem;
+  font-size: 0.9rem;
+  font-family: "Google Sans Flex", Helvetica, sans-serif;
+  text-transform: uppercase;
+  font-weight: 500;
+  background-color: var(--color-wyrd);
+  color: var(--color-moonlight);
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease-in-out,
+    border-color 0.2s ease-in-out;
+}
+
+.homeLink:hover {
+  background-color: var(--color-void);
+  border-color: var(--color-wyrd-dim);
+}
