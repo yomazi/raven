@@ -1,8 +1,18 @@
 import log from "../logging/log.js";
+import SettingsService from "../settings/settings.service.js";
 import ShowsService from "../shows/shows.service.js";
 import { ProgrammingDrive } from "../utilities/constants.js";
 import { extractPdfText } from "../utilities/pdf.js";
+import DocsRepository from "./docs.repository.js";
 import DriveRepository, { CONTRACT_FOLDER_PREFIX } from "./drive.repository.js";
+
+function formatDate(date) {
+  return date.toISOString().split("T")[0];
+}
+
+function formatLongDate(date) {
+  return date.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
+}
 
 class DriveService {
   static async syncShows({ fromDate = null } = {}) {
@@ -98,11 +108,18 @@ class DriveService {
       });
 
       // 5. Create marketing assets folder
+      const marketingAssetsTemplateDocId = await SettingsService.getValue(
+        "marketingAssetsInfoDocId"
+      );
+      if (!marketingAssetsTemplateDocId) {
+        throw new Error("The \"Marketing Assets Info Doc ID\" setting is not configured.");
+      }
       const marketingAssets = await DriveRepository.createMarketingAssetsFolder({
         folderId: show.driveId,
         artist: show.artist,
         date: show.date,
         multipleShows: show.multipleShows,
+        templateDocId: marketingAssetsTemplateDocId,
       });
 
       log.info("createShowFolder", "Marketing assets folder created", {
@@ -214,11 +231,17 @@ class DriveService {
       const show = await ShowsService.getByGoogleFolderId(googleFolderId);
       if (!show) throw new Error(`Show not found for folder ID: ${googleFolderId}`);
 
+      const templateDocId = await SettingsService.getValue("marketingAssetsInfoDocId");
+      if (!templateDocId) {
+        throw new Error("The \"Marketing Assets Info Doc ID\" setting is not configured.");
+      }
+
       const result = await DriveRepository.createMarketingAssetsFolder({
         folderId: googleFolderId,
         artist: show.artist,
         date: new Date(show.date),
         multipleShows: show.isMulti,
+        templateDocId,
       });
 
       log.info("createMarketingAssetsFolder", "Marketing assets folder created", {
@@ -295,6 +318,93 @@ class DriveService {
       return { ...folder, show: updatedShow };
     } catch (err) {
       log.error("archiveContractFolder", "Failed to archive contract folder", err);
+      throw err;
+    }
+  }
+
+  static async renameContractFolder({ googleFolderId, contractId, signee }) {
+    log.info("renameContractFolder", "Renaming contract", { googleFolderId, contractId, signee });
+
+    try {
+      const show = await ShowsService.getByGoogleFolderId(googleFolderId);
+      if (!show) throw new Error(`Show not found for folder ID: ${googleFolderId}`);
+
+      const contract = (show.build?.contracts ?? []).find((c) => String(c._id) === contractId);
+      if (!contract) throw new Error(`Contract not found: ${contractId}`);
+
+      const trimmedSignee = signee.trim();
+      const folder = await DriveRepository.renameFolder({
+        folderId: contract.folderId,
+        name: `${CONTRACT_FOLDER_PREFIX}${trimmedSignee}`,
+      });
+
+      const updatedShow = await ShowsService.renameContract(googleFolderId, contractId, {
+        signee: trimmedSignee,
+        folderName: folder.folderName,
+      });
+
+      log.info("renameContractFolder", "Contract renamed", {
+        folderName: folder.folderName,
+        folderId: folder.folderId,
+      });
+
+      return { ...folder, show: updatedShow };
+    } catch (err) {
+      log.error("renameContractFolder", "Failed to rename contract", err);
+      throw err;
+    }
+  }
+
+  static async generateContractDoc({ googleFolderId, contractId }) {
+    log.info("generateContractDoc", "Generating contract doc", { googleFolderId, contractId });
+
+    try {
+      const show = await ShowsService.getByGoogleFolderId(googleFolderId);
+      if (!show) throw new Error(`Show not found for folder ID: ${googleFolderId}`);
+
+      const contract = (show.build?.contracts ?? []).find((c) => String(c._id) === contractId);
+      if (!contract) throw new Error(`Contract not found: ${contractId}`);
+
+      const templateDocId = await SettingsService.getValue("generalContractTemplateDocId");
+      if (!templateDocId) {
+        throw new Error("The \"General Contract Template Doc ID\" setting is not configured.");
+      }
+
+      const now = new Date();
+      const fileName = `prg.contract.doc -  ${formatDate(now)} ${contract.signee} - contract`;
+
+      const file = await DriveRepository.copyFile({
+        fileId: templateDocId,
+        name: fileName,
+        folderId: contract.folderId,
+      });
+
+      try {
+        await DocsRepository.replaceText(file.id, [
+          { find: "{{ARTIST}}", replace: contract.signee },
+          { find: "{{DATE}}", replace: formatLongDate(now) },
+        ]);
+      } catch (err) {
+        // Don't leave a half-generated doc (with unresolved placeholders)
+        // sitting in the contract's folder — trash it and surface the error.
+        await DriveRepository.trashFile({ fileId: file.id }).catch(() => {});
+        throw err;
+      }
+
+      const updatedShow = await ShowsService.setContractStatus(
+        googleFolderId,
+        contractId,
+        "drafted by us"
+      );
+
+      log.info("generateContractDoc", "Contract doc generated", {
+        fileName: file.name,
+        fileId: file.id,
+      });
+
+      return { file, show: updatedShow };
+    } catch (err) {
+      log.error("generateContractDoc", "Failed to generate contract doc", err);
       throw err;
     }
   }

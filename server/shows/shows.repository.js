@@ -73,6 +73,22 @@ class ShowsRepository {
     );
   }
 
+  static async setContractStatus(googleFolderId, contractId, status) {
+    return Show.findOneAndUpdate(
+      { googleFolderId, "build.contracts._id": contractId },
+      { $set: { "build.contracts.$.status": status } },
+      { new: true, runValidators: true }
+    );
+  }
+
+  static async renameContract(googleFolderId, contractId, { signee, folderName }) {
+    return Show.findOneAndUpdate(
+      { googleFolderId, "build.contracts._id": contractId },
+      { $set: { "build.contracts.$.signee": signee, "build.contracts.$.folderName": folderName } },
+      { new: true, runValidators: true }
+    );
+  }
+
   static async patch(googleFolderId, updates) {
     const { _id, __v, googleFolderId: _folderId, createdAt, ...safeUpdates } = updates;
     const flatUpdates = flatten(safeUpdates);

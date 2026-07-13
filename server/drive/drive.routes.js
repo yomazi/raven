@@ -67,6 +67,20 @@ router.post(
   Controller.archiveContractFolder
 );
 
+router.post(
+  "/drive/contracts/:contractId/rename",
+  validate(Schemas.renameContractFolder),
+  validateApiToken,
+  Controller.renameContractFolder
+);
+
+router.post(
+  "/drive/contracts/:contractId/generate",
+  validate(Schemas.generateContractDoc),
+  validateApiToken,
+  Controller.generateContractDoc
+);
+
 router.get(
   "/drive/folders/:folderId/importable-contract-folders",
   validate(Schemas.listImportableContractFolders),

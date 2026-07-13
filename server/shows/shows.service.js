@@ -94,6 +94,22 @@ class ShowsService {
     });
   }
 
+  static async setContractStatus(googleFolderId, contractId, status) {
+    const show = await ShowsRepository.setContractStatus(googleFolderId, contractId, status);
+    if (!show) return null;
+
+    const contracts = show.build?.contracts ?? [];
+    return ShowsRepository.patch(googleFolderId, {
+      "build.contract": deriveContractFieldStatus(contracts),
+    });
+  }
+
+  // Renaming doesn't affect status/archived, so no rollup recompute is needed
+  // here (unlike addContract/archiveContract).
+  static async renameContract(googleFolderId, contractId, { signee, folderName }) {
+    return ShowsRepository.renameContract(googleFolderId, contractId, { signee, folderName });
+  }
+
   static #computeWarnings(show) {
     const warnings = [];
 

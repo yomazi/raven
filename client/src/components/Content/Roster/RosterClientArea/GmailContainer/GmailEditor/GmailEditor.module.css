@@ -57,7 +57,7 @@
   line-height: 1.2;
   text-transform: uppercase;
   color: var(--color-rune);
-  width: 3.7rem;
+  width: 5.5rem;
   flex-shrink: 0;
   font-weight: 500;
   padding-right: 0.2rem;
@@ -79,7 +79,7 @@
 /* ── Recipient picker ─────────────────────────────────────────────────────── */
 
 .recipientPicker {
-  padding: 6px 14px 10px calc(3.7rem + 6px + 14px);
+  padding: 6px 14px 10px calc(5.5rem + 6px + 14px);
   border-bottom: 1px solid var(--color-stone);
   display: flex;
   flex-direction: column;

@@ -19,7 +19,7 @@ const SECTIONS = [
   { id: "core", label: "Core" },
   { id: "schedule", label: "Schedule" },
   { id: "performances", label: "Performances" },
-  { id: "terms", label: "Contracts" },
+  { id: "terms", label: "Deal Terms" },
   { id: "set-length", label: "Set Length" },
   { id: "contact", label: "Contact List" },
   { id: "ticket-prices", label: "Ticket Prices" },

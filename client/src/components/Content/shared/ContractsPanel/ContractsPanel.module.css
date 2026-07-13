@@ -1,0 +1,237 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px 20px;
+  overflow-y: auto;
+  height: 100%;
+  box-sizing: border-box;
+  font-size: 0.9rem;
+  color: var(--color-moonlight);
+}
+
+.fieldGrid {
+  display: grid;
+  grid-template-columns: 140px 1fr;
+  gap: 8px 12px;
+  align-items: center;
+}
+
+.label {
+  font-size: 0.9rem;
+  color: var(--color-moonlight);
+  opacity: 0.6;
+}
+
+.value {
+  font-size: 0.9rem;
+  color: var(--color-moonlight);
+}
+
+.input {
+  background: var(--color-void);
+  border: 1px solid var(--color-stone);
+  border-radius: 4px;
+  padding: 5px 8px;
+  font-size: 0.9rem;
+  color: var(--color-moonlight);
+  outline: none;
+  transition: border-color 0.2s;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.input:hover {
+  border-color: var(--color-rune);
+}
+
+.input:focus {
+  opacity: 1;
+  border-color: var(--color-wyrd);
+}
+
+input[type="date"] {
+  width: 160px;
+}
+
+.subSection {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 12px;
+  background: var(--color-stone);
+  border-radius: 6px;
+  border: 1px solid var(--color-stone);
+}
+
+.subSectionTitleRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.statusCell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.nameDisplay {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.nameLink {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  color: var(--color-moonlight);
+  text-decoration: none;
+  transition: opacity 0.15s;
+}
+
+.nameLink::after {
+  content: "";
+  position: absolute;
+  bottom: 1px;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background: var(--color-moonlight);
+  opacity: 0;
+  transition: opacity 0.2s ease-in-out;
+}
+
+.nameLink:hover::after {
+  opacity: 1;
+}
+
+.nameIcon {
+  width: 1.3rem;
+  height: 1.3rem;
+  flex-shrink: 0;
+  color: var(--color-moonlight);
+  opacity: 0.7;
+}
+
+.nameText {
+  font-size: 1.05rem;
+  font-weight: bold;
+  color: var(--color-moonlight);
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.editButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.15rem;
+  color: var(--color-moonlight);
+  opacity: 0.5;
+  flex-shrink: 0;
+  transition: opacity 0.15s;
+}
+
+.editButton:hover {
+  opacity: 1;
+  background-color: transparent;
+}
+
+.editIcon {
+  width: 1rem;
+  height: 1rem;
+}
+
+.empty {
+  font-size: 0.85rem;
+  color: var(--color-moonlight);
+  opacity: 0.3;
+  margin: 0;
+}
+
+.addRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.addRow .input {
+  flex: 1;
+}
+
+.addButton {
+  align-self: flex-start;
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+  background: none;
+  border: 1px solid var(--color-stone);
+  border-radius: 4px;
+  color: var(--color-moonlight);
+  opacity: 0.6;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.addButton:hover {
+  opacity: 1;
+}
+
+.select {
+  background: var(--color-void);
+  border: 1px solid var(--color-stone);
+  border-radius: 4px;
+  padding: 5px 8px;
+  font-size: 14px;
+  color: var(--color-moonlight);
+  outline: none;
+  width: 100%;
+  box-sizing: border-box;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+
+.select:focus {
+  border-color: var(--color-wyrd);
+}
+
+.select:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.removeButton {
+  padding: 3px 8px;
+  font-size: 12px;
+  background: none;
+  border: 1px solid color(srgb 1 1 1 / 0.15);
+  border-radius: 4px;
+  color: var(--color-ember);
+  opacity: 0.7;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.removeButton:hover {
+  opacity: 1;
+}
+
+.generateButton {
+  height: 1.9rem;
+  padding: 0 1rem;
+  font-size: 0.75rem;
+  font-weight: 400;
+  background: var(--color-wyrd-muted);
+}
+
+.generateButton:hover {
+  background-color: var(--color-dusk);
+}

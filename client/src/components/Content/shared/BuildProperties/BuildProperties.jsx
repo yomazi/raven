@@ -566,7 +566,7 @@ export default function BuildProperties({ show }) {
             options={BASE_STATUS}
             onChange={() => {}}
             disabled
-            title="Computed from the Contracts section in Properties — edit individual contracts there."
+            title="Computed from the Contracts section — edit individual contracts there."
           />
           <FieldRow
             label="Livestream"

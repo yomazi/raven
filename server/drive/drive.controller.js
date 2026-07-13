@@ -114,6 +114,30 @@ class DriveController {
     }
   }
 
+  static async renameContractFolder(req, res) {
+    try {
+      const { contractId } = req.params;
+      const { googleFolderId, signee } = req.body;
+      const result = await DriveService.renameContractFolder({ googleFolderId, contractId, signee });
+      res.json({ success: true, ...result });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ success: false, error: err.message });
+    }
+  }
+
+  static async generateContractDoc(req, res) {
+    try {
+      const { contractId } = req.params;
+      const { googleFolderId } = req.body;
+      const result = await DriveService.generateContractDoc({ googleFolderId, contractId });
+      res.json({ success: true, ...result });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ success: false, error: err.message });
+    }
+  }
+
   static async listImportableContractFolders(req, res) {
     try {
       const { folderId } = req.params;

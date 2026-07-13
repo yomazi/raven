@@ -87,6 +87,10 @@ export default function RosterGrid() {
 
       setSortModel(preserved.length > 0 ? preserved : DEFAULT_SORT);
       setViewMode(nextMode);
+      // Builds always starts upcoming-only, since a show's build.shouldShowInRoster
+      // flag is usually left true well after the show's date — this filter is
+      // what actually keeps past shows out of the Builds roster day to day.
+      if (nextMode === "builds") setUpcomingOnly(true);
     },
     [viewMode, sortModel]
   );
@@ -98,8 +102,8 @@ export default function RosterGrid() {
     window.open(url, "_blank", "noopener,noreferrer");
   };
 
-  // Keeps the current Properties/Build/Email/Workflows sub-tab active when
-  // switching to a different show.
+  // Keeps the current Properties/Contracts/Build/Email/Workflows sub-tab
+  // active when switching to a different show.
   const routeToShow = useCallback(
     (folderId) => {
       const currentAction = window.location.pathname.split("/").slice(3).join("/");
@@ -155,22 +159,20 @@ export default function RosterGrid() {
     [routeToShow, setSelectedShow, setIsSelectedShowVisible]
   );
 
-  // "Upcoming Only" only applies to the shows configuration.
-  const isExternalFilterPresent = useCallback(
-    () => viewMode === "shows" && upcomingOnly,
-    [viewMode, upcomingOnly]
-  );
+  // "Upcoming Only" applies in both Shows and Builds mode — both row sets
+  // carry a top-level `date` field since they're both sourced from Show docs.
+  const isExternalFilterPresent = useCallback(() => upcomingOnly, [upcomingOnly]);
 
   const doesExternalFilterPass = useCallback(
     (node) => {
-      if (viewMode !== "shows" || !upcomingOnly) return true;
+      if (!upcomingOnly) return true;
       const date = node.data?.date;
       if (!date) return false;
       const today = new Date();
       today.setHours(0, 0, 0, 0);
       return new Date(date) >= today;
     },
-    [viewMode, upcomingOnly]
+    [upcomingOnly]
   );
 
   useEffect(() => {
@@ -235,7 +237,7 @@ export default function RosterGrid() {
         }
       }
 
-      // Ctrl/Cmd+U toggles the "upcoming only" filter (shows config only)
+      // Ctrl/Cmd+U toggles the "upcoming only" filter
       if ((e.ctrlKey || e.metaKey) && e.key === "u") {
         e.preventDefault();
         setUpcomingOnly((prev) => !prev);
@@ -333,23 +335,21 @@ export default function RosterGrid() {
                 Builds
               </button>
             </div>
-            {viewMode === "shows" && (
-              <label className={styles.upcomingFilter}>
-                Upcoming Only:
-                <input
-                  type="checkbox"
-                  checked={upcomingOnly}
-                  onChange={(e) => setUpcomingOnly(e.target.checked)}
-                  onKeyDown={(e) => {
-                    if (e.key === "/") {
-                      e.preventDefault();
-                      filterInputRef.current?.focus();
-                      filterInputRef.current?.select();
-                    }
-                  }}
-                />
-              </label>
-            )}
+            <label className={styles.upcomingFilter}>
+              Upcoming Only:
+              <input
+                type="checkbox"
+                checked={upcomingOnly}
+                onChange={(e) => setUpcomingOnly(e.target.checked)}
+                onKeyDown={(e) => {
+                  if (e.key === "/") {
+                    e.preventDefault();
+                    filterInputRef.current?.focus();
+                    filterInputRef.current?.select();
+                  }
+                }}
+              />
+            </label>
             <input
               ref={filterInputRef}
               name="raven-grid-filter"

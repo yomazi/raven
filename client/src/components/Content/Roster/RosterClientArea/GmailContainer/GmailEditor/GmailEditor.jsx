@@ -64,10 +64,31 @@ function deriveInitialFields(mode, message) {
   return { to: "", subject: "" };
 }
 
-function deriveInitialHtml(mode, message, showFolderId) {
-  const folderBlock = showFolderId
-    ? `<p>Here's the folder:<br/><a href="https://drive.google.com/drive/folders/${showFolderId}">https://drive.google.com/drive/folders/${showFolderId}</a></p>`
+function folderBlockHtml(folderId) {
+  return folderId
+    ? `<p>Here's the folder:<br/><a href="https://drive.google.com/drive/folders/${folderId}">https://drive.google.com/drive/folders/${folderId}</a></p>`
     : "";
+}
+
+// Body templates for new messages, picked via the "Template:" field. Each
+// `body(folderId)` produces the initial editor content; "default" embeds a
+// live folder link (see withUpdatedFolderLink for how it stays in sync with
+// the Folder field afterward).
+const TEMPLATES = [
+  {
+    id: "default",
+    label: "Default",
+    body: (folderId) => `<p>Hey folks,</p><p></p><p></p><p></p>${folderBlockHtml(folderId)}`,
+  },
+  {
+    id: "contract-signature",
+    label: "Contract needs signature",
+    body: () => `<p>For you to sign.</p>`,
+  },
+];
+
+function deriveInitialHtml(mode, message, showFolderId) {
+  const folderBlock = folderBlockHtml(showFolderId);
 
   if (mode === "reply" && message?.body) {
     const quoted = stripHtml(message.body)
@@ -91,7 +112,19 @@ function deriveInitialHtml(mode, message, showFolderId) {
     return `<p>Hey folks,</p><p></p><p></p><p></p>${folderBlock}<p></p><hr/>${header}`;
   }
 
-  return `<p>Hey folks,</p><p></p><p></p><p></p>${folderBlock}`;
+  return TEMPLATES[0].body(showFolderId);
+}
+
+// Surgically repoints the "Here's the folder" link at whatever folder is
+// currently selected, without touching the rest of the body — so changing
+// the Folder field mid-composition doesn't wipe anything the user's typed.
+// A no-op if the user has deleted that link, or hasn't reached this point.
+const FOLDER_BLOCK_REGEX = /(Here's the folder:<br>)<a[^>]*href="[^"]*"[^>]*>[^<]*<\/a>/;
+
+function withUpdatedFolderLink(html, folderId) {
+  if (!folderId || !FOLDER_BLOCK_REGEX.test(html)) return html;
+  const url = `https://drive.google.com/drive/folders/${folderId}`;
+  return html.replace(FOLDER_BLOCK_REGEX, `$1<a href="${url}">${url}</a>`);
 }
 
 // Matches the text shown in the show Banner (and its "copy" action), so the
@@ -303,33 +336,41 @@ function stripNamingConvention(filename) {
   return idx === -1 ? filename : filename.slice(idx + 3);
 }
 
-// Folder options for the attachment picker: the show's root folder, its
-// Marketing Assets subfolder (if created), and each active contract's
-// subfolder — mirrors the folder layout shows actually have on Drive.
-function useAttachmentFolderOptions(showFolderId, show) {
-  const options = [{ id: showFolderId, label: "Show folder" }];
+// Target options for the "Folder" field: "— None —" (which resolves to the
+// show's root folder, so there's always an active folder), its Marketing
+// Assets subfolder (if created), and each active contract — mirrors the
+// folder layout shows actually have on Drive. Also drives the compose
+// subject line (see GmailEditor's subject-sync effect) and which folder's
+// files the Attach picker below lists.
+//
+// Also resolves `defaultId` — the contract whose name matches the show's
+// artist, if any, so that folder is pre-selected; otherwise the show's root
+// folder (i.e. "— None —") is the default.
+function useAttachTargetOptions(showFolderId, show) {
+  return useMemo(() => {
+    const options = [{ id: showFolderId, label: "— None —", contract: null }];
 
-  const marketingAssetsId = show?.drive?.folderIds?.marketingAssets;
-  if (marketingAssetsId) {
-    options.push({ id: marketingAssetsId, label: "Marketing Assets" });
-  }
+    const marketingAssetsId = show?.drive?.folderIds?.marketingAssets;
+    if (marketingAssetsId) {
+      options.push({ id: marketingAssetsId, label: "Marketing Assets", contract: null });
+    }
 
-  for (const contract of show?.build?.contracts ?? []) {
-    if (contract.archived) continue;
-    options.push({ id: contract.folderId, label: contract.folderName });
-  }
+    const artist = (show?.artist ?? "").trim().toLowerCase();
+    let matchedContractId = null;
 
-  return options;
+    for (const contract of show?.build?.contracts ?? []) {
+      if (contract.archived) continue;
+      options.push({ id: contract.folderId, label: contract.signee, contract });
+      if (!matchedContractId && (contract.signee ?? "").trim().toLowerCase() === artist) {
+        matchedContractId = contract.folderId;
+      }
+    }
+
+    return { options, defaultId: matchedContractId ?? showFolderId };
+  }, [showFolderId, show]);
 }
 
-function AttachmentPicker({ showFolderId, show, attachments, onChange }) {
-  const folderOptions = useAttachmentFolderOptions(showFolderId, show);
-  const [selectedFolderId, setSelectedFolderId] = useState(showFolderId);
-
-  useEffect(() => {
-    setSelectedFolderId(showFolderId);
-  }, [showFolderId]);
-
+function AttachmentPicker({ selectedFolderId, attachments, onChange }) {
   const { data: allFiles = [] } = useDriveFiles(selectedFolderId);
   // Only PDFs are supported as attachments for now — Google Docs/Sheets/Slides
   // aren't real downloadable files without an export step we don't need yet.
@@ -357,28 +398,14 @@ function AttachmentPicker({ showFolderId, show, attachments, onChange }) {
     <div className={styles.field}>
       <span className={styles.fieldLabel}>Attach:</span>
       <div className={styles.attachmentPicker}>
-        {folderOptions.length > 1 && (
-          <select
-            className={styles.fieldSelect}
-            value={selectedFolderId ?? ""}
-            onChange={(e) => setSelectedFolderId(e.target.value)}
-            disabled={!showFolderId}
-          >
-            {folderOptions.map((f) => (
-              <option key={f.id} value={f.id}>
-                {f.label}
-              </option>
-            ))}
-          </select>
-        )}
         <select
           className={styles.fieldSelect}
           value=""
           onChange={handleSelect}
-          disabled={!showFolderId}
+          disabled={!selectedFolderId}
         >
           <option value="" disabled>
-            {showFolderId ? "Attach a PDF…" : "No show folder selected"}
+            {selectedFolderId ? "Attach a PDF…" : "Select a Folder above to attach files"}
           </option>
           {files.map((f) => (
             <option key={f.id} value={f.id}>
@@ -479,20 +506,50 @@ const GmailEditor = ({ showFolderId, show, mode, message, onClose }) => {
   const [subject, setSubject] = useState(initial.subject);
   const [subjectPrefix, setSubjectPrefix] = useState("");
   const [subjectTouched, setSubjectTouched] = useState(false);
+  const [selectedFolderId, setSelectedFolderId] = useState(""); // Folder field — always ends up set (see default-select effect below)
+  const [contractTouched, setContractTouched] = useState(false);
+  const [selectedTemplateId, setSelectedTemplateId] = useState(TEMPLATES[0].id);
+  const [templateTouched, setTemplateTouched] = useState(false);
   const [attachments, setAttachments] = useState([]); // [{ driveFileId, filename, mimeType }]
   const [sendState, setSendState] = useState("idle"); // "idle" | "busy" | "done" | "err"
   const [err, setErr] = useState(null);
 
+  const { options: attachOptions, defaultId: defaultContractFolderId } = useAttachTargetOptions(
+    showFolderId,
+    show
+  );
+  const selectedContract = attachOptions.find((o) => o.id === selectedFolderId)?.contract ?? null;
+
+  // Default the Folder field to whichever active contract's name matches the
+  // show's artist, or the show's root folder ("— None —") otherwise, until
+  // the user picks something themselves. Keyed off `defaultContractFolderId`
+  // (not `showFolderId`) so it self-corrects once `show` catches up after
+  // switching shows, since `show` can lag a render behind `showFolderId`.
+  useEffect(() => {
+    if (contractTouched) return;
+    setSelectedFolderId(defaultContractFolderId);
+  }, [contractTouched, defaultContractFolderId]);
+
   // For a brand-new message, keep the subject in sync with "<prefix>: <show>"
-  // until the user types directly into the Subject field. The prefix field
-  // itself stays exactly what was typed — the colon is only ever added here,
-  // to the derived subject, never written back into subjectPrefix.
+  // (or "<prefix>: <contract> | <show>" when the selected Folder resolves to
+  // a contract whose name differs from the artist) until the user types
+  // directly into the Subject field. The prefix field itself
+  // stays exactly what was typed — the colon is only ever added here, to the
+  // derived subject, never written back into subjectPrefix.
   useEffect(() => {
     if (!isNew || subjectTouched) return;
     const bannerText = formatBannerText(show);
     const prefixOutput = withTrailingColon(subjectPrefix);
-    setSubject([prefixOutput, bannerText].filter(Boolean).join(" "));
-  }, [isNew, subjectTouched, subjectPrefix, show]);
+    const sameAsArtist =
+      selectedContract &&
+      (selectedContract.signee ?? "").trim().toLowerCase() ===
+        (show?.artist ?? "").trim().toLowerCase();
+    const subjectBody =
+      selectedContract && !sameAsArtist
+        ? [selectedContract.signee, bannerText].filter(Boolean).join(" | ")
+        : bannerText;
+    setSubject([prefixOutput, subjectBody].filter(Boolean).join(" "));
+  }, [isNew, subjectTouched, subjectPrefix, show, selectedContract]);
 
   const editor = useEditor({
     extensions: [StarterKit, Placeholder.configure({ placeholder: "Write your message…" })],
@@ -522,6 +579,32 @@ const GmailEditor = ({ showFolderId, show, mode, message, onClose }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [showFolderId]);
 
+  // Repoint the "Here's the folder" link at the currently selected Folder
+  // (contract subfolder, Marketing Assets, or the show root) whenever it
+  // changes — without wiping the rest of the body (see withUpdatedFolderLink).
+  useEffect(() => {
+    if (!editor) return;
+    const currentHtml = editor.getHTML();
+    const updatedHtml = withUpdatedFolderLink(currentHtml, selectedFolderId);
+    if (updatedHtml !== currentHtml) {
+      editor.commands.setContent(updatedHtml, { emitUpdate: false });
+    }
+  }, [editor, selectedFolderId]);
+
+  // Apply the selected Template's body when the user explicitly picks one —
+  // gated by templateTouched so it doesn't overwrite the initial content on
+  // mount (which already matches the default template). Uses whatever
+  // Folder is currently selected at the moment of the switch; if the user
+  // changes the Folder afterward, the effect above keeps the link in sync
+  // without re-applying (and thus wiping) the template again.
+  useEffect(() => {
+    if (!editor || !templateTouched) return;
+    const template = TEMPLATES.find((t) => t.id === selectedTemplateId) ?? TEMPLATES[0];
+    editor.commands.setContent(template.body(selectedFolderId));
+    editor.commands.focus("start");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [editor, templateTouched, selectedTemplateId]);
+
   // Switching to a different show shouldn't carry over recipients, the
   // subject prefix, or attachments picked for the previous show's folder.
   // For a brand-new message, `subject` is intentionally left alone here —
@@ -535,6 +618,9 @@ const GmailEditor = ({ showFolderId, show, mode, message, onClose }) => {
     setTo(freshInitial.to);
     setSubjectPrefix("");
     setSubjectTouched(false);
+    setContractTouched(false);
+    setSelectedTemplateId(TEMPLATES[0].id);
+    setTemplateTouched(false);
     if (!isNew) setSubject(freshInitial.subject);
     setAttachments([]);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -647,6 +733,25 @@ const GmailEditor = ({ showFolderId, show, mode, message, onClose }) => {
           </div>
         )}
 
+        <div className={styles.field}>
+          <span className={styles.fieldLabel}>Folder:</span>
+          <select
+            className={styles.fieldSelect}
+            value={selectedFolderId}
+            onChange={(e) => {
+              setContractTouched(true);
+              setSelectedFolderId(e.target.value);
+            }}
+            disabled={!showFolderId}
+          >
+            {attachOptions.map((o) => (
+              <option key={o.id} value={o.id}>
+                {o.label}
+              </option>
+            ))}
+          </select>
+        </div>
+
         {mode !== "reply" && (
           <div className={styles.field}>
             <span className={styles.fieldLabel}>Subject:</span>
@@ -667,9 +772,28 @@ const GmailEditor = ({ showFolderId, show, mode, message, onClose }) => {
           </div>
         )}
 
+        {isNew && (
+          <div className={styles.field}>
+            <span className={styles.fieldLabel}>Template:</span>
+            <select
+              className={styles.fieldSelect}
+              value={selectedTemplateId}
+              onChange={(e) => {
+                setTemplateTouched(true);
+                setSelectedTemplateId(e.target.value);
+              }}
+            >
+              {TEMPLATES.map((t) => (
+                <option key={t.id} value={t.id}>
+                  {t.label}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+
         <AttachmentPicker
-          showFolderId={showFolderId}
-          show={show}
+          selectedFolderId={selectedFolderId}
           attachments={attachments}
           onChange={setAttachments}
         />

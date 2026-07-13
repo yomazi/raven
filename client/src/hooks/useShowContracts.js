@@ -6,7 +6,13 @@
 // so they never race with a stale form snapshot. See useShowProperties.js's
 // save() for why build.contracts is deliberately excluded from that draft.
 
-import { archiveContractFolder, createContractFolder, importContractFolder } from "@api/drive.api.js";
+import {
+  archiveContractFolder,
+  createContractFolder,
+  generateContractDoc,
+  importContractFolder,
+  renameContractFolder,
+} from "@api/drive.api.js";
 import { usePatchShow } from "@hooks/usePatchShow.js";
 import { useShowById } from "@hooks/useShowById.js";
 import { useToast } from "@hooks/useToast.js";
@@ -22,6 +28,8 @@ export function useShowContracts(googleFolderId) {
   const queryClient = useQueryClient();
   const [isAdding, setIsAdding] = useState(false);
   const [isImporting, setIsImporting] = useState(false);
+  const [isRenaming, setIsRenaming] = useState(false);
+  const [generatingId, setGeneratingId] = useState(null);
 
   const { mutate: patch } = usePatchShow(googleFolderId);
 
@@ -44,6 +52,55 @@ export function useShowContracts(googleFolderId) {
       );
     },
     [allContracts, patch, toast]
+  );
+
+  const renameContract = useCallback(
+    async (contractId, signee) => {
+      if (!signee?.trim() || !googleFolderId) return;
+      setIsRenaming(true);
+      try {
+        const { show: updatedShow } = await renameContractFolder(
+          googleFolderId,
+          contractId,
+          signee.trim()
+        );
+        if (updatedShow) queryClient.setQueryData(["show", googleFolderId], updatedShow);
+      } catch (err) {
+        toast({
+          title: "Could not rename contract",
+          description: err.message ?? "Please try again.",
+          duration: 5000,
+        });
+      } finally {
+        setIsRenaming(false);
+      }
+    },
+    [googleFolderId, queryClient, toast]
+  );
+
+  const generateContract = useCallback(
+    async (contractId) => {
+      if (!googleFolderId) return;
+      setGeneratingId(contractId);
+      try {
+        const { show: updatedShow } = await generateContractDoc(googleFolderId, contractId);
+        if (updatedShow) queryClient.setQueryData(["show", googleFolderId], updatedShow);
+        toast({
+          title: "Contract doc generated",
+          description: "The template copy was added to the contract's folder.",
+          duration: 5000,
+        });
+      } catch (err) {
+        toast({
+          title: "Could not generate contract doc",
+          description: err.message ?? "Please try again.",
+          duration: 5000,
+        });
+      } finally {
+        setGeneratingId(null);
+      }
+    },
+    [googleFolderId, queryClient, toast]
   );
 
   const addContract = useCallback(
@@ -106,6 +163,10 @@ export function useShowContracts(googleFolderId) {
   return {
     contracts,
     updateContract,
+    renameContract,
+    isRenaming,
+    generateContract,
+    generatingId,
     addContract,
     archiveContract,
     isAdding,

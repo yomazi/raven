@@ -1,6 +1,7 @@
 import RgIcon from "@svg/rg.svg?react";
 import { useAuthStatus } from "../../hooks/useAuthStatus";
 import styles from "./Header.module.css";
+import SettingsButton from "./SettingsButton/SettingsButton.jsx";
 import Switcher from "./Switcher/Switcher";
 
 const Header = ({ mode }) => {
@@ -21,7 +22,10 @@ const Header = ({ mode }) => {
       <Switcher mode={mode} />
       <article className={styles.appControls}>
         {loggedIn ? (
-          <button onClick={logout}>Logout</button>
+          <>
+            <SettingsButton />
+            <button onClick={logout}>Logout</button>
+          </>
         ) : (
           <button onClick={handleLogin}>Login with Google</button>
         )}

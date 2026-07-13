@@ -36,6 +36,21 @@ export const archiveContractFolder = async (googleFolderId, contractId) => {
   return data;
 };
 
+export const renameContractFolder = async (googleFolderId, contractId, signee) => {
+  const { data } = await apiClient.post(`/drive/contracts/${contractId}/rename`, {
+    googleFolderId,
+    signee,
+  });
+  return data;
+};
+
+export const generateContractDoc = async (googleFolderId, contractId) => {
+  const { data } = await apiClient.post(`/drive/contracts/${contractId}/generate`, {
+    googleFolderId,
+  });
+  return data;
+};
+
 export const fetchImportableContractFolders = async (googleFolderId) => {
   const { data } = await apiClient.get(
     `/drive/folders/${googleFolderId}/importable-contract-folders`

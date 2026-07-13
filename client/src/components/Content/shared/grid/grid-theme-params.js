@@ -11,8 +11,8 @@ const gridThemeParams = {
 
   // Rows
   oddRowBackgroundColor: "var(--grid-gray-lighter)",
-  rowHoverColor: "var(--color-wyrd-muted)",
-  selectedRowBackgroundColor: "var(--color-stone)",
+  rowHoverColor: "var(--color-stone)",
+  selectedRowBackgroundColor: "var(--color-wyrd-muted)",
 
   // Text
   foregroundColor: "var(--color-frost)",

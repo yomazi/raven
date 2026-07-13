@@ -1,5 +1,6 @@
 import Banner from "@components/Content/shared/Banner/Banner.jsx";
 import BuildProperties from "@components/Content/shared/BuildProperties/BuildProperties.jsx";
+import ContractsPanel from "@components/Content/shared/ContractsPanel/ContractsPanel.jsx";
 import ShowProperties from "@components/ShowProperties/ShowProperties.jsx";
 import Parser from "@components/Workflows/Parser.jsx";
 import { useShowById } from "@hooks/useShowById.js";
@@ -33,6 +34,7 @@ const RosterClientArea = () => {
                 path="properties"
                 element={<ShowProperties key={showFolderId} showFolderId={showFolderId} />}
               />
+              <Route path="contracts" element={<ContractsPanel show={show} />} />
               <Route path="build" element={<BuildProperties show={show} />} />
               <Route
                 path="gmail"

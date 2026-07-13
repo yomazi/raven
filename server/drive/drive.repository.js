@@ -281,7 +281,7 @@ class DriveRepository {
     };
   }
 
-  static async createMarketingAssetsFolder({ folderId, artist, date, multipleShows }) {
+  static async createMarketingAssetsFolder({ folderId, artist, date, multipleShows, templateDocId }) {
     const drive = await DriveRepository.#getDriveClient();
 
     const mm = String(date.getMonth() + 1).padStart(2, "0");
@@ -305,7 +305,7 @@ class DriveRepository {
 
     // 2. Copy the template doc into the subfolder
     const docResponse = await drive.files.copy({
-      fileId: ProgrammingDrive.DocumentIds.MARKETING_ASSETS_TEMPLATE,
+      fileId: templateDocId,
       requestBody: {
         name: docName,
         parents: [marketingAssetsFolderId],
@@ -358,6 +358,36 @@ class DriveRepository {
   static async listSubfolders({ folderId }) {
     const drive = await DriveRepository.#getDriveClient();
     return DriveRepository.#listFolders(drive, folderId);
+  }
+
+  static async copyFile({ fileId, name, folderId }) {
+    const drive = await DriveRepository.#getDriveClient();
+
+    const response = await drive.files.copy({
+      fileId,
+      requestBody: {
+        name,
+        parents: [folderId],
+      },
+      fields: "id, name, webViewLink",
+      supportsAllDrives: true,
+    });
+
+    return {
+      id: response.data.id,
+      name: response.data.name,
+      webViewLink: response.data.webViewLink,
+    };
+  }
+
+  static async trashFile({ fileId }) {
+    const drive = await DriveRepository.#getDriveClient();
+
+    await drive.files.update({
+      fileId,
+      requestBody: { trashed: true },
+      supportsAllDrives: true,
+    });
   }
 
   static async renameFolder({ folderId, name }) {

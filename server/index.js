@@ -26,6 +26,7 @@ import showsRoutes from "./shows/shows.routes.js";
 import tasksRoutes from "./tasks/tasks.routes.js";
 import reportsRoutes from "./reports/reports.routes.js";
 import ReportScheduler from "./reports/report-scheduler.js";
+import settingsRoutes from "./settings/settings.routes.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -52,6 +53,7 @@ app.use(routePrefix, llmRoutes);
 app.use(routePrefix, showsRoutes);
 app.use(routePrefix, tasksRoutes);
 app.use(routePrefix, reportsRoutes);
+app.use(routePrefix, settingsRoutes);
 
 // set up Vite middleware for dev (Raven is local-only)
 
