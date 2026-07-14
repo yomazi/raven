@@ -1,5 +1,5 @@
 import AddTaskModal from "@modals/AddTaskModal/AddTaskModal";
-import { ROLLUP_STATUS } from "@shared/constants/builds.js";
+import RollupDot from "@components/Content/shared/RollupDot/RollupDot.jsx";
 import SvgAddTask from "@svg/add-task_google.svg?react";
 import SvgCheckboxChecked from "@svg/check-box--checked_google.svg?react";
 import SvgCopyOneCell from "@svg/copy-one-cell_rg.svg?react";
@@ -165,19 +165,6 @@ export const ScheduleRenderer = ({ value, data }) => {
   );
 };
 
-export const RollupCellRenderer = ({ value, phase }) => {
-  if (!value) return null;
-  const statusMap = {
-    [ROLLUP_STATUS.NOT_STARTED]: "to_do",
-    [ROLLUP_STATUS.IN_PROGRESS]: "in_progress",
-    [ROLLUP_STATUS.BLOCKED]: "blocked",
-    [ROLLUP_STATUS.DONE]: "done",
-    [ROLLUP_STATUS.NA]: "done",
-  };
-  const status = statusMap[value] ?? "to_do";
-  const label = `${phase} status: ${value === ROLLUP_STATUS.NA ? "done" : value}`;
-
-  return <div className={gridStyles.rollupDot} data-status={status} title={label} />;
-};
+export const RollupCellRenderer = ({ value, phase }) => <RollupDot value={value} phase={phase} />;
 
 export default AddTaskIconRenderer;
