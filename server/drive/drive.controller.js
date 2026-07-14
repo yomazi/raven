@@ -28,6 +28,39 @@ class DriveController {
     }
   }
 
+  static async listSubfolders(req, res) {
+    try {
+      const { folderId } = req.params;
+      const folders = await DriveService.listSubfolders({ folderId });
+      res.set("Cache-Control", "no-store");
+      res.json({ success: true, folders });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ success: false, error: err.message });
+    }
+  }
+
+  static async downloadFile(req, res) {
+    try {
+      const { fileId } = req.params;
+      const { buffer, mimeType, name } = await DriveService.downloadFile({ fileId });
+
+      // ASCII fallback for filename= (older clients), plus the correct UTF-8
+      // encoded value in filename* (RFC 5987) for everything else.
+      const asciiName = name.replace(/[^\x20-\x7E]/g, "_").replace(/"/g, "");
+      res.set("Content-Type", mimeType);
+      res.set(
+        "Content-Disposition",
+        `attachment; filename="${asciiName}"; filename*=UTF-8''${encodeURIComponent(name)}`
+      );
+      res.set("Cache-Control", "no-store");
+      res.send(buffer);
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ success: false, error: err.message });
+    }
+  }
+
   static async upload(req, res) {
     try {
       // req.file is populated by multer; req.body has the non-file fields

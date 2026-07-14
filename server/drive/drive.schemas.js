@@ -16,6 +16,20 @@ class DriveSchemas {
     }),
   };
 
+  static listSubfolders = {
+    headers: authHeaderSchema,
+    params: Joi.object({
+      folderId: Joi.string().required(),
+    }),
+  };
+
+  static downloadFile = {
+    headers: authHeaderSchema,
+    params: Joi.object({
+      fileId: Joi.string().required(),
+    }),
+  };
+
   static upload = {
     headers: authHeaderSchema,
     // multer populates req.body from the non-file multipart fields

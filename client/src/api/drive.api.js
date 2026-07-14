@@ -14,6 +14,31 @@ export const fetchFileText = async (fileId, mimeType) => {
   return data.text;
 };
 
+export const fetchSubfolders = async (folderId) => {
+  const { data } = await apiClient.get(`/drive/folders/${folderId}/subfolders`);
+  return data.folders;
+};
+
+export const downloadDriveFile = async (fileId) => {
+  const response = await apiClient.get(`/drive/files/${fileId}/download`, {
+    responseType: "blob",
+  });
+
+  const disposition = response.headers["content-disposition"] ?? "";
+  const utf8Match = /filename\*=UTF-8''([^;]+)/i.exec(disposition);
+  const plainMatch = /filename="?([^";]+)"?/i.exec(disposition);
+  const filename = decodeURIComponent(utf8Match?.[1] ?? plainMatch?.[1] ?? "download");
+
+  const url = URL.createObjectURL(response.data);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+};
+
 export const uploadToDrive = async ({ blob, filename, mimeType, folderId }) => {
   const fd = new FormData();
   fd.append("file", blob, filename);

@@ -11,6 +11,23 @@ const MONTH_FOLDER_REGEX = /^\d{4}-\d{2}\s+\w+$/;
 
 export const CONTRACT_FOLDER_PREFIX = "contract - ";
 
+// Google-native files have no raw bytes to download — exporting to a
+// standard office format is the closest equivalent to "downloading" them.
+const GOOGLE_EXPORT_MIME_TYPES = {
+  "application/vnd.google-apps.document": {
+    exportMimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    extension: "docx",
+  },
+  "application/vnd.google-apps.spreadsheet": {
+    exportMimeType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    extension: "xlsx",
+  },
+  "application/vnd.google-apps.presentation": {
+    exportMimeType: "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+    extension: "pptx",
+  },
+};
+
 class DriveRepository {
   static async #getDriveClient() {
     const auth = await AuthService.getGoogleClient();
@@ -111,14 +128,15 @@ class DriveRepository {
   /**
    * GET /api/v1/drive/folders/:folderId/files
    *
-   * Lists all non-trashed files directly inside a Drive folder.
-   * Excludes subfolders — GmailPanel only needs to scan filenames for version
-   * number inference, and show folders only contain files at the top level.
+   * Lists all non-trashed files directly inside a Drive folder (excludes
+   * subfolders — the file manager's left pane fetches those separately via
+   * listSubfolders, on demand, so this stays a lazy per-folder load rather
+   * than pulling the whole show's contents at once).
    *
    * Uses a single files.list call with pageToken looping to handle folders
    * with more than 1000 files (the Drive API max per page).
    *
-   * Response shape: [{ id, name, mimeType }]
+   * Response shape: [{ id, name, mimeType, size, modifiedTime, webViewLink }]
    */
   static async listFolderFiles({ folderId }) {
     const drive = await DriveRepository.#getDriveClient();
@@ -129,8 +147,9 @@ class DriveRepository {
     do {
       const response = await drive.files.list({
         q: `'${folderId}' in parents and mimeType != 'application/vnd.google-apps.folder' and trashed = false`,
-        fields: "nextPageToken, files(id, name, mimeType)",
+        fields: "nextPageToken, files(id, name, mimeType, size, modifiedTime, webViewLink)",
         pageSize: 1000,
+        orderBy: "name_natural",
         supportsAllDrives: true,
         includeItemsFromAllDrives: true,
         ...(pageToken ? { pageToken } : {}),
@@ -141,6 +160,44 @@ class DriveRepository {
     } while (pageToken);
 
     return files;
+  }
+
+  /**
+   * GET /api/v1/drive/files/:fileId/download
+   *
+   * Google Docs/Sheets/Slides have no raw bytes — export them to a standard
+   * office format. Everything else (PDFs, etc.) downloads as-is.
+   *
+   * Returns: { buffer, mimeType, name }
+   */
+  static async downloadFile({ fileId }) {
+    const drive = await DriveRepository.#getDriveClient();
+
+    const meta = await drive.files.get({
+      fileId,
+      fields: "id, name, mimeType",
+      supportsAllDrives: true,
+    });
+    const { name, mimeType } = meta.data;
+
+    const exportConfig = GOOGLE_EXPORT_MIME_TYPES[mimeType];
+    if (exportConfig) {
+      const response = await drive.files.export(
+        { fileId, mimeType: exportConfig.exportMimeType },
+        { responseType: "arraybuffer" }
+      );
+      return {
+        buffer: Buffer.from(response.data),
+        mimeType: exportConfig.exportMimeType,
+        name: `${name}.${exportConfig.extension}`,
+      };
+    }
+
+    const response = await drive.files.get(
+      { fileId, alt: "media", supportsAllDrives: true },
+      { responseType: "arraybuffer" }
+    );
+    return { buffer: Buffer.from(response.data), mimeType, name };
   }
 
   /**

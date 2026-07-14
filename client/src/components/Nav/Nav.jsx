@@ -49,10 +49,11 @@ const NavItem = ({ to, label, disabled }) => {
 };
 
 const showLinks = [
+  { route: "build", label: "Build" },
   { route: "properties", label: "Properties" },
   { route: "contracts", label: "Contracts" },
-  { route: "build", label: "Build" },
   { route: "gmail", label: "Email" },
+  { route: "files", label: "Files" },
   {
     label: "Workflows",
     items: [{ route: "test", label: "Parse Offers & Contracts" }],

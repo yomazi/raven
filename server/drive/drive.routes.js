@@ -22,6 +22,22 @@ router.get(
   Controller.listFolderFiles
 );
 
+// GET /api/v1/drive/folders/:folderId/subfolders
+router.get(
+  "/drive/folders/:folderId/subfolders",
+  validate(Schemas.listSubfolders),
+  validateApiToken,
+  Controller.listSubfolders
+);
+
+// GET /api/v1/drive/files/:fileId/download
+router.get(
+  "/drive/files/:fileId/download",
+  validate(Schemas.downloadFile),
+  validateApiToken,
+  Controller.downloadFile
+);
+
 // POST /api/v1/drive/upload
 // multer runs before validate so req.body is populated from the multipart fields
 router.post(

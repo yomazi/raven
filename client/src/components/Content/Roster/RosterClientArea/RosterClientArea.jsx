@@ -5,6 +5,7 @@ import ShowProperties from "@components/ShowProperties/ShowProperties.jsx";
 import Parser from "@components/Workflows/Parser.jsx";
 import { useShowById } from "@hooks/useShowById.js";
 import { Navigate, Route, Routes, useParams } from "react-router-dom";
+import FileManager from "./FileManager/FileManager.jsx";
 import GmailContainer from "./GmailContainer/GmailContainer.jsx";
 import styles from "./RosterClientArea.module.css";
 
@@ -44,6 +45,7 @@ const RosterClientArea = () => {
                 path="gmail/:threadId/:messageId"
                 element={<GmailContainer showFolderId={showFolderId} show={show} />}
               />
+              <Route path="files" element={<FileManager showFolderId={showFolderId} show={show} />} />
               <Route path="test" element={<Parser showFolderId={showFolderId} show={show} />} />
             </Routes>
           </div>

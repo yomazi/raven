@@ -14,6 +14,15 @@ function formatLongDate(date) {
   return date.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
 }
 
+// Uploaded filenames carry a routing prefix ("prg.contract.draft.1 - foo.pdf")
+// added by the naming modal (GmailPanel / FileManager) — a download should
+// give back just the human-chosen part after that " - " separator.
+function stripFilenamePrefix(name) {
+  const separatorIndex = name.indexOf(" - ");
+  if (separatorIndex === -1) return name;
+  return name.slice(separatorIndex + 3).trim();
+}
+
 class DriveService {
   static async syncShows({ fromDate = null } = {}) {
     log.info("sync", "Sync started", { fromDate });
@@ -44,6 +53,15 @@ class DriveService {
 
   static async listFolderFiles({ folderId }) {
     return DriveRepository.listFolderFiles({ folderId });
+  }
+
+  static async listSubfolders({ folderId }) {
+    return DriveRepository.listSubfolders({ folderId });
+  }
+
+  static async downloadFile({ fileId }) {
+    const result = await DriveRepository.downloadFile({ fileId });
+    return { ...result, name: stripFilenamePrefix(result.name) };
   }
 
   static async uploadFile({ buffer, filename, mimeType, folderId }) {

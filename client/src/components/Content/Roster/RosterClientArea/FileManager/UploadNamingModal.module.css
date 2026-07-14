@@ -1,0 +1,167 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(3px);
+  z-index: 200;
+}
+
+.content {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 201;
+  background: var(--color-stone);
+  border: 1px solid var(--color-stone);
+  border-radius: 8px;
+  padding: 24px 28px;
+  width: 440px;
+  max-width: calc(100vw - 40px);
+  box-shadow: 0 16px 48px rgb(0 0 0 / 0.5);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--color-moonlight);
+  margin: 0;
+  word-break: break-all;
+}
+
+.remaining {
+  font-weight: 400;
+  font-size: 12px;
+  color: var(--status-shrug-fg);
+}
+
+.meta {
+  font-size: 11px;
+  color: var(--status-shrug-fg);
+  margin-bottom: 4px;
+}
+
+.row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+  min-width: 120px;
+}
+
+.label {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--status-shrug-fg);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.select,
+.input {
+  font-size: 0.85rem;
+  border: 1px solid var(--color-rune);
+  border-radius: 5px;
+  padding: 6px 8px;
+  color: var(--color-moonlight);
+  outline: none;
+  background-color: var(--grid-gray-darker);
+}
+
+.previewWrap {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.previewInput {
+  font-size: 0.85rem;
+  font-family: "Google Sans Code", monospace;
+  border: 1px solid var(--color-rune);
+  border-radius: 5px;
+  padding: 7px 9px;
+  color: var(--color-moonlight);
+  outline: none;
+  word-break: break-all;
+  background-color: var(--grid-gray-darker);
+}
+
+.hint {
+  font-size: 11px;
+  color: var(--status-shrug-fg);
+  font-style: italic;
+}
+
+.resetBtn {
+  font-size: 10px;
+  color: var(--color-wyrd);
+  border: none;
+  background: none;
+  cursor: pointer;
+  padding: 0;
+  text-align: left;
+  text-decoration: underline;
+  align-self: flex-start;
+}
+
+.errText {
+  font-size: 11px;
+  color: var(--alert);
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.buttonSecondary {
+  padding: 8px 16px;
+  font-size: 14px;
+  border-radius: 4px;
+  border: 1px solid var(--color-stone);
+  background: none;
+  color: var(--color-moonlight);
+  opacity: 0.7;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.buttonSecondary:hover {
+  opacity: 1;
+}
+
+.buttonSecondary:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.buttonPrimary {
+  padding: 8px 16px;
+  font-size: 14px;
+  border-radius: 4px;
+  border: none;
+  background: var(--color-wyrd);
+  color: white;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.buttonPrimary:hover {
+  opacity: 0.85;
+}
+
+.buttonPrimary:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
