@@ -93,40 +93,6 @@
   scrollbar-color: color(srgb 0.7 0.7 0.7 / 0.4) transparent;
 }
 
-/* folder icons */
-.folderLinkCell {
-  position: relative;
-  display: flex;
-  width: 22px;
-  height: 22px;
-  color: var(--color-moonlight);
-}
-
-.folderLinkCell:hover .iconFolderClosed {
-  opacity: 0;
-}
-
-.folderLinkCell:hover .iconFolderOpen {
-  opacity: 1;
-}
-
-.iconFolderOpen {
-  width: 100%;
-  height: 100%;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  opacity: 0;
-  transition: opacity 0.3s;
-}
-
-.iconFolderClosed {
-  width: 100%;
-  height: 100%;
-  transition: opacity 0.3s;
-}
-
 .rowNumberCell {
   font-size: 0.75rem;
   font-weight: 100;
@@ -234,6 +200,23 @@
   opacity: 0.4;
 }
 
+.scheduleCellPresale {
+  color: var(--color-frost);
+}
+
+.contractHeaderCell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+.contractHeaderCell svg {
+  width: 14px;
+  height: 14px;
+}
+
 .gridFooter {
   position: absolute;
   bottom: 0;
@@ -300,6 +283,14 @@
   text-align: right;
 }
 
+:global(.raven-grid-divider) {
+  /* !important: AG Grid's Theming API generates its own .ag-cell border
+     rules at runtime with higher effective specificity, which silently wins
+     over a plain class selector otherwise — this is the only reliable way
+     to force a border onto a body cell. */
+  border-left: 1px solid var(--color-stone) !important;
+}
+
 :global(.ag-row) {
   cursor: pointer;
 }
@@ -312,13 +303,6 @@
 
 :global(.ag-cell) * {
   transition: all 0.1s ease-in-out;
-}
-
-:global(.ag-cell:hover) .folderLinkCell {
-  width: 26px;
-  height: 26px;
-  margin: -2px; /* pulls the element outward equally on all sides */
-  color: white;
 }
 
 :global(.ag-cell:hover) .copyDateAndArtistLinkCell,

@@ -20,6 +20,7 @@ const formatDate = (dateString) => {
 const Banner = ({ show = {} }) => {
   const formattedDate = formatDate(show.date);
   const rollups = deriveAllRollups(show.build);
+  const contractStatus = show.build?.contract ?? "n/a";
 
   const handleClick = () => {
     const url = `https://drive.google.com/drive/folders/${show.googleFolderId}`;
@@ -48,8 +49,10 @@ const Banner = ({ show = {} }) => {
       </button>
       <div className={styles.rollups}>
         <RollupDot value={rollups.setup} phase="setup" />
-        <RollupDot value={rollups.build} phase="build" />
+        <RollupDot value={rollups.ticketing} phase="ticketing" />
         <RollupDot value={rollups.close} phase="close" />
+        <div className={styles.rollupDivider} />
+        <RollupDot value={contractStatus} phase="contract" />
       </div>
     </section>
   );

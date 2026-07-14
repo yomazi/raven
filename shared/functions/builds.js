@@ -1,6 +1,6 @@
 // shared/functions/buildRollup.js
 
-import { BUILD_FIELDS, CLOSE_FIELDS, ROLLUP_STATUS, SETUP_FIELDS } from "../constants/builds.js";
+import { CLOSE_FIELDS, ROLLUP_STATUS, SETUP_FIELDS, TICKETING_FIELDS } from "../constants/builds.js";
 
 export function deriveRollup(values) {
   if (values.length === 0) return ROLLUP_STATUS.NA;
@@ -33,12 +33,12 @@ export function deriveAllRollups(build) {
   if (!build)
     return {
       setup: ROLLUP_STATUS.NA,
-      build: ROLLUP_STATUS.NA,
+      ticketing: ROLLUP_STATUS.NA,
       close: ROLLUP_STATUS.NA,
     };
   return {
     setup: deriveRollup(SETUP_FIELDS.map((f) => build[f] ?? "n/a")),
-    build: deriveRollup(BUILD_FIELDS.map((f) => build[f] ?? "n/a")),
+    ticketing: deriveRollup(TICKETING_FIELDS.map((f) => build[f] ?? "n/a")),
     close: deriveRollup(CLOSE_FIELDS.map((f) => build[f] ?? "n/a")),
   };
 }

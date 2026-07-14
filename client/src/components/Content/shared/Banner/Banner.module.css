@@ -138,3 +138,10 @@
   margin-right: 1rem;
   flex-shrink: 0;
 }
+
+.rollupDivider {
+  width: 1px;
+  height: 1rem;
+  background: var(--color-stone);
+  flex-shrink: 0;
+}

@@ -3,9 +3,8 @@ import RollupDot from "@components/Content/shared/RollupDot/RollupDot.jsx";
 import SvgAddTask from "@svg/add-task_google.svg?react";
 import SvgCheckboxChecked from "@svg/check-box--checked_google.svg?react";
 import SvgCopyOneCell from "@svg/copy-one-cell_rg.svg?react";
+import SvgContract from "@svg/contract_google.svg?react";
 import SvgCopyTwoCells from "@svg/copy-two-cells_rg.svg?react";
-import SvgFolderClosed from "@svg/folder--closed_google.svg?react";
-import SvgFolderOpen from "@svg/folder--open_google.svg?react";
 import SvgSchedule from "@svg/schedule_google.svg?react";
 import SvgUnknown from "@svg/unknown_google.svg?react";
 import { useState } from "react";
@@ -15,15 +14,6 @@ import { useEffect } from "react";
 
 export const RowNumberRenderer = (params) => {
   return <div className={gridStyles.rowNumberCell}>{params.value}</div>;
-};
-
-export const FolderIconRenderer = () => {
-  return (
-    <div className={gridStyles.folderLinkCell}>
-      <SvgFolderClosed className={gridStyles.iconFolderClosed} />
-      <SvgFolderOpen className={gridStyles.iconFolderOpen} />
-    </div>
-  );
 };
 
 export const ArtistNameRenderer = (params) => {
@@ -137,6 +127,16 @@ function haveAllScheduleDatesPassed(schedule) {
   return dates.length > 0 && dates.every((t) => t < now);
 }
 
+// True if any presale on the show hasn't ended yet (upcoming or currently
+// running). A presale with no endDateTime set is treated as still relevant,
+// since we can't tell it's over.
+function hasActivePresale(schedule) {
+  const presales = schedule?.presales ?? [];
+  if (presales.length === 0) return false;
+  const now = Date.now();
+  return presales.some((p) => !p.endDateTime || new Date(p.endDateTime).getTime() >= now);
+}
+
 export const ScheduleRenderer = ({ value, data }) => {
   const releaseMode = value?.releaseMode ?? "asap";
 
@@ -157,14 +157,29 @@ export const ScheduleRenderer = ({ value, data }) => {
   if (value?.time == null) return null;
 
   const allPassed = haveAllScheduleDatesPassed(data?.schedule);
+  // An active presale only matters while the schedule itself isn't already
+  // past — once everything's past, it's just the dimmed icon as usual.
+  const presaleActive =
+    !allPassed && releaseMode === "on-schedule" && hasActivePresale(data?.schedule);
 
   return (
-    <div className={`${gridStyles.scheduleCell} ${allPassed ? gridStyles.scheduleCellPast : ""}`}>
+    <div
+      className={`${gridStyles.scheduleCell} ${allPassed ? gridStyles.scheduleCellPast : ""} ${presaleActive ? gridStyles.scheduleCellPresale : ""}`}
+      title={presaleActive ? "Has an active presale" : undefined}
+    >
       <SvgSchedule />
     </div>
   );
 };
 
 export const RollupCellRenderer = ({ value, phase }) => <RollupDot value={value} phase={phase} />;
+
+export const ContractHeaderRenderer = () => {
+  return (
+    <div className={gridStyles.contractHeaderCell}>
+      <SvgContract />
+    </div>
+  );
+};
 
 export default AddTaskIconRenderer;

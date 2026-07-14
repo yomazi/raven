@@ -3,6 +3,7 @@
   flex-direction: column;
   gap: 0;
   overflow-y: auto;
+  padding-bottom: 2rem;
 }
 
 /* ── Context pane ──────────────────────────────────────────────────────────── */

@@ -3,10 +3,10 @@
 // Not imported by the client.
 
 import {
-  BUILD_FIELDS,
   CLOSE_FIELDS,
   ROLLUP_STATUS,
   SETUP_FIELDS,
+  TICKETING_FIELDS,
 } from "../../shared/constants/builds.js";
 import { deriveAllRollups, deriveContractFieldStatus } from "../../shared/functions/builds.js";
 
@@ -197,7 +197,7 @@ export function processPhaseCompletions(updatedBuild, previousBuild) {
 
   const phases = [
     { name: "setup", fields: SETUP_FIELDS, dateField: "build.dateSetupComplete" },
-    { name: "build", fields: BUILD_FIELDS, dateField: "build.dateBuildComplete" },
+    { name: "ticketing", fields: TICKETING_FIELDS, dateField: "build.dateTicketingComplete" },
     { name: "close", fields: CLOSE_FIELDS, dateField: "build.dateCloseComplete" },
   ];
 

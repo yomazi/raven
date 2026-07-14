@@ -156,7 +156,7 @@ button.primary {
 }
 
 button.primary:hover {
-  background-color: var(--color-stone);
+  background-color: var(--color-dusk);
 }
 
 button svg {

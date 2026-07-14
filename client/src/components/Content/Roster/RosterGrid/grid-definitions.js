@@ -7,19 +7,19 @@ import {
   AddTaskIconRenderer,
   ArtistNameRenderer,
   CheckboxRenderer,
+  ContractHeaderRenderer,
   CopyArtistLinkRenderer,
   CopyDateAndArtistLinkRenderer,
   DateRenderer,
-  FolderIconRenderer,
   RollupCellRenderer,
   ScheduleHeaderRenderer,
   ScheduleRenderer,
 } from "@components/Content/shared/grid/renderers.jsx";
 import {
-  BUILD_FIELDS,
   CLOSE_FIELDS,
   ROLLUP_STATUS,
   SETUP_FIELDS,
+  TICKETING_FIELDS,
 } from "@shared/constants/builds.js";
 import { deriveRollup } from "@shared/functions/builds.js";
 
@@ -82,9 +82,13 @@ export const showsColumnDefs = [
   },
   {
     headerName: "",
-    field: "folder",
-    cellRenderer: FolderIconRenderer,
-    cellClass: "ag-center-aligned-cell raven-grid-cell",
+    headerComponent: ContractHeaderRenderer,
+    headerClass: "raven-grid-divider",
+    field: "buildContract",
+    valueGetter: ({ data }) => data.build?.contract ?? "n/a",
+    cellRenderer: RollupCellRenderer,
+    cellRendererParams: { phase: "contract" },
+    cellClass: "ag-center-aligned-cell raven-grid-cell raven-grid-divider",
     width: 50,
     minWidth: 50,
     maxWidth: 50,
@@ -100,8 +104,8 @@ function setupValueGetter({ data }) {
   return deriveRollup(SETUP_FIELDS.map((f) => data.build?.[f] ?? "n/a"));
 }
 
-function buildValueGetter({ data }) {
-  return deriveRollup(BUILD_FIELDS.map((f) => data.build?.[f] ?? "n/a"));
+function ticketingValueGetter({ data }) {
+  return deriveRollup(TICKETING_FIELDS.map((f) => data.build?.[f] ?? "n/a"));
 }
 
 function closeValueGetter({ data }) {
@@ -216,11 +220,11 @@ export const buildsColumnDefs = [
     suppressAutoSize: true,
   },
   {
-    headerName: "b",
+    headerName: "t",
     headerClass: "ag-header-cell-center",
-    valueGetter: buildValueGetter,
+    valueGetter: ticketingValueGetter,
     cellRenderer: RollupCellRenderer,
-    cellRendererParams: { phase: "build" },
+    cellRendererParams: { phase: "ticketing" },
     comparator: rollupComparator,
     cellClass: "ag-center-aligned-cell",
     width: 50,
@@ -245,9 +249,13 @@ export const buildsColumnDefs = [
   },
   {
     headerName: "",
-    field: "folder",
-    cellRenderer: FolderIconRenderer,
-    cellClass: "ag-center-aligned-cell raven-grid-cell",
+    headerComponent: ContractHeaderRenderer,
+    headerClass: "raven-grid-divider",
+    field: "buildContract",
+    valueGetter: ({ data }) => data.build?.contract ?? "n/a",
+    cellRenderer: RollupCellRenderer,
+    cellRendererParams: { phase: "contract" },
+    cellClass: "ag-center-aligned-cell raven-grid-cell raven-grid-divider",
     width: 50,
     minWidth: 50,
     maxWidth: 50,

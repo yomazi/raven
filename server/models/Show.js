@@ -19,7 +19,7 @@ const buildEventSchema = new Schema(
       required: true,
     },
     date: { type: Date, required: true },
-    phase: { type: String, enum: ["setup", "build", "close"] },
+    phase: { type: String, enum: ["setup", "ticketing", "close"] },
     triggeredBy: { type: String },
     previousCompletionDate: { type: Date },
     from: { type: String },
@@ -61,13 +61,13 @@ const buildSchema = new Schema(
     sisPopulated: { type: String, enum: BASE_STATUS, default: "to do" },
     dateSetupComplete: { type: Date }, // auto-set when Setup rollup hits 'done'
 
-    // --- Build ---
+    // --- Ticketing ---
     tessitura: { type: String, enum: BASE_STATUS, default: "to do" },
     tnew: { type: String, enum: BASE_STATUS, default: "to do" },
     marketingAssetsCompiled: { type: String, enum: BASE_STATUS, default: "to do" },
     marketingAssetsLastCheckin: { type: Date },
     sisReleased: { type: String, enum: BASE_STATUS, default: "to do" },
-    dateBuildComplete: { type: Date }, // auto-set when Build rollup hits 'done'
+    dateTicketingComplete: { type: Date }, // auto-set when Ticketing rollup hits 'done'
 
     // --- Close ---
     // Server-computed rollup of contracts[] — see deriveContractFieldStatus.

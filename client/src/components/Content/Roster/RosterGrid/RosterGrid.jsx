@@ -315,26 +315,6 @@ export default function RosterGrid() {
       ) : (
         <>
           <div className={gridStyles.filterBar}>
-            <div className={styles.modeToggle}>
-              <button
-                type="button"
-                className={styles.modeButton}
-                data-active={viewMode === "shows"}
-                onClick={() => handleModeChange("shows")}
-              >
-                <EventIcon className={styles.modeButtonIcon} />
-                Shows
-              </button>
-              <button
-                type="button"
-                className={styles.modeButton}
-                data-active={viewMode === "builds"}
-                onClick={() => handleModeChange("builds")}
-              >
-                <ConstructionIcon className={styles.modeButtonIcon} />
-                Builds
-              </button>
-            </div>
             <label className={styles.upcomingFilter}>
               Upcoming Only:
               <input
@@ -359,6 +339,26 @@ export default function RosterGrid() {
               onKeyDown={onFilterKeyDown}
               className={gridStyles.filterInput}
             />
+            <div className={styles.modeToggle}>
+              <button
+                type="button"
+                className={styles.modeButton}
+                data-active={viewMode === "shows"}
+                onClick={() => handleModeChange("shows")}
+              >
+                <EventIcon className={styles.modeButtonIcon} />
+                Shows
+              </button>
+              <button
+                type="button"
+                className={styles.modeButton}
+                data-active={viewMode === "builds"}
+                onClick={() => handleModeChange("builds")}
+              >
+                <ConstructionIcon className={styles.modeButtonIcon} />
+                Builds
+              </button>
+            </div>
             <div className={styles.rosterInfo}>
               <span className={styles.rosterLength}>{displayedCount}</span> shows
             </div>

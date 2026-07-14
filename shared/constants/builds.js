@@ -39,7 +39,7 @@ export const SETUP_FIELDS = [
   "sisPopulated",
 ];
 
-export const BUILD_FIELDS = ["tessitura", "tnew", "marketingAssetsCompiled", "sisReleased"];
+export const TICKETING_FIELDS = ["tessitura", "tnew", "marketingAssetsCompiled", "sisReleased"];
 
 export const CLOSE_FIELDS = ["contract", "livestream", "workbook"];
 

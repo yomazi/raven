@@ -464,7 +464,7 @@ export default function BuildProperties({ show }) {
       </div>
 
       {/* ── Phase accordion ───────────────────────────────────────────── */}
-      <Accordion.Root type="multiple" defaultValue={["setup", "build", "close"]}>
+      <Accordion.Root type="multiple" defaultValue={["setup", "ticketing", "close"]}>
         <PhaseSection title="Setup" value="setup" rollup={rollups.setup}>
           <FieldRow
             label="Show Folder Created:"
@@ -515,7 +515,7 @@ export default function BuildProperties({ show }) {
           )}
         </PhaseSection>
 
-        <PhaseSection title="Build" value="build" rollup={rollups.build}>
+        <PhaseSection title="Ticketing" value="ticketing" rollup={rollups.ticketing}>
           <FieldRow
             label="Tessitura"
             field="tessitura"
@@ -551,9 +551,9 @@ export default function BuildProperties({ show }) {
             options={BASE_STATUS}
             onChange={setBuildField}
           />
-          {build.dateBuildComplete && (
+          {build.dateTicketingComplete && (
             <div className={styles.phaseComplete}>
-              Build complete {new Date(build.dateBuildComplete).toLocaleDateString()}
+              Ticketing complete {new Date(build.dateTicketingComplete).toLocaleDateString()}
             </div>
           )}
         </PhaseSection>
