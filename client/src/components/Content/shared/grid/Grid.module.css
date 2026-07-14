@@ -201,7 +201,8 @@
 }
 
 .scheduleCellPresale {
-  color: var(--color-frost);
+  border: 1px solid var(--color-wyrd);
+  border-radius: 50%;
 }
 
 .contractHeaderCell {
