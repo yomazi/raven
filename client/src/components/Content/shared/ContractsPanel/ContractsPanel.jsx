@@ -1,11 +1,14 @@
 import BadgeSelect from "@components/Content/shared/BadgeSelect/BadgeSelect.jsx";
+import { useDriveFiles } from "@hooks/useDriveFiles.js";
 import { useImportableContractFolders } from "@hooks/useImportableContractFolders.js";
 import { useShowContracts } from "@hooks/useShowContracts.js";
 import { CONTRACT_STATUS } from "@shared/constants/builds.js";
 import SvgContract from "@svg/contract_google.svg?react";
 import SvgEdit from "@svg/edit_google.svg?react";
 import { useState } from "react";
+import { isPdfFile } from "../../../../utilities/contractPdf.js";
 import styles from "./ContractsPanel.module.css";
+import ParseContractModal from "./ParseContractModal.jsx";
 
 const CONTRACT_STATUS_LABELS = Object.fromEntries(CONTRACT_STATUS.map((s) => [s, s]));
 
@@ -22,6 +25,9 @@ function formatDate(value) {
 function ContractRow({ contract, onUpdate, onArchive, onRename, onGenerate, isGenerating }) {
   const [isEditingName, setIsEditingName] = useState(false);
   const [draftName, setDraftName] = useState(contract.signee ?? "");
+  const [isParseOpen, setIsParseOpen] = useState(false);
+  const { data: files = [] } = useDriveFiles(contract.folderId);
+  const hasPdf = files.some(isPdfFile);
 
   function startEditingName() {
     setDraftName(contract.signee ?? "");
@@ -69,10 +75,24 @@ function ContractRow({ contract, onUpdate, onArchive, onRename, onGenerate, isGe
             </button>
           </div>
         )}
-        <button className={styles.removeButton} onClick={() => onArchive(contract._id)}>
-          Archive
-        </button>
+        <div className={styles.rowActions}>
+          {hasPdf && (
+            <button className={styles.parseButton} onClick={() => setIsParseOpen(true)}>
+              Parse
+            </button>
+          )}
+          <button className={styles.removeButton} onClick={() => onArchive(contract._id)}>
+            Archive
+          </button>
+        </div>
       </div>
+
+      <ParseContractModal
+        open={isParseOpen}
+        onOpenChange={setIsParseOpen}
+        contract={contract}
+        files={files}
+      />
 
       <div className={styles.fieldGrid}>
         <span className={styles.label}>Status</span>

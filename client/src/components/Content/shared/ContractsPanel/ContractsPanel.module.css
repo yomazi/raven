@@ -224,6 +224,29 @@ input[type="date"] {
   opacity: 1;
 }
 
+.rowActions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.parseButton {
+  padding: 3px 8px;
+  font-size: 12px;
+  background: none;
+  border: 1px solid color(srgb 1 1 1 / 0.15);
+  border-radius: 4px;
+  color: var(--color-moonlight);
+  opacity: 0.7;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.parseButton:hover {
+  opacity: 1;
+}
+
 .generateButton {
   height: 1.9rem;
   padding: 0 1rem;

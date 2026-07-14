@@ -105,6 +105,18 @@ Extract the following structure exactly:
     },
     "merchCut": <"85% artist / 15% venue" | "no merch commission" | null>,
     "numGuestListComps": <number or null>
+  },
+  "payment": {
+    "deposit": {
+      "dueDate": <string or null>,
+      "amount": <number or null>,
+      "payee": <string or null>,
+      "method": <string or null>
+    },
+    "balance": {
+      "payee": <string or null>,
+      "method": <string or null>
+    }
   }
 }
 
@@ -114,6 +126,24 @@ Rules:
 - backendType "vs" means the artist gets the greater of the guarantee or the percentage.
 - If the offer says "versus" or "whichever is greater", use "vs".
 - If the offer mentions a rider for hospitality details, use "see rider" for hospitalityType.
+- Many contracts split payment into a deposit (paid in advance, before the show) and a balance
+  (the remainder, typically settled day-of-show). Look for language like "deposit", "advance
+  payment", "upon signing", "balance due", "settlement", or "remainder".
+- If no deposit is mentioned (the full guarantee is paid as one settlement), set every field
+  under payment.deposit to null — do not invent a deposit that isn't there.
+- payment.deposit.amount is the deposit's dollar amount as a number. If only a percentage of the
+  guarantee is given (e.g. "50% deposit"), compute the dollar amount from the guarantee if
+  possible; otherwise use null.
+- payment.deposit.dueDate: if the contract states a specific calendar date, use ISO format
+  (YYYY-MM-DD). If it instead states a relative timeframe (e.g. "upon signing", "30 days prior to
+  the performance"), return that phrase as plain text instead of null.
+- payment.deposit.payee and payment.balance.payee are the exact name of who each payment should
+  be made payable to, as written in the contract (this may be the artist, a management company,
+  an agency, or an LLC, and the two payees are sometimes different). If a single payee applies to
+  the whole contract with no distinction, use it for both.
+- payment.deposit.method and payment.balance.method describe how each payment is to be made (e.g.
+  "check", "ACH", "wire transfer"), only if the contract stipulates it. These are frequently not
+  specified — use null rather than guessing.
 - Do not invent values. If uncertain, use null.
 `.trim();
 

@@ -1,0 +1,252 @@
+/* ParseContractModal.module.css — uses Raven design tokens */
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(11, 9, 18, 0.72);
+  z-index: 50;
+  animation: fadeIn 120ms ease;
+}
+
+.content {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 51;
+
+  width: min(920px, calc(100vw - 3rem));
+  max-height: calc(100vh - 4rem);
+  overflow-y: auto;
+
+  background: var(--color-dusk);
+  border: 1px solid var(--color-stone);
+  border-radius: 8px;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+
+  animation: slideIn 150ms ease;
+}
+
+.title {
+  font-family: var(--font-ui);
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--color-frost);
+  margin: 0;
+  letter-spacing: 0.02em;
+}
+
+.label {
+  font-family: var(--font-ui);
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-rune);
+}
+
+.muted {
+  font-size: 0.85rem;
+  color: var(--color-rune);
+}
+
+.fileRow {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.select {
+  background: var(--color-void);
+  border: 1px solid var(--color-stone);
+  border-radius: 4px;
+  padding: 0.4rem 0.6rem;
+  font-size: 0.85rem;
+  color: var(--color-moonlight);
+  flex: 1;
+  min-width: 220px;
+}
+
+.textCol {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.textarea {
+  width: 100%;
+  min-height: 280px;
+  resize: vertical;
+  background: var(--color-void);
+  color: var(--color-frost);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  padding: 0.85rem;
+  font-family: var(--font-ui);
+  font-size: 0.8rem;
+  line-height: 1.6;
+  box-sizing: border-box;
+}
+
+.textarea:focus {
+  outline: none;
+  border-color: var(--color-wyrd);
+}
+
+.button {
+  align-self: flex-start;
+  background: var(--color-wyrd);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 0.5rem 1.25rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.button:hover:not(:disabled) {
+  opacity: 0.85;
+}
+
+.button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.error {
+  color: var(--color-ember);
+  font-size: 0.85rem;
+  margin: 0;
+}
+
+.extractRow {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.docLink {
+  font-family: var(--font-ui);
+  font-size: 0.85rem;
+  color: var(--color-moonlight);
+  opacity: 0.7;
+  text-decoration: underline;
+  transition: opacity 0.15s;
+}
+
+.docLink:hover {
+  opacity: 1;
+}
+
+.results {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  border-top: 1px solid var(--color-stone);
+  padding-top: 1rem;
+}
+
+.resultsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 0.75rem;
+}
+
+.resultSection {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  padding: 0.75rem;
+  background: var(--color-stone);
+  border-radius: 6px;
+}
+
+.resultTitle {
+  font-family: var(--font-ui);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-frost);
+  opacity: 0.7;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.resultField {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.resultLabel {
+  font-size: 0.72rem;
+  color: var(--color-rune);
+}
+
+.input {
+  background: var(--color-void);
+  border: 1px solid var(--color-stone);
+  border-radius: 4px;
+  padding: 0.35rem 0.5rem;
+  font-size: 0.85rem;
+  color: var(--color-moonlight);
+  outline: none;
+  transition: border-color 0.2s;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.input:focus {
+  border-color: var(--color-wyrd);
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 0.25rem;
+}
+
+.btnCancel {
+  font-family: var(--font-ui);
+  font-size: 0.85rem;
+  font-weight: 500;
+  border-radius: 5px;
+  padding: 0.5rem 1.25rem;
+  cursor: pointer;
+  background: transparent;
+  color: var(--color-rune);
+  border: 1px solid var(--color-stone);
+  transition:
+    opacity 100ms ease,
+    background 120ms ease;
+}
+
+.btnCancel:hover {
+  background: var(--color-stone);
+  color: var(--color-frost);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -48%);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%);
+  }
+}
