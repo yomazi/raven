@@ -148,13 +148,13 @@ const Nav = () => {
       </NavigationMenu.Root>
 
       <CreateShowModal
-        key={createShowOpen ? "open" : "closed"}
+        key={createShowOpen ? "create-open" : "create-closed"}
         open={createShowOpen}
         onOpenChange={setCreateShowOpen}
       />
 
       <RenameShowModal
-        key={renameShowOpen ? "open" : "closed"}
+        key={renameShowOpen ? "rename-open" : "rename-closed"}
         open={renameShowOpen}
         onOpenChange={setRenameShowOpen}
         googleFolderId={selectedShow?.googleFolderId}

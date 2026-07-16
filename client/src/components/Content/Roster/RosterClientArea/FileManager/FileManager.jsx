@@ -26,6 +26,12 @@ const FileManager = ({ showFolderId, show }) => {
   const [treeWidth, setTreeWidth] = useState(260);
   const resizeStateRef = useRef(null); // { startX, startWidth } | null
 
+  useEffect(() => {
+    setSelectedFolderId(showFolderId);
+    setSelectedPath([showFolderId]);
+    setSelectedFileId(null);
+  }, [showFolderId]);
+
   const handleDividerMouseMove = useCallback((e) => {
     const resize = resizeStateRef.current;
     if (!resize) return;
