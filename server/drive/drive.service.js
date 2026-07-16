@@ -14,6 +14,16 @@ function formatLongDate(date) {
   return date.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
 }
 
+// Same "MM-DD-YY Artist Name (multiple shows)" convention DriveRepository
+// uses when it first creates a show folder — reused here so renaming
+// produces a folder name indistinguishable from one made at creation time.
+function buildShowFolderName({ date, artist, multipleShows }) {
+  const mm = String(date.getMonth() + 1).padStart(2, "0");
+  const dd = String(date.getDate()).padStart(2, "0");
+  const yy = String(date.getFullYear()).slice(-2);
+  return `${mm}-${dd}-${yy} ${artist.trim()}${multipleShows ? " (multiple shows)" : ""}`;
+}
+
 // Uploaded filenames carry a routing prefix ("prg.contract.draft.1 - foo.pdf")
 // added by the naming modal (GmailPanel / FileManager) — a download should
 // give back just the human-chosen part after that " - " separator.
@@ -171,6 +181,7 @@ class DriveService {
         signee: show.artist,
         folderId: contractFolder.folderId,
         folderName: contractFolder.folderName,
+        isMainContract: true,
       });
 
       log.info("createShowFolder", "Default contract folder created", {
@@ -180,6 +191,40 @@ class DriveService {
       return { ...show, workbook };
     } catch (err) {
       log.error("createShowFolder", "Failed to create show folder", err);
+      throw err;
+    }
+  }
+
+  // Renames the show's own Drive folder (not a contract subfolder) to match
+  // a new artist name, keeping the existing date/multi-show naming
+  // convention, and updates Show.artist to match. Related documents
+  // (settlement workbook, marketing assets folder) are not renamed.
+  static async renameShowFolder({ googleFolderId, artist }) {
+    log.info("renameShowFolder", "Renaming show folder", { googleFolderId, artist });
+
+    try {
+      const show = await ShowsService.getByGoogleFolderId(googleFolderId);
+      if (!show) throw new Error(`Show not found for folder ID: ${googleFolderId}`);
+
+      const trimmedArtist = artist.trim();
+      const folderName = buildShowFolderName({
+        date: show.date,
+        artist: trimmedArtist,
+        multipleShows: show.isMulti,
+      });
+
+      const folder = await DriveRepository.renameFolder({
+        folderId: googleFolderId,
+        name: folderName,
+      });
+
+      const updatedShow = await ShowsService.patch(googleFolderId, { artist: trimmedArtist });
+
+      log.info("renameShowFolder", "Show folder renamed", { folderName: folder.folderName });
+
+      return { ...folder, show: updatedShow };
+    } catch (err) {
+      log.error("renameShowFolder", "Failed to rename show folder", err);
       throw err;
     }
   }
@@ -336,6 +381,38 @@ class DriveService {
       return { ...folder, show: updatedShow };
     } catch (err) {
       log.error("archiveContractFolder", "Failed to archive contract folder", err);
+      throw err;
+    }
+  }
+
+  // No Drive folder side effect — this only flips the Mongo-side flag — but
+  // lives alongside the other contract mutations for consistency with how
+  // the client already imports all of them from @api/drive.api.js.
+  static async setMainContract({ googleFolderId, contractId, isMainContract }) {
+    log.info("setMainContract", "Setting main contract", {
+      googleFolderId,
+      contractId,
+      isMainContract,
+    });
+
+    try {
+      const show = await ShowsService.getByGoogleFolderId(googleFolderId);
+      if (!show) throw new Error(`Show not found for folder ID: ${googleFolderId}`);
+
+      const contract = (show.build?.contracts ?? []).find((c) => String(c._id) === contractId);
+      if (!contract) throw new Error(`Contract not found: ${contractId}`);
+
+      const updatedShow = await ShowsService.setMainContract(
+        googleFolderId,
+        contractId,
+        isMainContract
+      );
+
+      log.info("setMainContract", "Main contract updated", { contractId, isMainContract });
+
+      return { show: updatedShow };
+    } catch (err) {
+      log.error("setMainContract", "Failed to set main contract", err);
       throw err;
     }
   }

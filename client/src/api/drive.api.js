@@ -76,6 +76,14 @@ export const generateContractDoc = async (googleFolderId, contractId) => {
   return data;
 };
 
+export const setMainContract = async (googleFolderId, contractId, isMainContract) => {
+  const { data } = await apiClient.post(`/drive/contracts/${contractId}/set-main`, {
+    googleFolderId,
+    isMainContract,
+  });
+  return data;
+};
+
 export const fetchImportableContractFolders = async (googleFolderId) => {
   const { data } = await apiClient.get(
     `/drive/folders/${googleFolderId}/importable-contract-folders`

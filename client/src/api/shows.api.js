@@ -31,6 +31,11 @@ export const createShowFolder = async ({ artist, date, multipleShows }) => {
   return data;
 };
 
+export const renameShowFolder = async ({ googleFolderId, artist }) => {
+  const { data } = await apiClient.post("/drive/folders/show/rename", { googleFolderId, artist });
+  return data;
+};
+
 export const createSettlementWorkbook = async ({ googleFolderId }) => {
   const { data } = await apiClient.post("/drive/settlement-workbook", { googleFolderId });
   return data;

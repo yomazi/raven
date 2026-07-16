@@ -343,8 +343,8 @@ function stripNamingConvention(filename) {
 // subject line (see GmailEditor's subject-sync effect) and which folder's
 // files the Attach picker below lists.
 //
-// Also resolves `defaultId` — the contract whose name matches the show's
-// artist, if any, so that folder is pre-selected; otherwise the show's root
+// Also resolves `defaultId` — the show's main contract (isMainContract:
+// true), if any, so that folder is pre-selected; otherwise the show's root
 // folder (i.e. "— None —") is the default.
 function useAttachTargetOptions(showFolderId, show) {
   return useMemo(() => {
@@ -355,18 +355,17 @@ function useAttachTargetOptions(showFolderId, show) {
       options.push({ id: marketingAssetsId, label: "Marketing Assets", contract: null });
     }
 
-    const artist = (show?.artist ?? "").trim().toLowerCase();
-    let matchedContractId = null;
+    let mainContractId = null;
 
     for (const contract of show?.build?.contracts ?? []) {
       if (contract.archived) continue;
       options.push({ id: contract.folderId, label: contract.signee, contract });
-      if (!matchedContractId && (contract.signee ?? "").trim().toLowerCase() === artist) {
-        matchedContractId = contract.folderId;
+      if (!mainContractId && contract.isMainContract) {
+        mainContractId = contract.folderId;
       }
     }
 
-    return { options, defaultId: matchedContractId ?? showFolderId };
+    return { options, defaultId: mainContractId ?? showFolderId };
   }, [showFolderId, show]);
 }
 

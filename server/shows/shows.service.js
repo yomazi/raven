@@ -1,5 +1,6 @@
 import log from "../logging/log.js";
 import { deriveContractFieldStatus } from "../../shared/functions/builds.js";
+import ShowsEvents from "./shows.events.js";
 import ShowsRepository from "./shows.repository.js";
 import {
   flatten,
@@ -29,9 +30,16 @@ class ShowsService {
 
   static async upsertOne(driveShow) {
     const mapped = ShowsService.#mapDriveShowToDocument(driveShow);
-    return ShowsRepository.upsertOne(mapped, {
+    const show = await ShowsRepository.upsertOne(mapped, {
       performances: [ShowsService.#defaultPerformance(mapped.date)],
     });
+    if (show) {
+      ShowsEvents.emitChanged({
+        googleFolderId: mapped.googleFolderId,
+        changedFields: ["date", "artist"],
+      });
+    }
+    return show;
   }
 
   static async upsertMany(driveShows, fromDate = null) {
@@ -45,6 +53,15 @@ class ShowsService {
 
     if (deletedCount > 0) {
       log.warn("softDelete", `${deletedCount} show(s) soft-deleted`, { fromDate });
+    }
+
+    // Fire for every synced show — listeners cheaply no-op when nothing
+    // relevant actually changed, so we don't need to diff here.
+    for (const show of mapped) {
+      ShowsEvents.emitChanged({
+        googleFolderId: show.googleFolderId,
+        changedFields: ["date", "artist"],
+      });
     }
 
     return {
@@ -69,19 +86,29 @@ class ShowsService {
   // Direct, targeted contract-array mutations — bypass the generic patch
   // pipeline (no side-effect date stamping needed for create/archive), but
   // still keep the computed build.contract rollup in sync.
-  static async addContract(googleFolderId, { signee, folderId, folderName }) {
+  static async addContract(googleFolderId, { signee, folderId, folderName, isMainContract = false }) {
     const show = await ShowsRepository.addContract(googleFolderId, {
       signee,
       folderId,
       folderName,
       status: "to do",
+      isMainContract,
     });
     if (!show) return null;
 
     const contracts = show.build?.contracts ?? [];
-    return ShowsRepository.patch(googleFolderId, {
+    const result = await ShowsRepository.patch(googleFolderId, {
       "build.contract": deriveContractFieldStatus(contracts),
     });
+
+    const newContract = contracts[contracts.length - 1];
+    ShowsEvents.emitChanged({
+      googleFolderId,
+      contractId: newContract?._id,
+      changedFields: ["membership"],
+    });
+
+    return result;
   }
 
   static async archiveContract(googleFolderId, contractId) {
@@ -89,9 +116,13 @@ class ShowsService {
     if (!show) return null;
 
     const contracts = show.build?.contracts ?? [];
-    return ShowsRepository.patch(googleFolderId, {
+    const result = await ShowsRepository.patch(googleFolderId, {
       "build.contract": deriveContractFieldStatus(contracts),
     });
+
+    ShowsEvents.emitChanged({ googleFolderId, contractId, changedFields: ["membership"] });
+
+    return result;
   }
 
   static async setContractStatus(googleFolderId, contractId, status) {
@@ -99,15 +130,40 @@ class ShowsService {
     if (!show) return null;
 
     const contracts = show.build?.contracts ?? [];
-    return ShowsRepository.patch(googleFolderId, {
+    const result = await ShowsRepository.patch(googleFolderId, {
       "build.contract": deriveContractFieldStatus(contracts),
     });
+
+    ShowsEvents.emitChanged({ googleFolderId, contractId, changedFields: ["status"] });
+
+    return result;
   }
 
   // Renaming doesn't affect status/archived, so no rollup recompute is needed
   // here (unlike addContract/archiveContract).
   static async renameContract(googleFolderId, contractId, { signee, folderName }) {
-    return ShowsRepository.renameContract(googleFolderId, contractId, { signee, folderName });
+    const result = await ShowsRepository.renameContract(googleFolderId, contractId, {
+      signee,
+      folderName,
+    });
+    if (result) {
+      ShowsEvents.emitChanged({ googleFolderId, contractId, changedFields: ["signee"] });
+    }
+    return result;
+  }
+
+  // Doesn't affect status/archived/rollup — just which one contract is
+  // flagged main. Turning one on is exclusive (enforced atomically by the
+  // repository); turning one off is a show having no main contract at all,
+  // which is allowed, so it only ever touches the target contract.
+  static async setMainContract(googleFolderId, contractId, isMainContract) {
+    const result = isMainContract
+      ? await ShowsRepository.setMainContract(googleFolderId, contractId)
+      : await ShowsRepository.clearMainContract(googleFolderId, contractId);
+    if (result) {
+      ShowsEvents.emitChanged({ googleFolderId, contractId, changedFields: ["isMainContract"] });
+    }
+    return result;
   }
 
   static #computeWarnings(show) {
@@ -311,6 +367,16 @@ class ShowsService {
     if (allEvents.length > 0) {
       await ShowsRepository.pushBuildEvents(googleFolderId, allEvents);
     }
+
+    // patch() is the generic write path used by most of the client's editing
+    // UI (e.g. the contract status dropdown patches the whole
+    // build.contracts array rather than calling setContractStatus), so we
+    // can't reliably tell from flatUpdates' keys alone whether something a
+    // live report cares about changed — array-valued fields like
+    // build.contracts show up as one opaque key, not per-field paths. Always
+    // emit; listeners (live reports) diff against their own cache and no-op
+    // cheaply when nothing they render actually changed.
+    ShowsEvents.emitChanged({ googleFolderId, changedFields: Object.keys(flatUpdates) });
 
     log.info("patch", "Show patched", {
       googleFolderId,

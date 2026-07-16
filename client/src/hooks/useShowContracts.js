@@ -12,6 +12,7 @@ import {
   generateContractDoc,
   importContractFolder,
   renameContractFolder,
+  setMainContract as setMainContractApi,
 } from "@api/drive.api.js";
 import { usePatchShow } from "@hooks/usePatchShow.js";
 import { useShowById } from "@hooks/useShowById.js";
@@ -140,6 +141,27 @@ export function useShowContracts(googleFolderId) {
     [googleFolderId, queryClient, toast]
   );
 
+  const setMainContract = useCallback(
+    async (contractId, isMainContract) => {
+      if (!googleFolderId) return;
+      try {
+        const { show: updatedShow } = await setMainContractApi(
+          googleFolderId,
+          contractId,
+          isMainContract
+        );
+        if (updatedShow) queryClient.setQueryData(["show", googleFolderId], updatedShow);
+      } catch (err) {
+        toast({
+          title: "Could not update main contract",
+          description: err.message ?? "Please try again.",
+          duration: 5000,
+        });
+      }
+    },
+    [googleFolderId, queryClient, toast]
+  );
+
   const importContract = useCallback(
     async (subfolderId) => {
       if (!subfolderId || !googleFolderId) return;
@@ -170,6 +192,7 @@ export function useShowContracts(googleFolderId) {
     addContract,
     archiveContract,
     isAdding,
+    setMainContract,
     importContract,
     isImporting,
   };

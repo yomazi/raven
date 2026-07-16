@@ -118,6 +118,10 @@
   opacity: 0.7;
 }
 
+.commentsRow {
+  grid-column: 1 / -1;
+}
+
 /* ── Rollup badge ──────────────────────────────────────────────────────────── */
 
 .rollupBadge {

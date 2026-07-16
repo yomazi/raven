@@ -49,6 +49,14 @@ class DriveSchemas {
     }),
   };
 
+  static renameShowFolder = {
+    headers: authHeaderSchema,
+    body: Joi.object({
+      googleFolderId: Joi.string().required(),
+      artist: Joi.string().required(),
+    }),
+  };
+
   static createSettlementWorkbook = {
     headers: authHeaderSchema,
     body: Joi.object({
@@ -89,6 +97,17 @@ class DriveSchemas {
     body: Joi.object({
       googleFolderId: Joi.string().required(),
       signee: Joi.string().required(),
+    }),
+  };
+
+  static setMainContract = {
+    headers: authHeaderSchema,
+    params: Joi.object({
+      contractId: Joi.string().required(),
+    }),
+    body: Joi.object({
+      googleFolderId: Joi.string().required(),
+      isMainContract: Joi.boolean().required(),
     }),
   };
 

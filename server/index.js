@@ -23,9 +23,12 @@ import gmailRoutes from "./gmail/gmail.routes.js";
 import groupsRoutes from "./groups/groups.routes.js";
 import llmRoutes from "./llm/llm.routes.js";
 import showsRoutes from "./shows/shows.routes.js";
+import ShowsEvents from "./shows/shows.events.js";
 import tasksRoutes from "./tasks/tasks.routes.js";
 import reportsRoutes from "./reports/reports.routes.js";
 import ReportScheduler from "./reports/report-scheduler.js";
+import liveReportsRoutes from "./reports/live-reports/live-reports.routes.js";
+import LiveReportService from "./reports/live-reports/live-report.service.js";
 import settingsRoutes from "./settings/settings.routes.js";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -38,6 +41,11 @@ app.use(cookieParser());
 app.use(normalizeAuthHeader);
 
 connectDb().then(() => ReportScheduler.start());
+ShowsEvents.onChanged((event) => {
+  LiveReportService.handleShowChanged(event).catch((err) =>
+    console.error("[LiveReportService] handleShowChanged failed:", err)
+  );
+});
 
 // define API routes with versioning
 const version = "v1";
@@ -53,6 +61,7 @@ app.use(routePrefix, llmRoutes);
 app.use(routePrefix, showsRoutes);
 app.use(routePrefix, tasksRoutes);
 app.use(routePrefix, reportsRoutes);
+app.use(routePrefix, liveReportsRoutes);
 app.use(routePrefix, settingsRoutes);
 
 // set up Vite middleware for dev (Raven is local-only)

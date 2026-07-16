@@ -21,7 +21,7 @@ export const CONTRACT_STATUS_DATE_MAP = {
   "drafted by them": "dateDrafted",
   "waiting for them": "dateSigned",
   "waiting for us": "dateSigned",
-  done: "dateFEC",
+  FEC: "dateFEC",
 };
 
 // ---------------------------------------------------------------------------

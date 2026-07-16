@@ -6,6 +6,7 @@ import { useCreateSettlementWorkbook } from "../../hooks/useCreateSettlementWork
 import { useSyncShows } from "../../hooks/useSyncShows.js";
 import useRavenStore from "../../store/useRavenStore.js";
 import CreateShowModal from "../Modals/CreateShowModal/CreateShowModal.jsx";
+import RenameShowModal from "../Modals/RenameShowModal/RenameShowModal.jsx";
 import styles from "./Nav.module.css";
 
 const NavDropdown = ({ label, items, disabled }) => (
@@ -67,6 +68,7 @@ const Nav = () => {
   const { mutate: createMarketingAssetsFolder } = useCreateMarketingAssetsFolder();
   const selectedShow = useRavenStore((s) => s.selectedShow);
   const [createShowOpen, setCreateShowOpen] = useState(false);
+  const [renameShowOpen, setRenameShowOpen] = useState(false);
   const isSelectedShowVisible = useRavenStore((s) => s.isSelectedShowVisible);
   const leftPaneWidth = useRavenStore((s) => s.leftPaneWidth);
   const leftNavRef = useRef(null);
@@ -97,7 +99,7 @@ const Nav = () => {
             createMarketingAssetsFolder({ googleFolderId: selectedShow?.googleFolderId }),
         },
         { separator: true },
-        { label: "Generate Contract", onClick: () => {} },
+        { label: "Rename Show", onClick: () => setRenameShowOpen(true) },
       ],
     },
   ];
@@ -149,6 +151,14 @@ const Nav = () => {
         key={createShowOpen ? "open" : "closed"}
         open={createShowOpen}
         onOpenChange={setCreateShowOpen}
+      />
+
+      <RenameShowModal
+        key={renameShowOpen ? "open" : "closed"}
+        open={renameShowOpen}
+        onOpenChange={setRenameShowOpen}
+        googleFolderId={selectedShow?.googleFolderId}
+        currentArtist={selectedShow?.artist}
       />
     </>
   );

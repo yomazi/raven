@@ -89,6 +89,37 @@ class ShowsRepository {
     );
   }
 
+  // Sets isMainContract true on the target contract and false on every other
+  // one in the same operation (two arrayFilters identifiers on the same
+  // array), so at most one contract per show is ever main.
+  static async setMainContract(googleFolderId, contractId) {
+    return Show.findOneAndUpdate(
+      { googleFolderId, "build.contracts._id": contractId },
+      {
+        $set: {
+          "build.contracts.$[main].isMainContract": true,
+          "build.contracts.$[others].isMainContract": false,
+        },
+      },
+      {
+        arrayFilters: [{ "main._id": contractId }, { "others._id": { $ne: contractId } }],
+        new: true,
+        runValidators: true,
+      }
+    );
+  }
+
+  // Turns off isMainContract for exactly this one contract — a show isn't
+  // required to have a main contract, so unlike setMainContract this never
+  // touches any other contract in the array.
+  static async clearMainContract(googleFolderId, contractId) {
+    return Show.findOneAndUpdate(
+      { googleFolderId, "build.contracts._id": contractId },
+      { $set: { "build.contracts.$.isMainContract": false } },
+      { new: true, runValidators: true }
+    );
+  }
+
   static async patch(googleFolderId, updates) {
     const { _id, __v, googleFolderId: _folderId, createdAt, ...safeUpdates } = updates;
     const flatUpdates = flatten(safeUpdates);

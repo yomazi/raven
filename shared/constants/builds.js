@@ -19,7 +19,7 @@ export const CONTRACT_STATUS = [
   "waiting for us",
   "waiting for exec",
   "blocked",
-  "done",
+  "FEC",
 ];
 
 export const MARKETING_ASSETS_STATUS = [...BASE_STATUS, "packet sent"];

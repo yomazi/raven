@@ -56,6 +56,13 @@ router.post(
 );
 
 router.post(
+  "/drive/folders/show/rename",
+  validate(Schemas.renameShowFolder),
+  validateApiToken,
+  Controller.renameShowFolder
+);
+
+router.post(
   "/drive/settlement-workbook",
   validate(Schemas.createSettlementWorkbook),
   validateApiToken,
@@ -88,6 +95,13 @@ router.post(
   validate(Schemas.renameContractFolder),
   validateApiToken,
   Controller.renameContractFolder
+);
+
+router.post(
+  "/drive/contracts/:contractId/set-main",
+  validate(Schemas.setMainContract),
+  validateApiToken,
+  Controller.setMainContract
 );
 
 router.post(

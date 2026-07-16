@@ -508,6 +508,16 @@ export default function BuildProperties({ show }) {
             options={BASE_STATUS}
             onChange={setBuildField}
           />
+          <div className={`${styles.fieldRow} ${styles.commentsRow}`}>
+            <span className={styles.fieldLabel}>Comments:</span>
+            <textarea
+              key={show?.googleFolderId}
+              className={styles.textarea}
+              defaultValue={show?.build?.setupComments ?? ""}
+              onBlur={handleBlurText("setupComments")}
+              rows={3}
+            />
+          </div>
           {build.dateSetupComplete && (
             <div className={styles.phaseComplete}>
               Setup complete {new Date(build.dateSetupComplete).toLocaleDateString()}
@@ -551,6 +561,16 @@ export default function BuildProperties({ show }) {
             options={BASE_STATUS}
             onChange={setBuildField}
           />
+          <div className={`${styles.fieldRow} ${styles.commentsRow}`}>
+            <span className={styles.fieldLabel}>Comments:</span>
+            <textarea
+              key={show?.googleFolderId}
+              className={styles.textarea}
+              defaultValue={show?.build?.ticketingComments ?? ""}
+              onBlur={handleBlurText("ticketingComments")}
+              rows={3}
+            />
+          </div>
           {build.dateTicketingComplete && (
             <div className={styles.phaseComplete}>
               Ticketing complete {new Date(build.dateTicketingComplete).toLocaleDateString()}
@@ -582,6 +602,16 @@ export default function BuildProperties({ show }) {
             options={BASE_STATUS}
             onChange={setBuildField}
           />
+          <div className={`${styles.fieldRow} ${styles.commentsRow}`}>
+            <span className={styles.fieldLabel}>Comments:</span>
+            <textarea
+              key={show?.googleFolderId}
+              className={styles.textarea}
+              defaultValue={show?.build?.closeComments ?? ""}
+              onBlur={handleBlurText("closeComments")}
+              rows={3}
+            />
+          </div>
           {build.dateCloseComplete && (
             <div className={styles.phaseComplete}>
               Close complete {new Date(build.dateCloseComplete).toLocaleDateString()}

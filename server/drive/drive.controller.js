@@ -102,6 +102,17 @@ class DriveController {
     }
   }
 
+  static async renameShowFolder(req, res) {
+    try {
+      const { googleFolderId, artist } = req.body;
+      const result = await DriveService.renameShowFolder({ googleFolderId, artist });
+      res.json({ success: true, ...result });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ success: false, error: err.message });
+    }
+  }
+
   static async createSettlementWorkbook(req, res) {
     try {
       const { googleFolderId } = req.body;
@@ -152,6 +163,22 @@ class DriveController {
       const { contractId } = req.params;
       const { googleFolderId, signee } = req.body;
       const result = await DriveService.renameContractFolder({ googleFolderId, contractId, signee });
+      res.json({ success: true, ...result });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ success: false, error: err.message });
+    }
+  }
+
+  static async setMainContract(req, res) {
+    try {
+      const { contractId } = req.params;
+      const { googleFolderId, isMainContract } = req.body;
+      const result = await DriveService.setMainContract({
+        googleFolderId,
+        contractId,
+        isMainContract,
+      });
       res.json({ success: true, ...result });
     } catch (err) {
       console.error(err);

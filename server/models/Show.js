@@ -41,6 +41,9 @@ const contractSchema = new Schema({
   dateSigned: { type: Date },
   dateFEC: { type: Date },
   archived: { type: Boolean, default: false },
+  // At most one non-archived contract per show should have this set —
+  // enforced by ShowsRepository.setMainContract, not by this schema.
+  isMainContract: { type: Boolean, default: false },
 });
 
 const buildSchema = new Schema(
@@ -60,6 +63,9 @@ const buildSchema = new Schema(
     packetSent: { type: String, enum: BASE_STATUS, default: "to do" },
     sisPopulated: { type: String, enum: BASE_STATUS, default: "to do" },
     dateSetupComplete: { type: Date }, // auto-set when Setup rollup hits 'done'
+    // Freeform notes/links for this phase — not a rollup input, just a place
+    // to record why something's blocked or stuck.
+    setupComments: { type: String },
 
     // --- Ticketing ---
     tessitura: { type: String, enum: BASE_STATUS, default: "to do" },
@@ -68,6 +74,7 @@ const buildSchema = new Schema(
     marketingAssetsLastCheckin: { type: Date },
     sisReleased: { type: String, enum: BASE_STATUS, default: "to do" },
     dateTicketingComplete: { type: Date }, // auto-set when Ticketing rollup hits 'done'
+    ticketingComments: { type: String },
 
     // --- Close ---
     // Server-computed rollup of contracts[] — see deriveContractFieldStatus.
@@ -77,6 +84,7 @@ const buildSchema = new Schema(
     livestream: { type: String, enum: BASE_STATUS, default: "n/a" },
     workbook: { type: String, enum: BASE_STATUS, default: "to do" },
     dateCloseComplete: { type: Date }, // auto-set when Close rollup hits 'done'
+    closeComments: { type: String },
 
     // --- Audit log ---
     events: { type: [buildEventSchema], default: [] },

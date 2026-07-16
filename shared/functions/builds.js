@@ -24,9 +24,9 @@ export function deriveContractFieldStatus(contracts = []) {
   const active = contracts.filter((c) => !c.archived);
   if (active.length === 0) return "n/a";
   if (active.some((c) => c.status === "blocked")) return "blocked";
-  if (active.every((c) => c.status === "done")) return "done";
+  if (active.every((c) => c.status === "FEC")) return "done";
   if (active.every((c) => c.status === "to do")) return "to do";
-  return "in progress"; // any drafted/waiting mix, or a to-do/done mix
+  return "in progress"; // any drafted/waiting mix, or a to-do/FEC mix
 }
 
 export function deriveAllRollups(build) {

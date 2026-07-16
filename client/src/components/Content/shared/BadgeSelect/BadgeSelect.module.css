@@ -121,6 +121,14 @@
   border-color: var(--status-waiting_for_exec-bd);
 }
 
+/* Contract's terminal status — fully executed contract */
+.badge[data-status="FEC"],
+.option[data-status="FEC"] {
+  color: var(--status-done-fg);
+  background: var(--status-done-bg);
+  border-color: var(--status-done-bd);
+}
+
 /* ── Priority colors ───────────────────────────────────────────────────────── */
 
 .badge[data-priority="urgent"],

@@ -104,13 +104,16 @@ const FIELD_LABELS = {
   offerInFolder: "Offer letter",
   packetSent: "Packet sent",
   sisPopulated: "SIS populated",
+  setupComments: "Setup comments",
   tessitura: "Tessitura",
   tnew: "TNEW",
   marketingAssetsCompiled: "Marketing assets",
   marketingAssetsLastCheckin: "Assets last checkin",
   sisReleased: "SIS released",
+  ticketingComments: "Ticketing comments",
   livestream: "Livestream",
   workbook: "Workbook",
+  closeComments: "Close comments",
 };
 
 function fieldLabel(field) {

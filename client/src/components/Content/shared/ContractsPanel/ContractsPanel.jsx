@@ -2,6 +2,7 @@ import BadgeSelect from "@components/Content/shared/BadgeSelect/BadgeSelect.jsx"
 import { useDriveFiles } from "@hooks/useDriveFiles.js";
 import { useImportableContractFolders } from "@hooks/useImportableContractFolders.js";
 import { useShowContracts } from "@hooks/useShowContracts.js";
+import * as Switch from "@radix-ui/react-switch";
 import { CONTRACT_STATUS } from "@shared/constants/builds.js";
 import SvgContract from "@svg/contract_google.svg?react";
 import SvgEdit from "@svg/edit_google.svg?react";
@@ -22,7 +23,15 @@ function formatDate(value) {
 // and an Archive action.
 // ---------------------------------------------------------------------------
 
-function ContractRow({ contract, onUpdate, onArchive, onRename, onGenerate, isGenerating }) {
+function ContractRow({
+  contract,
+  onUpdate,
+  onArchive,
+  onRename,
+  onGenerate,
+  onSetMain,
+  isGenerating,
+}) {
   const [isEditingName, setIsEditingName] = useState(false);
   const [draftName, setDraftName] = useState(contract.signee ?? "");
   const [isParseOpen, setIsParseOpen] = useState(false);
@@ -94,61 +103,78 @@ function ContractRow({ contract, onUpdate, onArchive, onRename, onGenerate, isGe
         files={files}
       />
 
-      <div className={styles.fieldGrid}>
-        <span className={styles.label}>Status</span>
-        <div className={styles.statusCell}>
-          <BadgeSelect
-            value={contract.status}
-            options={CONTRACT_STATUS}
-            labels={CONTRACT_STATUS_LABELS}
-            variant="status"
-            onChange={(newVal) => onUpdate(contract._id, { status: newVal })}
+      <div className={styles.fieldGridRow}>
+        <div className={styles.fieldGrid}>
+          <span className={styles.label}>Status</span>
+          <div className={styles.statusCell}>
+            <BadgeSelect
+              value={contract.status}
+              options={CONTRACT_STATUS}
+              labels={CONTRACT_STATUS_LABELS}
+              variant="status"
+              onChange={(newVal) => onUpdate(contract._id, { status: newVal })}
+            />
+            {contract.status === "to do" && (
+              <button
+                className={styles.generateButton}
+                onClick={() => onGenerate(contract._id)}
+                disabled={isGenerating}
+              >
+                {isGenerating ? "Generating…" : "Generate"}
+              </button>
+            )}
+          </div>
+
+          <span className={styles.label}>Last check-in</span>
+          <input
+            type="date"
+            className={styles.input}
+            value={formatDate(contract.lastCheckin)}
+            onChange={(e) =>
+              onUpdate(contract._id, {
+                lastCheckin: e.target.value ? new Date(e.target.value) : null,
+              })
+            }
           />
-          {contract.status === "to do" && (
-            <button
-              className={styles.generateButton}
-              onClick={() => onGenerate(contract._id)}
-              disabled={isGenerating}
-            >
-              {isGenerating ? "Generating…" : "Generate"}
-            </button>
+
+          {contract.dateDrafted && (
+            <>
+              <span className={styles.label}>Drafted</span>
+              <span className={styles.value}>
+                {new Date(contract.dateDrafted).toLocaleDateString()}
+              </span>
+            </>
+          )}
+          {contract.dateSigned && (
+            <>
+              <span className={styles.label}>Signed</span>
+              <span className={styles.value}>
+                {new Date(contract.dateSigned).toLocaleDateString()}
+              </span>
+            </>
+          )}
+          {contract.dateFEC && (
+            <>
+              <span className={styles.label}>FEC</span>
+              <span className={styles.value}>
+                {new Date(contract.dateFEC).toLocaleDateString()}
+              </span>
+            </>
           )}
         </div>
 
-        <span className={styles.label}>Last check-in</span>
-        <input
-          type="date"
-          className={styles.input}
-          value={formatDate(contract.lastCheckin)}
-          onChange={(e) =>
-            onUpdate(contract._id, {
-              lastCheckin: e.target.value ? new Date(e.target.value) : null,
-            })
-          }
-        />
-
-        {contract.dateDrafted && (
-          <>
-            <span className={styles.label}>Drafted</span>
-            <span className={styles.value}>
-              {new Date(contract.dateDrafted).toLocaleDateString()}
-            </span>
-          </>
-        )}
-        {contract.dateSigned && (
-          <>
-            <span className={styles.label}>Signed</span>
-            <span className={styles.value}>
-              {new Date(contract.dateSigned).toLocaleDateString()}
-            </span>
-          </>
-        )}
-        {contract.dateFEC && (
-          <>
-            <span className={styles.label}>FEC</span>
-            <span className={styles.value}>{new Date(contract.dateFEC).toLocaleDateString()}</span>
-          </>
-        )}
+        <div className={styles.mainToggle}>
+          <span>
+            {contract.isMainContract ? "This is the main contract" : "Set as main contract"}
+          </span>
+          <Switch.Root
+            className={styles.switchRoot}
+            checked={!!contract.isMainContract}
+            onCheckedChange={(checked) => onSetMain(contract._id, checked)}
+          >
+            <Switch.Thumb className={styles.switchThumb} />
+          </Switch.Root>
+        </div>
       </div>
     </div>
   );
@@ -232,6 +258,7 @@ export default function ContractsPanel({ show }) {
     addContract,
     archiveContract,
     isAdding,
+    setMainContract,
     importContract,
     isImporting,
   } = useShowContracts(googleFolderId);
@@ -259,6 +286,7 @@ export default function ContractsPanel({ show }) {
           onArchive={archiveContract}
           onRename={renameContract}
           onGenerate={generateContract}
+          onSetMain={setMainContract}
           isGenerating={generatingId === contract._id}
         />
       ))}

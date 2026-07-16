@@ -10,11 +10,19 @@
   color: var(--color-moonlight);
 }
 
+.fieldGridRow {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+}
+
 .fieldGrid {
   display: grid;
   grid-template-columns: 140px 1fr;
   gap: 8px 12px;
   align-items: center;
+  flex: 1;
 }
 
 .label {
@@ -26,6 +34,50 @@
 .value {
   font-size: 0.9rem;
   color: var(--color-moonlight);
+}
+
+.mainToggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.85rem;
+  color: var(--color-moonlight);
+  opacity: 0.8;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.switchRoot {
+  width: 42px;
+  height: 24px;
+  background-color: var(--color-dusk);
+  border-radius: 9999px;
+  border: none;
+  cursor: pointer;
+  position: relative;
+  transition: background-color 150ms ease;
+  flex-shrink: 0;
+}
+
+.switchRoot[data-state="checked"] {
+  background-color: var(--color-wyrd-dim);
+}
+
+.switchThumb {
+  display: block;
+  width: 18px;
+  height: 18px;
+  background-color: white;
+  border-radius: 9999px;
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  transition: transform 150ms ease;
+  will-change: transform;
+}
+
+.switchThumb[data-state="checked"] {
+  transform: translateX(18px);
 }
 
 .input {
