@@ -83,6 +83,14 @@ class ShowsService {
     return ShowsRepository.updateDriveAssets(googleFolderId, driveUpdate);
   }
 
+  static async softDelete(googleFolderId) {
+    const show = await ShowsRepository.softDelete(googleFolderId);
+    if (show) {
+      ShowsEvents.emitChanged({ googleFolderId, changedFields: ["deleted"] });
+    }
+    return show;
+  }
+
   // Direct, targeted contract-array mutations — bypass the generic patch
   // pipeline (no side-effect date stamping needed for create/archive), but
   // still keep the computed build.contract rollup in sync.

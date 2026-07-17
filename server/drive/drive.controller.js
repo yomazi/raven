@@ -113,6 +113,46 @@ class DriveController {
     }
   }
 
+  static async rescheduleShow(req, res) {
+    try {
+      const { googleFolderId, artist, date, multipleShows } = req.body;
+      const [year, month, day] = date.split("T")[0].split("-").map(Number);
+      const parsedDate = new Date(year, month - 1, day);
+      const result = await DriveService.rescheduleShow({
+        googleFolderId,
+        artist,
+        date: parsedDate,
+        multipleShows,
+      });
+      res.json({ success: true, ...result });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ success: false, error: err.message });
+    }
+  }
+
+  static async deleteShow(req, res) {
+    try {
+      const { googleFolderId } = req.body;
+      const result = await DriveService.deleteShow({ googleFolderId });
+      res.json({ success: true, ...result });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ success: false, error: err.message });
+    }
+  }
+
+  static async setShowCanceled(req, res) {
+    try {
+      const { googleFolderId, canceled } = req.body;
+      const result = await DriveService.setShowCanceled({ googleFolderId, canceled });
+      res.json({ success: true, ...result });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ success: false, error: err.message });
+    }
+  }
+
   static async createSettlementWorkbook(req, res) {
     try {
       const { googleFolderId } = req.body;

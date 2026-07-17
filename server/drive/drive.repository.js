@@ -5,7 +5,8 @@ import { Readable } from "stream";
 import AuthService from "../auth/auth.service.js";
 import { ProgrammingDrive } from "../utilities/constants.js";
 
-const PRODUCTION_FOLDER_REGEX = /^(\d{1,2}-\d{1,2}-\d{2,4})\s+(.+?)(\s+\(multiple shows\))?$/i;
+const PRODUCTION_FOLDER_REGEX =
+  /^(\d{1,2}-\d{1,2}-\d{2,4})\s+(.+?)(\s+\(multiple shows\))?(\s+\(CANCELED\))?$/i;
 const YEAR_FOLDER_REGEX = /^(\d{4})\s+Program$/;
 const MONTH_FOLDER_REGEX = /^\d{4}-\d{2}\s+\w+$/;
 
@@ -46,6 +47,11 @@ class DriveRepository {
     return response.data.files ?? [];
   }
 
+  // The optional "(CANCELED)" token is matched (and stripped from the
+  // parsed artist) purely so a folder that already carries that suffix
+  // doesn't get it folded into the artist name — cancellation itself is a
+  // Mongo-only flag (Show.canceled) with no relationship to folder naming,
+  // so the token isn't extracted into the returned object.
   static #parseProductionFolder(folder) {
     const match = folder.name.match(PRODUCTION_FOLDER_REGEX);
 
@@ -242,18 +248,13 @@ class DriveRepository {
     return folders.find((f) => f.name.startsWith(prefix)) ?? null;
   }
 
-  static async createShowFolder({ artist, date, multipleShows }) {
-    const drive = await DriveRepository.#getDriveClient();
-
+  // Finds the "YYYY Program" -> "YYYY-MM ..." month folder a show with this
+  // date belongs under. Shared by createShowFolder and rescheduleShowFolder
+  // so both land new/moved show folders in the same place.
+  static async #resolveMonthFolder(drive, date) {
     const year = date.getFullYear();
-    const month = date.getMonth() + 1;
-    const day = date.getDate();
+    const mm = String(date.getMonth() + 1).padStart(2, "0");
 
-    const mm = String(month).padStart(2, "0");
-    const dd = String(day).padStart(2, "0");
-    const yy = String(year).slice(-2);
-
-    // Find year folder e.g. "2026 Program"
     const yearFolder = await DriveRepository.#findFolderByPrefix(
       drive,
       ProgrammingDrive.FolderIds.PERFORMANCE_CONTRACTS_ROOT,
@@ -264,7 +265,6 @@ class DriveRepository {
       throw new Error(`Year folder "${year} Program" not found in Drive.`);
     }
 
-    // Find month folder e.g. "2026-01 January"
     const monthPrefix = `${year}-${mm}`;
     const monthFolder = await DriveRepository.#findFolderByPrefix(
       drive,
@@ -275,6 +275,18 @@ class DriveRepository {
     if (!monthFolder) {
       throw new Error(`Month folder "${monthPrefix}" not found in Drive.`);
     }
+
+    return monthFolder;
+  }
+
+  static async createShowFolder({ artist, date, multipleShows }) {
+    const drive = await DriveRepository.#getDriveClient();
+
+    const mm = String(date.getMonth() + 1).padStart(2, "0");
+    const dd = String(date.getDate()).padStart(2, "0");
+    const yy = String(date.getFullYear()).slice(-2);
+
+    const monthFolder = await DriveRepository.#resolveMonthFolder(drive, date);
 
     // Build folder name e.g. "01-09-26 The Pharcyde (multiple shows)"
     const folderName = `${mm}-${dd}-${yy} ${artist.trim()}${multipleShows ? " (multiple shows)" : ""}`;
@@ -297,6 +309,42 @@ class DriveRepository {
       multipleShows,
       unparsed: false,
     };
+  }
+
+  // Moves the show's Drive folder to the month folder matching its new date
+  // (only if it actually changed) and renames it in the same request, so a
+  // reschedule that crosses a month/year boundary takes one API call instead
+  // of a rename followed by a separate move.
+  static async rescheduleShowFolder({ folderId, date, artist, multipleShows }) {
+    const drive = await DriveRepository.#getDriveClient();
+
+    const mm = String(date.getMonth() + 1).padStart(2, "0");
+    const dd = String(date.getDate()).padStart(2, "0");
+    const yy = String(date.getFullYear()).slice(-2);
+
+    const monthFolder = await DriveRepository.#resolveMonthFolder(drive, date);
+    const folderName = `${mm}-${dd}-${yy} ${artist.trim()}${multipleShows ? " (multiple shows)" : ""}`;
+
+    const meta = await drive.files.get({
+      fileId: folderId,
+      fields: "parents",
+      supportsAllDrives: true,
+    });
+    const currentParents = meta.data.parents ?? [];
+    const moved = !currentParents.includes(monthFolder.id);
+
+    const response = await drive.files.update({
+      fileId: folderId,
+      requestBody: { name: folderName },
+      ...(moved && {
+        addParents: monthFolder.id,
+        removeParents: currentParents.join(","),
+      }),
+      fields: "id, name",
+      supportsAllDrives: true,
+    });
+
+    return { folderId: response.data.id, folderName: response.data.name, moved };
   }
 
   static async findSheetsInFolder({ folderId }) {

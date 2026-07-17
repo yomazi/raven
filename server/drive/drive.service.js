@@ -24,6 +24,17 @@ function buildShowFolderName({ date, artist, multipleShows }) {
   return `${mm}-${dd}-${yy} ${artist.trim()}${multipleShows ? " (multiple shows)" : ""}`;
 }
 
+// Matches the naming convention DriveRepository.createMarketingAssetsFolder
+// uses for the doc it copies from the template, so a renamed/rescheduled
+// show's marketing asset info doc stays indistinguishable from one made at
+// creation time.
+function buildMarketingAssetsDocName({ date, artist, multipleShows }) {
+  const mm = String(date.getMonth() + 1).padStart(2, "0");
+  const dd = String(date.getDate()).padStart(2, "0");
+  const yy = String(date.getFullYear()).slice(-2);
+  return `${mm}-${dd}-${yy} ${artist.trim()}${multipleShows ? " (multiple shows)" : ""}: marketing asset info`;
+}
+
 // Uploaded filenames carry a routing prefix ("prg.contract.draft.1 - foo.pdf")
 // added by the naming modal (GmailPanel / FileManager) — a download should
 // give back just the human-chosen part after that " - " separator.
@@ -197,8 +208,10 @@ class DriveService {
 
   // Renames the show's own Drive folder (not a contract subfolder) to match
   // a new artist name, keeping the existing date/multi-show naming
-  // convention, and updates Show.artist to match. Related documents
-  // (settlement workbook, marketing assets folder) are not renamed.
+  // convention, and updates Show.artist to match. Also renames the
+  // marketing assets info doc (its name embeds the artist too) if one
+  // exists. The settlement workbook and marketing assets *folder* (whose
+  // name doesn't embed the artist) are left alone.
   static async renameShowFolder({ googleFolderId, artist }) {
     log.info("renameShowFolder", "Renaming show folder", { googleFolderId, artist });
 
@@ -220,11 +233,126 @@ class DriveService {
 
       const updatedShow = await ShowsService.patch(googleFolderId, { artist: trimmedArtist });
 
+      const marketingAssetsDocId = updatedShow?.drive?.documentIds?.marketingAssetsInfo;
+      if (marketingAssetsDocId) {
+        const docName = buildMarketingAssetsDocName({
+          date: updatedShow.date,
+          artist: trimmedArtist,
+          multipleShows: updatedShow.isMulti,
+        });
+        await DriveRepository.renameFolder({ folderId: marketingAssetsDocId, name: docName });
+      }
+
       log.info("renameShowFolder", "Show folder renamed", { folderName: folder.folderName });
 
       return { ...folder, show: updatedShow };
     } catch (err) {
       log.error("renameShowFolder", "Failed to rename show folder", err);
+      throw err;
+    }
+  }
+
+  // Moves the show's Drive folder to match a new date (if the year/month
+  // changed) and renames it to the new "MM-DD-YY Artist (multiple shows)"
+  // name, then updates Show.artist/date/isMulti to match. Also renames the
+  // marketing assets info doc (its name embeds date/artist/multi too) if
+  // one exists. The settlement workbook and marketing assets *folder*
+  // (whose name doesn't embed any of these) are left alone. Rescheduling a
+  // canceled show un-cancels it and restores build.shouldShowInRoster — on
+  // the assumption that a show being rescheduled is back on. Shows that
+  // weren't canceled are unaffected. (Cancellation is a Mongo-only flag —
+  // it no longer has any effect on Drive folder naming.)
+  static async rescheduleShow({ googleFolderId, artist, date, multipleShows }) {
+    log.info("rescheduleShow", "Rescheduling show", { googleFolderId, artist, date, multipleShows });
+
+    try {
+      const show = await ShowsService.getByGoogleFolderId(googleFolderId);
+      if (!show) throw new Error(`Show not found for folder ID: ${googleFolderId}`);
+
+      const trimmedArtist = artist.trim();
+      const folder = await DriveRepository.rescheduleShowFolder({
+        folderId: googleFolderId,
+        date,
+        artist: trimmedArtist,
+        multipleShows,
+      });
+
+      const updatedShow = await ShowsService.patch(googleFolderId, {
+        artist: trimmedArtist,
+        date,
+        isMulti: multipleShows,
+        canceled: false,
+        ...(show.canceled ? { "build.shouldShowInRoster": true } : {}),
+      });
+
+      const marketingAssetsDocId = updatedShow?.drive?.documentIds?.marketingAssetsInfo;
+      if (marketingAssetsDocId) {
+        const docName = buildMarketingAssetsDocName({
+          date,
+          artist: trimmedArtist,
+          multipleShows,
+        });
+        await DriveRepository.renameFolder({ folderId: marketingAssetsDocId, name: docName });
+      }
+
+      log.info("rescheduleShow", "Show rescheduled", {
+        folderName: folder.folderName,
+        moved: folder.moved,
+      });
+
+      return { ...folder, show: updatedShow };
+    } catch (err) {
+      log.error("rescheduleShow", "Failed to reschedule show", err);
+      throw err;
+    }
+  }
+
+  // Moves the show's Drive folder to Trash and soft-deletes the Mongo
+  // record (deleted: true) — reversible on both sides, matching the
+  // existing sync-driven soft-delete convention rather than a hard delete.
+  static async deleteShow({ googleFolderId }) {
+    log.info("deleteShow", "Deleting show", { googleFolderId });
+
+    try {
+      const show = await ShowsService.getByGoogleFolderId(googleFolderId);
+      if (!show) throw new Error(`Show not found for folder ID: ${googleFolderId}`);
+
+      await DriveRepository.trashFile({ fileId: googleFolderId });
+      const updatedShow = await ShowsService.softDelete(googleFolderId);
+
+      log.info("deleteShow", "Show deleted", { googleFolderId, artist: show.artist });
+
+      return { show: updatedShow };
+    } catch (err) {
+      log.error("deleteShow", "Failed to delete show", err);
+      throw err;
+    }
+  }
+
+  // Flips Show.canceled — a Mongo-only flag with no effect on the Drive
+  // folder (nothing stops someone renaming the folder directly in Drive
+  // regardless of this flag, so tying folder naming to it was never a
+  // reliable signal). Canceling also forces build.shouldShowInRoster off
+  // (so it drops out of the Builds roster tab); un-canceling leaves that
+  // flag alone rather than guessing whether it should come back. The
+  // folder and Mongo record are otherwise preserved — this is not a delete.
+  static async setShowCanceled({ googleFolderId, canceled }) {
+    log.info("setShowCanceled", "Setting show canceled state", { googleFolderId, canceled });
+
+    try {
+      const show = await ShowsService.getByGoogleFolderId(googleFolderId);
+      if (!show) throw new Error(`Show not found for folder ID: ${googleFolderId}`);
+
+      const updatedShow = await ShowsService.patch(googleFolderId, {
+        canceled,
+        ...(canceled ? { "build.shouldShowInRoster": false } : {}),
+      });
+
+      log.info("setShowCanceled", "Show canceled state updated", { googleFolderId, canceled });
+
+      return { show: updatedShow };
+    } catch (err) {
+      log.error("setShowCanceled", "Failed to set show canceled state", err);
       throw err;
     }
   }

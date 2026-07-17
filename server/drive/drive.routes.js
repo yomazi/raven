@@ -63,6 +63,27 @@ router.post(
 );
 
 router.post(
+  "/drive/folders/show/reschedule",
+  validate(Schemas.rescheduleShow),
+  validateApiToken,
+  Controller.rescheduleShow
+);
+
+router.post(
+  "/drive/folders/show/delete",
+  validate(Schemas.deleteShow),
+  validateApiToken,
+  Controller.deleteShow
+);
+
+router.post(
+  "/drive/folders/show/cancel",
+  validate(Schemas.setShowCanceled),
+  validateApiToken,
+  Controller.setShowCanceled
+);
+
+router.post(
   "/drive/settlement-workbook",
   validate(Schemas.createSettlementWorkbook),
   validateApiToken,

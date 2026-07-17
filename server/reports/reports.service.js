@@ -67,10 +67,12 @@ class ReportService {
     // 1. Fetch shows
     let shows;
     if (typeof filter === "function") {
-      const all = await Show.find({ deleted: { $ne: true } }).sort({ date: 1 }).lean();
+      const all = await Show.find({ deleted: { $ne: true }, canceled: { $ne: true } })
+        .sort({ date: 1 })
+        .lean();
       shows = filter(all);
     } else {
-      const query = { deleted: { $ne: true }, ...(filter ?? {}) };
+      const query = { deleted: { $ne: true }, canceled: { $ne: true }, ...(filter ?? {}) };
       shows = await Show.find(query).sort(sort).lean();
     }
 

@@ -1,12 +1,16 @@
 import * as NavigationMenu from "@radix-ui/react-navigation-menu";
 import { useEffect, useRef, useState } from "react";
 import { NavLink, useLocation, useMatch, useNavigate } from "react-router-dom";
+import { useCancelShow } from "../../hooks/useCancelShow.js";
 import { useCreateMarketingAssetsFolder } from "../../hooks/useCreateMarketingAssetsFolder.js";
 import { useCreateSettlementWorkbook } from "../../hooks/useCreateSettlementWorkbook.js";
+import { useDeleteShow } from "../../hooks/useDeleteShow.js";
 import { useSyncShows } from "../../hooks/useSyncShows.js";
 import useRavenStore from "../../store/useRavenStore.js";
+import ConfirmModal from "../Modals/ConfirmModal/ConfirmModal.jsx";
 import CreateShowModal from "../Modals/CreateShowModal/CreateShowModal.jsx";
 import RenameShowModal from "../Modals/RenameShowModal/RenameShowModal.jsx";
+import RescheduleShowModal from "../Modals/RescheduleShowModal/RescheduleShowModal.jsx";
 import styles from "./Nav.module.css";
 
 const NavDropdown = ({ label, items, disabled }) => (
@@ -66,9 +70,14 @@ const Nav = () => {
   const { mutate: sync } = useSyncShows();
   const { mutate: createWorkbook } = useCreateSettlementWorkbook();
   const { mutate: createMarketingAssetsFolder } = useCreateMarketingAssetsFolder();
+  const { mutateAsync: deleteShow } = useDeleteShow();
+  const { mutate: setCanceled } = useCancelShow();
   const selectedShow = useRavenStore((s) => s.selectedShow);
   const [createShowOpen, setCreateShowOpen] = useState(false);
   const [renameShowOpen, setRenameShowOpen] = useState(false);
+  const [rescheduleShowOpen, setRescheduleShowOpen] = useState(false);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [cancelConfirmOpen, setCancelConfirmOpen] = useState(false);
   const isSelectedShowVisible = useRavenStore((s) => s.isSelectedShowVisible);
   const leftPaneWidth = useRavenStore((s) => s.leftPaneWidth);
   const leftNavRef = useRef(null);
@@ -100,9 +109,26 @@ const Nav = () => {
         },
         { separator: true },
         { label: "Rename Show", onClick: () => setRenameShowOpen(true) },
+        { label: "Reschedule Show", onClick: () => setRescheduleShowOpen(true) },
+        { separator: true },
+        {
+          label: selectedShow?.canceled ? "Un-cancel Show" : "Cancel Show",
+          onClick: () => setCancelConfirmOpen(true),
+        },
+        { separator: true },
+        { label: "Delete Show", onClick: () => setDeleteConfirmOpen(true) },
       ],
     },
   ];
+
+  const handleDeleteShow = async () => {
+    await deleteShow({ googleFolderId: selectedShow?.googleFolderId });
+    navigate("/roster");
+  };
+
+  const handleToggleCanceled = () => {
+    setCanceled({ googleFolderId: selectedShow?.googleFolderId, canceled: !selectedShow?.canceled });
+  };
   useEffect(() => {
     if (!leftNavRef.current) return;
     const observer = new ResizeObserver(() => {
@@ -159,6 +185,39 @@ const Nav = () => {
         onOpenChange={setRenameShowOpen}
         googleFolderId={selectedShow?.googleFolderId}
         currentArtist={selectedShow?.artist}
+      />
+
+      <RescheduleShowModal
+        key={rescheduleShowOpen ? "reschedule-open" : "reschedule-closed"}
+        open={rescheduleShowOpen}
+        onOpenChange={setRescheduleShowOpen}
+        googleFolderId={selectedShow?.googleFolderId}
+        currentArtist={selectedShow?.artist}
+        currentDate={selectedShow?.date}
+        currentMultipleShows={selectedShow?.isMulti}
+      />
+
+      <ConfirmModal
+        open={deleteConfirmOpen}
+        onOpenChange={setDeleteConfirmOpen}
+        title="Delete show?"
+        message={`Delete "${selectedShow?.artist}"? Its Drive folder will be moved to Trash and it will no longer appear in Raven. This can be undone from Google Drive's Trash, but not from within Raven.`}
+        confirmLabel="Delete Show"
+        onConfirm={handleDeleteShow}
+        danger
+      />
+
+      <ConfirmModal
+        open={cancelConfirmOpen}
+        onOpenChange={setCancelConfirmOpen}
+        title={selectedShow?.canceled ? "Un-cancel show?" : "Cancel show?"}
+        message={
+          selectedShow?.canceled
+            ? `Mark "${selectedShow?.artist}" as no longer canceled? It will start appearing in reports again.`
+            : `Cancel "${selectedShow?.artist}"? It will be removed from the Builds roster tab and stop appearing in reports. Its Drive folder and data are untouched — this can be undone.`
+        }
+        confirmLabel={selectedShow?.canceled ? "Un-cancel Show" : "Cancel Show"}
+        onConfirm={handleToggleCanceled}
       />
     </>
   );

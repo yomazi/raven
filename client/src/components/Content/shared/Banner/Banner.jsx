@@ -47,13 +47,15 @@ const Banner = ({ show = {} }) => {
       <button className={styles.copyButton} onClick={handleCopy} title="Copy to clipboard">
         <SvgContentCopy />
       </button>
-      <div className={styles.rollups}>
-        <RollupDot value={rollups.setup} phase="setup" />
-        <RollupDot value={rollups.ticketing} phase="ticketing" />
-        <RollupDot value={rollups.close} phase="close" />
-        <div className={styles.rollupDivider} />
-        <RollupDot value={contractStatus} phase="contract" />
-      </div>
+      {!show.canceled && (
+        <div className={styles.rollups}>
+          <RollupDot value={rollups.setup} phase="setup" />
+          <RollupDot value={rollups.ticketing} phase="ticketing" />
+          <RollupDot value={rollups.close} phase="close" />
+          <div className={styles.rollupDivider} />
+          <RollupDot value={contractStatus} phase="contract" />
+        </div>
+      )}
     </section>
   );
 };

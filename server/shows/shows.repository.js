@@ -57,6 +57,14 @@ class ShowsRepository {
     return Show.findOneAndUpdate({ googleFolderId }, { $set: driveUpdate }, { new: true });
   }
 
+  static async softDelete(googleFolderId) {
+    return Show.findOneAndUpdate(
+      { googleFolderId },
+      { $set: { deleted: true } },
+      { new: true }
+    );
+  }
+
   static async addContract(googleFolderId, contract) {
     return Show.findOneAndUpdate(
       { googleFolderId },

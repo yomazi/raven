@@ -87,7 +87,9 @@ function autoSizableColumnIndices(definition) {
 }
 
 async function fetchDesiredRows(definition) {
-  const all = await Show.find({ deleted: { $ne: true } }).sort({ date: 1 }).lean();
+  const all = await Show.find({ deleted: { $ne: true }, canceled: { $ne: true } })
+    .sort({ date: 1 })
+    .lean();
   const filtered = definition.filter(all);
   return filtered.map((show) => ({
     rowKey: definition.rowKey(show),

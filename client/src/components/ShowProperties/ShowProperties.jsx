@@ -1,3 +1,5 @@
+import ScheduleSection from "@components/Content/shared/ScheduleSection/ScheduleSection.jsx";
+import { useShowSchedule } from "@hooks/useShowSchedule.js";
 import { useRef } from "react";
 import { useShowById } from "../../hooks/useShowById.js";
 import { useShowProperties } from "../../hooks/useShowProperties.js";
@@ -8,7 +10,8 @@ import MarketingAssetsSection from "./sections/MarketingAssetsSection.jsx";
 import OtherSection from "./sections/OtherSection.jsx";
 import PerformancesSection from "./sections/PerformancesSection.jsx";
 import ProductionSection from "./sections/ProductionSection.jsx";
-import ScheduleSection from "./sections/ScheduleSection.jsx";
+import sectionStyles from "./sections/Section.module.css";
+import SectionHeader from "./sections/SectionHeader.jsx";
 import SetLengthSection from "./sections/SetLengthSection.jsx";
 import TermsSection from "./sections/TermsSection.jsx";
 import TicketPricesSection from "./sections/TicketPricesSection.jsx";
@@ -32,6 +35,18 @@ const SECTIONS = [
 export default function ShowProperties({ showFolderId }) {
   const { data: show } = useShowById(showFolderId);
   const { form, setField, save, isPending, isDirty } = useShowProperties(show);
+  // Schedule is edited through the same hook/mechanism as the Build page —
+  // it auto-saves immediately per field rather than being staged in `form`
+  // and sent on the page's explicit Save (see useShowProperties.js's save(),
+  // which excludes `schedule` from the whole-form patch for this reason).
+  const {
+    schedule,
+    setField: setScheduleField,
+    setReleaseMode,
+    addPresale,
+    updatePresale,
+    removePresale,
+  } = useShowSchedule(show);
   const sectionRefs = useRef({});
   const navRef = useRef(null);
 
@@ -62,7 +77,19 @@ export default function ShowProperties({ showFolderId }) {
           <CoreSection show={form} setField={setField} />
         </div>
         <div ref={(el) => (sectionRefs.current.schedule = el)}>
-          <ScheduleSection show={form} setField={setField} />
+          <section id="schedule" className={sectionStyles.section}>
+            <SectionHeader title="Schedule" />
+            <ScheduleSection
+              key={showFolderId}
+              schedule={schedule}
+              initialNotes={show?.schedule?.notes}
+              setField={setScheduleField}
+              setReleaseMode={setReleaseMode}
+              addPresale={addPresale}
+              updatePresale={updatePresale}
+              removePresale={removePresale}
+            />
+          </section>
         </div>
         <div ref={(el) => (sectionRefs.current.performances = el)}>
           <PerformancesSection show={form} setField={setField} />

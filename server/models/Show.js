@@ -153,6 +153,7 @@ const ShowSchema = new Schema(
     date: { type: Date },
     isMulti: { type: Boolean, default: false },
     unparsed: { type: Boolean, default: false },
+    canceled: { type: Boolean, default: false },
     deleted: { type: Boolean, default: false },
 
     build: { type: buildSchema, default: () => ({}) },

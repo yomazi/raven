@@ -100,8 +100,6 @@ export const ScheduleHeaderRenderer = ({ progressSort, column }) => {
     return () => column.removeEventListener("sortChanged", listener);
   }, [column]);
 
-  console.log(`sort: ${sort}`);
-
   return (
     <div
       className={`${gridStyles.scheduleHeaderCell} ${!sort ? gridStyles.scheduleHeaderCellSmall : ""}`}

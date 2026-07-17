@@ -38,7 +38,11 @@ export const useShowProperties = (show) => {
     // not staged in this draft — sending the stale copy captured when the
     // form loaded would clobber any contract added/edited/archived since.
     const { contract: _contract, contracts: _contracts, ...restBuild } = form.build ?? {};
-    patch({ ...form, build: restBuild });
+    // schedule is mutated live via useShowSchedule (see ShowProperties.jsx's
+    // Schedule section), not staged in this draft either — same class of
+    // bug as build.contract/contracts above.
+    const { schedule: _schedule, ...restForm } = form;
+    patch({ ...restForm, build: restBuild });
     // isDirty clears in the patch success callback, not here,
     // so a failed save does not falsely clear the dirty state.
   }, [form, patch]);

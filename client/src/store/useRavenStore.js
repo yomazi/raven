@@ -26,6 +26,7 @@ const useRavenStore = create(
       // ── shows
       selectedShow: null,
       setSelectedShow: (show) => set({ selectedShow: show }),
+      clearSelectedShow: () => set({ selectedShow: null, isSelectedShowVisible: false }),
 
       isSelectedShowVisible: false,
       setIsSelectedShowVisible: (val) => set({ isSelectedShowVisible: val }),

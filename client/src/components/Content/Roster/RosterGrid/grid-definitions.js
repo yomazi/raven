@@ -85,7 +85,8 @@ export const showsColumnDefs = [
     headerComponent: ContractHeaderRenderer,
     headerClass: "raven-grid-divider",
     field: "buildContract",
-    valueGetter: ({ data }) => data.build?.contract ?? "n/a",
+    // Canceled shows have no meaningful contract status to roll up.
+    valueGetter: ({ data }) => (data.canceled ? null : (data.build?.contract ?? "n/a")),
     cellRenderer: RollupCellRenderer,
     cellRendererParams: { phase: "contract" },
     cellClass: "ag-center-aligned-cell raven-grid-cell raven-grid-divider",

@@ -57,6 +57,31 @@ class DriveSchemas {
     }),
   };
 
+  static rescheduleShow = {
+    headers: authHeaderSchema,
+    body: Joi.object({
+      googleFolderId: Joi.string().required(),
+      artist: Joi.string().required(),
+      date: Joi.string().isoDate().required(),
+      multipleShows: Joi.boolean().default(false),
+    }),
+  };
+
+  static deleteShow = {
+    headers: authHeaderSchema,
+    body: Joi.object({
+      googleFolderId: Joi.string().required(),
+    }),
+  };
+
+  static setShowCanceled = {
+    headers: authHeaderSchema,
+    body: Joi.object({
+      googleFolderId: Joi.string().required(),
+      canceled: Joi.boolean().required(),
+    }),
+  };
+
   static createSettlementWorkbook = {
     headers: authHeaderSchema,
     body: Joi.object({

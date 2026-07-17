@@ -36,6 +36,26 @@ export const renameShowFolder = async ({ googleFolderId, artist }) => {
   return data;
 };
 
+export const rescheduleShowFolder = async ({ googleFolderId, artist, date, multipleShows }) => {
+  const { data } = await apiClient.post("/drive/folders/show/reschedule", {
+    googleFolderId,
+    artist,
+    date: date.toISOString().slice(0, 10),
+    multipleShows,
+  });
+  return data;
+};
+
+export const deleteShowFolder = async ({ googleFolderId }) => {
+  const { data } = await apiClient.post("/drive/folders/show/delete", { googleFolderId });
+  return data;
+};
+
+export const setShowCanceled = async ({ googleFolderId, canceled }) => {
+  const { data } = await apiClient.post("/drive/folders/show/cancel", { googleFolderId, canceled });
+  return data;
+};
+
 export const createSettlementWorkbook = async ({ googleFolderId }) => {
   const { data } = await apiClient.post("/drive/settlement-workbook", { googleFolderId });
   return data;
