@@ -64,6 +64,17 @@ function columnLetter(index) {
 
 const AUTO_SIZE_PADDING_PX = 10;
 
+// The Sheets API omits trailing empty cells from a row it returns — a row
+// whose last column(s) are blank comes back shorter than the sheet's full
+// width. Column-index slicing (e.g. reading comment values back out of a
+// row) silently drops the missing trailing columns unless padded back out
+// first, which for a comment column that isn't the last one populated
+// would otherwise leave stale data behind at that position on the next
+// write (see #fullRewrite's existingCommentsByKey).
+function padRow(row, width) {
+  return row.length >= width ? row : [...row, ...Array(width - row.length).fill("")];
+}
+
 function numColumns(definition) {
   return definition.ravenColumns.length + definition.commentColumns.length;
 }
@@ -75,10 +86,13 @@ function header(definition) {
   ];
 }
 
-// Comment columns can pin a fixed width (e.g. wrapped notes columns); raven
-// columns always auto-size regardless of any stray `width` on them.
+// Any column — raven or comment — can pin a fixed width (e.g. a wrapped
+// notes column); everything else auto-sizes to fit its content.
 function autoSizableColumnIndices(definition) {
-  const ravenIndices = definition.ravenColumns.map((_, i) => i);
+  const ravenIndices = definition.ravenColumns
+    .map((col, i) => ({ col, i }))
+    .filter(({ col }) => col.width == null)
+    .map(({ i }) => i);
   const commentIndices = definition.commentColumns
     .map((col, i) => ({ col, i: definition.ravenColumns.length + i }))
     .filter(({ col }) => col.width == null)
@@ -124,6 +138,7 @@ async function applyFormatting(definition, spreadsheetId, sheetId, rows) {
   requests.push(headerFormatRequest(sheetId, numCols, definition.headerStyle));
 
   definition.ravenColumns.forEach((col, i) => {
+    if (col.width != null) requests.push(columnWidthRequest(sheetId, i, col.width));
     const fmt = columnFormatRequest(sheetId, i, rowCount, col);
     if (fmt) requests.push(fmt);
     if (rowCount > 0) {
@@ -458,7 +473,7 @@ class LiveReportService {
         () => []
       );
       liveReport.rows.forEach((cached, i) => {
-        const liveRow = currentValues[i] ?? cached.values;
+        const liveRow = padRow(currentValues[i] ?? cached.values, numCols);
         existingCommentsByKey.set(cached.rowKey, liveRow.slice(definition.ravenColumns.length));
       });
     }

@@ -5,9 +5,11 @@ import { useShowContracts } from "@hooks/useShowContracts.js";
 import * as Switch from "@radix-ui/react-switch";
 import { CONTRACT_STATUS } from "@shared/constants/builds.js";
 import SvgContract from "@svg/contract_google.svg?react";
+import SvgCopyOneCell from "@svg/copy-one-cell_rg.svg?react";
 import SvgEdit from "@svg/edit_google.svg?react";
 import { useState } from "react";
 import { isPdfFile } from "../../../../utilities/contractPdf.js";
+import ContractTermsModal from "./ContractTermsModal.jsx";
 import styles from "./ContractsPanel.module.css";
 import ParseContractModal from "./ParseContractModal.jsx";
 
@@ -15,6 +17,20 @@ const CONTRACT_STATUS_LABELS = Object.fromEntries(CONTRACT_STATUS.map((s) => [s,
 
 function formatDate(value) {
   return value ? new Date(value).toISOString().split("T")[0] : "";
+}
+
+// Mirrors RosterGrid.jsx's single-cell copyLink (includeDate: false) — a
+// <table><td> wrapping the link so pasting into a spreadsheet or email
+// keeps it as a real hyperlink, not just plain text.
+function copyContractLink(signee, folderId) {
+  const url = `https://drive.google.com/drive/folders/${folderId}`;
+  const html = `<table><tr><td><a href="${url}">${signee}</a></td></tr></table>`;
+  navigator.clipboard.write([
+    new ClipboardItem({
+      "text/plain": new Blob([signee], { type: "text/plain" }),
+      "text/html": new Blob([html], { type: "text/html" }),
+    }),
+  ]);
 }
 
 // ---------------------------------------------------------------------------
@@ -30,11 +46,15 @@ function ContractRow({
   onRename,
   onGenerate,
   onSetMain,
+  onApplySection,
+  onApplyAllSections,
   isGenerating,
 }) {
   const [isEditingName, setIsEditingName] = useState(false);
   const [draftName, setDraftName] = useState(contract.signee ?? "");
+  const [draftComments, setDraftComments] = useState(contract.comments ?? "");
   const [isParseOpen, setIsParseOpen] = useState(false);
+  const [isTermsOpen, setIsTermsOpen] = useState(false);
   const { data: files = [] } = useDriveFiles(contract.folderId);
   const hasPdf = files.some(isPdfFile);
 
@@ -49,6 +69,12 @@ function ContractRow({
       onRename(contract._id, trimmed);
     }
     setIsEditingName(false);
+  }
+
+  function commitComments() {
+    if (draftComments !== (contract.comments ?? "")) {
+      onUpdate(contract._id, { comments: draftComments });
+    }
   }
 
   return (
@@ -66,6 +92,13 @@ function ContractRow({
           />
         ) : (
           <div className={styles.nameDisplay}>
+            <button
+              className={styles.copyButton}
+              onClick={() => copyContractLink(contract.signee, contract.folderId)}
+              title="Copy contract name and link"
+            >
+              <SvgCopyOneCell className={styles.copyIcon} />
+            </button>
             <a
               className={styles.nameLink}
               href={`https://drive.google.com/drive/folders/${contract.folderId}`}
@@ -85,6 +118,9 @@ function ContractRow({
           </div>
         )}
         <div className={styles.rowActions}>
+          <button className={styles.termsButton} onClick={() => setIsTermsOpen(true)}>
+            Terms
+          </button>
           {hasPdf && (
             <button className={styles.parseButton} onClick={() => setIsParseOpen(true)}>
               Parse
@@ -101,6 +137,14 @@ function ContractRow({
         onOpenChange={setIsParseOpen}
         contract={contract}
         files={files}
+        onApplySection={onApplySection}
+      />
+
+      <ContractTermsModal
+        open={isTermsOpen}
+        onOpenChange={setIsTermsOpen}
+        contract={contract}
+        onSave={onApplyAllSections}
       />
 
       <div className={styles.fieldGridRow}>
@@ -175,6 +219,17 @@ function ContractRow({
             <Switch.Thumb className={styles.switchThumb} />
           </Switch.Root>
         </div>
+      </div>
+
+      <div className={styles.commentsBlock}>
+        <span className={styles.label}>Notes</span>
+        <textarea
+          className={styles.textarea}
+          value={draftComments}
+          onChange={(e) => setDraftComments(e.target.value)}
+          onBlur={commitComments}
+          rows={2}
+        />
       </div>
     </div>
   );
@@ -259,6 +314,8 @@ export default function ContractsPanel({ show }) {
     archiveContract,
     isAdding,
     setMainContract,
+    applyContractSection,
+    applyContractSections,
     importContract,
     isImporting,
   } = useShowContracts(googleFolderId);
@@ -287,6 +344,8 @@ export default function ContractsPanel({ show }) {
           onRename={renameContract}
           onGenerate={generateContract}
           onSetMain={setMainContract}
+          onApplySection={applyContractSection}
+          onApplyAllSections={applyContractSections}
           isGenerating={generatingId === contract._id}
         />
       ))}

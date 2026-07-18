@@ -13,7 +13,6 @@ import ProductionSection from "./sections/ProductionSection.jsx";
 import sectionStyles from "./sections/Section.module.css";
 import SectionHeader from "./sections/SectionHeader.jsx";
 import SetLengthSection from "./sections/SetLengthSection.jsx";
-import TermsSection from "./sections/TermsSection.jsx";
 import TicketPricesSection from "./sections/TicketPricesSection.jsx";
 import styles from "./ShowProperties.module.css";
 import ValidationPane from "./ValidationPane/ValidationPane.jsx";
@@ -22,7 +21,6 @@ const SECTIONS = [
   { id: "core", label: "Core" },
   { id: "schedule", label: "Schedule" },
   { id: "performances", label: "Performances" },
-  { id: "terms", label: "Deal Terms" },
   { id: "set-length", label: "Set Length" },
   { id: "contact", label: "Contact List" },
   { id: "ticket-prices", label: "Ticket Prices" },
@@ -93,9 +91,6 @@ export default function ShowProperties({ showFolderId }) {
         </div>
         <div ref={(el) => (sectionRefs.current.performances = el)}>
           <PerformancesSection show={form} setField={setField} />
-        </div>
-        <div ref={(el) => (sectionRefs.current.terms = el)}>
-          <TermsSection show={form} setField={setField} />
         </div>
         <div ref={(el) => (sectionRefs.current["set-length"] = el)}>
           <SetLengthSection show={form} setField={setField} />

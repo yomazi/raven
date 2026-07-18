@@ -214,13 +214,6 @@ class ShowsService {
             sectionAnchor: "performances",
           });
         }
-        if (p.hasLivestream && !show.terms?.livestream?.hasLivestream) {
-          warnings.push({
-            code: `LIVESTREAM_TERMS_MISSING_${i}`,
-            message: `Performance ${i + 1} has a livestream but no livestream terms are defined.`,
-            sectionAnchor: "terms",
-          });
-        }
       });
 
       if (show.isMulti && show.performances.length < 2) {
@@ -290,25 +283,6 @@ class ShowsService {
           });
         }
       });
-    }
-
-    // terms
-    if (show.terms?.livestream?.hasLivestream) {
-      const hasLivestreamPerformance = show.performances?.some((p) => p.hasLivestream);
-      if (!hasLivestreamPerformance) {
-        warnings.push({
-          code: "LIVESTREAM_NO_PERFORMANCE",
-          message: "Livestream terms are defined but no performance is marked as a livestream.",
-          sectionAnchor: "performances",
-        });
-      }
-      if (!show.terms.livestream.ticketPrice) {
-        warnings.push({
-          code: "LIVESTREAM_NO_TICKET_PRICE",
-          message: "Livestream is enabled but no ticket price is set.",
-          sectionAnchor: "terms",
-        });
-      }
     }
 
     return warnings;

@@ -49,8 +49,14 @@ export function contractStatus90DayFilter(shows) {
     );
 }
 
-// The four Raven-owned columns — shared with the live version of this report.
-// headerAlign is currently only honored by the live report engine.
+// The four Raven-owned columns — shared with the live version of this
+// report. headerAlign is currently only honored by the live report engine.
+// All four are `protect: true` (live report only — see
+// ensureColumnProtections in live-report.service.js): Raven is the sole
+// source of truth for identity/status, so none of them should be editable
+// directly in Sheets. "Robin's notes" is NOT here — it's live-report-only,
+// added on top of these in contract-status-90-day-live.js, since this
+// snapshot report has no ongoing spreadsheet for staff to read it from.
 export const contractStatus90DayColumns = [
   {
     header: "Date",
@@ -60,6 +66,7 @@ export const contractStatus90DayColumns = [
     headerAlign: "RIGHT",
     autoWidth: true,
     autoWidthPadding: 16,
+    protect: true,
   },
   {
     header: "Artist",
@@ -72,6 +79,7 @@ export const contractStatus90DayColumns = [
     headerAlign: "LEFT",
     autoWidth: true,
     autoWidthPadding: 24,
+    protect: true,
   },
   {
     header: "Contract Signee",
@@ -84,6 +92,7 @@ export const contractStatus90DayColumns = [
     headerAlign: "LEFT",
     autoWidth: true,
     autoWidthPadding: 24,
+    protect: true,
   },
   {
     header: "Status",
@@ -96,7 +105,7 @@ export const contractStatus90DayColumns = [
     // ensureConditionalFormatting in live-report.service.js) so the color
     // follows the dropdown selection even without Raven involved.
     dropdownColors: CONTRACT_STATUS_COLORS,
-    protect: true, // live report only — see ensureColumnProtections in live-report.service.js
+    protect: true,
   },
 ];
 

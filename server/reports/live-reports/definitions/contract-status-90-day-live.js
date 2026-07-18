@@ -4,13 +4,26 @@ import {
   contractStatus90DayFilter,
 } from "../../definitions/contract-status-90-day-outlook.js";
 
+// Raven-owned, live-report-only — appended after the four shared columns
+// from contractStatus90DayColumns. Not in that shared array since the
+// snapshot report has no ongoing spreadsheet for staff to read it from.
+const ROBIN_NOTES_COLUMN = {
+  header: "Robin's notes",
+  value: (show) => show._contract.comments ?? "",
+  align: "LEFT",
+  headerAlign: "LEFT",
+  width: 300,
+  wrap: true,
+  protect: true,
+};
+
 // Freeform columns Freight staff comment in directly — Raven never writes to
 // these except to preserve whatever's already there when it rewrites a row.
-// A fixed width + wrap keeps these two readable regardless of comment length;
+// A fixed width + wrap keeps these readable regardless of comment length;
 // columns without an explicit width are auto-sized instead.
 const COMMENT_COLUMNS = [
-  { header: "Par's notes", width: 200, wrap: true },
-  { header: "PC's notes", width: 200, wrap: true },
+  { header: "Par's notes", width: 300, wrap: true },
+  { header: "PC's notes", width: 300, wrap: true },
 ];
 
 const contractStatus90DayLive = {
@@ -35,7 +48,7 @@ const contractStatus90DayLive = {
   filter: contractStatus90DayFilter,
   rowKey: (show) => String(show._contract._id),
 
-  ravenColumns: contractStatus90DayColumns,
+  ravenColumns: [...contractStatus90DayColumns, ROBIN_NOTES_COLUMN],
   commentColumns: COMMENT_COLUMNS,
 
   frozenRows: 1,

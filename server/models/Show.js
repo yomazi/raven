@@ -44,6 +44,67 @@ const contractSchema = new Schema({
   // At most one non-archived contract per show should have this set —
   // enforced by ShowsRepository.setMainContract, not by this schema.
   isMainContract: { type: Boolean, default: false },
+  // Freeform notes, editable only from Raven — mirrored into the
+  // "Robin's notes" column on the live contract-status report as a
+  // protected (read-only-in-Sheets) range. See contract-status-90-day-outlook.js.
+  comments: { type: String },
+
+  // terms
+  terms: {
+    main: {
+      guarantee: { type: Number },
+      backendType: {
+        type: String,
+        enum: ["plus", "vs", "none"],
+        default: "none",
+      },
+      percentage: { type: Number, default: 0 },
+      splitPoint: { type: Number, min: 0.01 },
+    },
+    livestream: {
+      hasLivestream: { type: Boolean, default: false },
+      ticketPrice: { type: Number },
+      guarantee: { type: Number },
+      backendType: {
+        type: String,
+        enum: ["plus", "vs", "none"],
+        default: "none",
+      },
+      percentage: { type: Number, default: 0 },
+      splitPoint: { type: Number, min: 0.01 },
+    },
+  },
+
+  // production — merch/guest-list terms negotiated in this contract.
+  // Buyouts (hospitality/meals/accommodations/travel/backline) and ticket
+  // prices are venue-operational, not contract-specific, so they live only
+  // at the show level (ShowSchema.production / ShowSchema.ticketPrices).
+  production: {
+    merchCut: {
+      type: String,
+      enum: ["85% artist / 15% venue", "no merch commission"],
+      default: "no merch commission",
+    },
+    numGuestListComps: { type: Number },
+  },
+
+  // payment — deposit/balance terms as stated in this contract
+  payment: {
+    deposit: {
+      // Not every contract has a deposit — mirrors terms.livestream.hasLivestream.
+      hasDeposit: { type: Boolean, default: false },
+      // ISO date if the contract states one, otherwise a relative phrase
+      // ("upon signing") — see llm.service.js's extraction rules.
+      dueDate: { type: String },
+      amount: { type: Number },
+      payee: { type: String },
+      method: { type: String },
+    },
+    balance: {
+      payee: { type: String },
+      method: { type: String },
+    },
+  },
 });
 
 const buildSchema = new Schema(
@@ -250,35 +311,6 @@ const ShowSchema = new Schema(
       onSaleDateTime: { type: Date },
       presales: [presaleSchema],
       notes: { type: String },
-    },
-
-    // terms
-    terms: {
-      main: {
-        guarantee: { type: Number },
-        backendType: {
-          type: String,
-          enum: ["plus", "vs", "none"],
-          default: "none",
-        },
-        percentage: { type: Number, default: 0 },
-        splitPoint: { type: Number, min: 0.01 },
-      },
-      livestream: {
-        hasLivestream: { type: Boolean, default: false },
-        ticketPrice: { type: Number },
-        guarantee: { type: Number },
-        backendType: {
-          type: String,
-          enum: ["plus", "vs", "none"],
-          default: "none",
-        },
-        percentage: { type: Number, default: 0 },
-        splitPoint: { type: Number, min: 0.01 },
-      },
-      educationalEvents: {
-        description: { type: String },
-      },
     },
 
     // ticketPrices

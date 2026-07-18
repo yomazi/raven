@@ -1,0 +1,232 @@
+/* ContractTermsTiles.module.css — uses Raven design tokens */
+
+.tiles {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  width: 100%;
+}
+
+/* The tile keeps its own background; the Apply button sits outside it on
+   the modal's own surface, bottom-aligned so it lines up with the tile's
+   last row of controls rather than floating against the tile as a whole. */
+.tileRow {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.75rem;
+  width: 100%;
+}
+
+.tile {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: 0.85rem 1rem;
+  background: var(--color-stone);
+  border-radius: 6px;
+  flex: 1;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.tileTitle {
+  font-family: var(--font-ui);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-frost);
+  opacity: 0.7;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.fieldsRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  flex: 1 1 170px;
+  min-width: 150px;
+}
+
+/* Sections with collapsibleRows (e.g. Livestream) share one grid across
+   every row so fields at the same column index actually line up, instead
+   of each row's flex-wrap sizing independently. */
+.fieldsGrid {
+  display: grid;
+  gap: 1rem;
+}
+
+/* Animates a section's collapsible rows open/closed via the grid-rows
+   trick — a single-row/column grid transitioning from a 0fr to a 1fr
+   track animates smoothly to/from its content's natural height without
+   needing to measure it in JS. .collapseInner supplies the min-height: 0
+   and overflow: hidden the trick depends on to actually reach zero. */
+.collapse {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 200ms ease;
+}
+
+.collapse[data-expanded="true"] {
+  grid-template-rows: 1fr;
+}
+
+.collapseInner {
+  overflow: hidden;
+  min-height: 0;
+  opacity: 0;
+  transition: opacity 150ms ease;
+}
+
+.collapse[data-expanded="true"] .collapseInner {
+  opacity: 1;
+}
+
+.gridField {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 0;
+}
+
+.checkboxRow {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.fieldLabel {
+  font-size: 0.72rem;
+  color: var(--color-rune);
+}
+
+.currentValue {
+  font-size: 0.72rem;
+  color: var(--color-rune);
+  opacity: 0.8;
+}
+
+.input {
+  background: var(--color-void);
+  border: 1px solid var(--color-stone);
+  border-radius: 4px;
+  padding: 0.35rem 0.5rem;
+  font-size: 0.85rem;
+  color: var(--color-moonlight);
+  outline: none;
+  transition: border-color 0.2s;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.input:focus {
+  border-color: var(--color-wyrd);
+}
+
+.select {
+  background: var(--color-void);
+  border: 1px solid var(--color-stone);
+  border-radius: 4px;
+  padding: 0.35rem 0.5rem;
+  font-size: 0.85rem;
+  color: var(--color-moonlight);
+  outline: none;
+  transition: border-color 0.2s;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.select:focus {
+  border-color: var(--color-wyrd);
+}
+
+.checkbox {
+  width: 1.1rem;
+  height: 1.1rem;
+  accent-color: var(--color-wyrd);
+  cursor: pointer;
+}
+
+.percentWrap {
+  position: relative;
+  width: 100%;
+}
+
+.percentWrap .input {
+  padding-right: 1.6rem;
+}
+
+.percentSuffix {
+  position: absolute;
+  right: 0.55rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.85rem;
+  color: var(--color-rune);
+  pointer-events: none;
+}
+
+.currencyWrap {
+  position: relative;
+  width: 100%;
+}
+
+.currencyWrap .input {
+  padding-left: 1.4rem;
+}
+
+.currencyPrefix {
+  position: absolute;
+  left: 0.55rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.85rem;
+  color: var(--color-rune);
+  pointer-events: none;
+}
+
+.sideButton {
+  flex-shrink: 0;
+  /* Icon-only and a fixed square — nothing about its content ever changes
+     size, so the tile row never shifts. */
+  width: 2.25rem;
+  height: 2.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-wyrd);
+  color: white;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  padding: 0;
+  cursor: pointer;
+  transition:
+    opacity 0.15s,
+    background 0.15s,
+    color 0.15s;
+}
+
+.sideButton:hover:not(:disabled) {
+  opacity: 0.85;
+}
+
+/* A clearly "off" look — muted stone/rune tones instead of a dimmed wyrd
+   button — so it reads as done/inactive, not just temporarily faded. */
+.sideButton:disabled {
+  background: var(--color-stone);
+  color: var(--color-rune);
+  border-color: var(--color-stone);
+  cursor: not-allowed;
+  opacity: 1;
+}
+
+.sideButtonIcon {
+  width: 1rem;
+  height: 1rem;
+}
