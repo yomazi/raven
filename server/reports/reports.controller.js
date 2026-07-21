@@ -1,15 +1,14 @@
 import createError from "http-errors";
 import ReportSchedule from "../models/ReportSchedule.js";
-import { getDefinition, listDefinitions } from "./definitions/index.js";
 import ReportScheduler from "./report-scheduler.js";
-import ReportService from "./reports.service.js";
+import { listAllReports, resolveReport, runReportByName } from "./report-dispatch.js";
 
 class ReportsController {
   // ── Report definitions ────────────────────────────────────────────────────
 
   static async listReports(req, res, next) {
     try {
-      res.json(listDefinitions());
+      res.json(listAllReports());
     } catch (err) {
       next(err);
     }
@@ -18,10 +17,9 @@ class ReportsController {
   static async generateReport(req, res, next) {
     try {
       const { name } = req.body;
-      const definition = getDefinition(name);
-      if (!definition) throw createError.NotFound(`No report definition found: "${name}"`);
+      if (!resolveReport(name)) throw createError.NotFound(`No report definition found: "${name}"`);
 
-      const result = await ReportService.generateReport(definition);
+      const result = await runReportByName(name);
       res.json(result);
     } catch (err) {
       next(err);
@@ -44,7 +42,7 @@ class ReportsController {
       const { reportName } = req.params;
       const { cronExpression, enabled } = req.body;
 
-      if (!getDefinition(reportName)) {
+      if (!resolveReport(reportName)) {
         throw createError.NotFound(`No report definition found: "${reportName}"`);
       }
 

@@ -1,14 +1,12 @@
 import cron from "node-cron";
 import ReportSchedule from "../models/ReportSchedule.js";
-import { getDefinition } from "./definitions/index.js";
-import ReportService from "./reports.service.js";
+import { resolveReport, runReportByName } from "./report-dispatch.js";
 
 // In-memory registry of active cron tasks keyed by reportName.
 const activeTasks = new Map();
 
 async function runReport(reportName) {
-  const definition = getDefinition(reportName);
-  if (!definition) {
+  if (!resolveReport(reportName)) {
     console.error(`[Scheduler] No definition found for report: "${reportName}"`);
     return;
   }
@@ -16,7 +14,7 @@ async function runReport(reportName) {
   console.log(`[Scheduler] Running report: "${reportName}"`);
 
   try {
-    const result = await ReportService.generateReport(definition);
+    const result = await runReportByName(reportName);
     await ReportSchedule.findOneAndUpdate(
       { reportName },
       {

@@ -8,10 +8,9 @@
  *   POST /api/v1/reports/generate   { "name": "production-status" }
  */
 
-import contractStatus90DayOutlook from "./contract-status-90-day-outlook.js";
 import buildBacklogReport from "./build-backlog.js";
 
-const definitions = [buildBacklogReport, contractStatus90DayOutlook];
+const definitions = [buildBacklogReport];
 
 const registry = Object.fromEntries(definitions.map((d) => [d.name, d]));
 

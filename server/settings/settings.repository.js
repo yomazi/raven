@@ -13,10 +13,10 @@ class SettingsRepository {
     return setting;
   }
 
-  static async updateValueByKey(key, value) {
+  static async updateValueByKey(key, environment, value) {
     const setting = await Setting.findOneAndUpdate(
       { key },
-      { $set: { value } },
+      { $set: { [`value.${environment}`]: value } },
       { new: true, runValidators: true }
     ).lean();
 

@@ -1,6 +1,7 @@
 import log from "../../logging/log.js";
 import Show from "../../models/Show.js";
 import LiveReport from "../../models/LiveReport.js";
+import SettingsService from "../../settings/settings.service.js";
 import ReportRepository from "../reports.repository.js";
 import {
   autoResizeColumnRequest,
@@ -315,7 +316,15 @@ class LiveReportService {
       let liveReport = await LiveReport.findOne({ reportName, environment });
 
       if (!liveReport) {
-        const folderId = definition.folderId[environment];
+        const folderId = await SettingsService.getValueForEnvironment(
+          definition.settingsFolderKey,
+          environment
+        );
+        if (!folderId) {
+          throw new Error(
+            `The "Reports Folder ID" setting is not configured for "${environment}".`
+          );
+        }
         const { spreadsheetId, spreadsheetUrl } = await LiveReportService.#findOrCreateSpreadsheet(
           definition,
           folderId

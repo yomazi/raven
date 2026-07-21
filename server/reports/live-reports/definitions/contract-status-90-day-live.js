@@ -2,11 +2,10 @@ import {
   CONTRACT_STATUS_HEADER_STYLE,
   contractStatus90DayColumns,
   contractStatus90DayFilter,
-} from "../../definitions/contract-status-90-day-outlook.js";
+} from "../../definitions/contract-status-90-day-shared.js";
 
 // Raven-owned, live-report-only — appended after the four shared columns
-// from contractStatus90DayColumns. Not in that shared array since the
-// snapshot report has no ongoing spreadsheet for staff to read it from.
+// from contractStatus90DayColumns.
 const ROBIN_NOTES_COLUMN = {
   header: "Robin's notes",
   value: (show) => show._contract.comments ?? "",
@@ -34,14 +33,10 @@ const contractStatus90DayLive = {
   // inside folderId before deciding to create a new spreadsheet.
   title: "Outstanding Contracts (90-Day Outlook)",
 
-  folderId: {
-    test:
-      process.env.REPORT_LIVE_CONTRACT_STATUS_90_DAY_TEST_FOLDER ??
-      "REPLACE_WITH_TEST_DRIVE_FOLDER_ID",
-    prod:
-      process.env.REPORT_LIVE_CONTRACT_STATUS_90_DAY_PROD_FOLDER ??
-      "REPLACE_WITH_PROD_DRIVE_FOLDER_ID",
-  },
+  // Which Drive folder to file the spreadsheet in comes from the "Reports
+  // Folder ID" setting (test/prod), resolved at ensure()-time — see
+  // LiveReportService.#findOrCreateSpreadsheet.
+  settingsFolderKey: "reportsFolderId",
 
   // Same filter/row shape as the snapshot report — one row per active
   // contract for shows in the next 90 days.

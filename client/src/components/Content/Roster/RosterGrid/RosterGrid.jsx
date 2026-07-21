@@ -3,6 +3,7 @@ import gridThemeParams from "@components/Content/shared/grid/grid-theme-params.j
 import gridStyles from "@components/Content/shared/grid/Grid.module.css";
 import { useBuildRosterShows } from "@hooks/useBuildRosterShows";
 import { useShows } from "@hooks/useShows.js";
+import { useTasks } from "@hooks/useTasks.js";
 import useRavenStore from "@store/useRavenStore.js";
 import ConstructionIcon from "@svg/construction_google.svg?react";
 import EventIcon from "@svg/events_google.svg?react";
@@ -13,7 +14,7 @@ import {
   themeAlpine,
 } from "ag-grid-community";
 import { AgGridReact } from "ag-grid-react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { buildsColumnDefs, showsColumnDefs } from "./grid-definitions.js";
 import styles from "./RosterGrid.module.css";
@@ -51,6 +52,7 @@ export default function RosterGrid() {
 
   const { data: shows = [], isLoading: isShowsLoading } = useShows();
   const { data: rosterShows = [], isLoading: isRosterLoading } = useBuildRosterShows();
+  const { data: openTasks = [] } = useTasks({ linked: "true", status: "to_do,in_progress,blocked" });
 
   const setSelectedShow = useRavenStore((s) => s.setSelectedShow);
   const setIsSelectedShowVisible = useRavenStore((s) => s.setIsSelectedShowVisible);
@@ -62,8 +64,25 @@ export default function RosterGrid() {
   }, [selectedShow]);
 
   const isLoading = viewMode === "shows" ? isShowsLoading : isRosterLoading;
+
+  // Shows the add-task icon in red when the show has an unresolved task
+  // (i.e. not "done" or "shrug"), so it doubles as an at-a-glance indicator,
+  // not just a create button.
+  const showFolderIdsWithOpenTasks = useMemo(
+    () => new Set(openTasks.map((t) => t.showFolderId).filter(Boolean)),
+    [openTasks]
+  );
+
   // Row order is otherwise driven entirely by the grid's active sortModel.
-  const rowData = viewMode === "shows" ? shows : rosterShows;
+  const baseRowData = viewMode === "shows" ? shows : rosterShows;
+  const rowData = useMemo(
+    () =>
+      baseRowData.map((show) => ({
+        ...show,
+        hasTask: showFolderIdsWithOpenTasks.has(show.googleFolderId),
+      })),
+    [baseRowData, showFolderIdsWithOpenTasks]
+  );
 
   const { columnDefs, defaultColDef } = CONFIGS[viewMode];
 

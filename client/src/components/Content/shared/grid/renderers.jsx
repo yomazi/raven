@@ -73,6 +73,7 @@ export const AddTaskIconRenderer = ({ data }) => {
     <>
       <div
         className={gridStyles.addTaskCell}
+        data-has-task={data?.hasTask || undefined}
         onClick={(e) => {
           e.stopPropagation();
           setOpen(true);

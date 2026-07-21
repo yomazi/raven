@@ -13,6 +13,7 @@ class SettingsSchemas {
       key: Joi.string().required(),
     }),
     body: Joi.object({
+      environment: Joi.string().valid("test", "prod").required(),
       value: Joi.string().allow("").required(),
     }),
   };

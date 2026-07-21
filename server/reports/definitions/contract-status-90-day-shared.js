@@ -1,7 +1,5 @@
 import { CONTRACT_STATUS } from "../../../shared/constants/builds.js";
 
-const FOLDER_ID = process.env.REPORT_CONTRACT_STATUS_90_DAY ?? "REPLACE_WITH_DRIVE_FOLDER_ID";
-
 const rgb = (r, g, b) => ({ red: r / 255, green: g / 255, blue: b / 255 });
 
 // Every CONTRACT_STATUS value needs an entry — this doubles as both the
@@ -32,7 +30,6 @@ export const CONTRACT_STATUS_HEADER_STYLE = {
 
 // One row per active contract (not per show) — a show with several
 // contracts contributes several rows, and a show with none contributes none.
-// Shared with the live version of this report so both stay in sync.
 export function contractStatus90DayFilter(shows) {
   // Normalize to the start of today — otherwise a show dated at midnight
   // today fails `s.date >= now` the moment any time has passed today.
@@ -49,14 +46,12 @@ export function contractStatus90DayFilter(shows) {
     );
 }
 
-// The four Raven-owned columns — shared with the live version of this
-// report. headerAlign is currently only honored by the live report engine.
-// All four are `protect: true` (live report only — see
-// ensureColumnProtections in live-report.service.js): Raven is the sole
-// source of truth for identity/status, so none of them should be editable
-// directly in Sheets. "Robin's notes" is NOT here — it's live-report-only,
-// added on top of these in contract-status-90-day-live.js, since this
-// snapshot report has no ongoing spreadsheet for staff to read it from.
+// The four Raven-owned columns for the live contract-status-90-day report.
+// headerAlign is currently only honored by the live report engine. All four
+// are `protect: true` (see ensureColumnProtections in live-report.service.js):
+// Raven is the sole source of truth for identity/status, so none of them
+// should be editable directly in Sheets. "Robin's notes" is NOT here — it's
+// defined directly in contract-status-90-day-live.js, added on top of these.
 export const contractStatus90DayColumns = [
   {
     header: "Date",
@@ -108,28 +103,3 @@ export const contractStatus90DayColumns = [
     protect: true,
   },
 ];
-
-const contractStatus90DayOutlook = {
-  name: "contract-status-90-day-outlook",
-
-  folderId: FOLDER_ID,
-
-  title: (now) => {
-    const stamp = now.toLocaleDateString("en-US", {
-      weekday: "long",
-      month: "long",
-      day: "numeric",
-      year: "numeric",
-    });
-    return `Contract Status (90 day outlook): week of ${stamp}`;
-  },
-
-  filter: contractStatus90DayFilter,
-
-  frozenRows: 1,
-  headerStyle: CONTRACT_STATUS_HEADER_STYLE,
-
-  columns: contractStatus90DayColumns,
-};
-
-export default contractStatus90DayOutlook;

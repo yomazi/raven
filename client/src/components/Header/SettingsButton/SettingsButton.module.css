@@ -4,7 +4,7 @@
   border: 1px solid var(--color-wyrd-muted);
   border-radius: 6px;
   padding: 0.75rem;
-  min-width: 320px;
+  min-width: 420px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
   display: flex;
   flex-direction: column;
@@ -12,6 +12,9 @@
 }
 
 .panelHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   font-size: 0.85rem;
   font-weight: 600;
   text-transform: uppercase;
@@ -19,6 +22,17 @@
   color: var(--color-moonlight);
   padding-bottom: 0.5rem;
   border-bottom: 1px solid var(--color-stone);
+}
+
+.envBadge {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-wyrd);
+  border: 1px solid var(--color-wyrd-muted);
+  border-radius: 4px;
+  padding: 0.15rem 0.4rem;
 }
 
 .empty {
@@ -32,6 +46,11 @@
   display: flex;
   flex-direction: column;
   gap: 0.3rem;
+}
+
+.settingRow:not(:last-child) {
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--color-stone);
 }
 
 .settingLabel {
@@ -55,4 +74,26 @@
 
 .settingInput:focus {
   border-color: var(--color-moonlight);
+}
+
+.settingValues {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.settingValueField {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 0;
+}
+
+.settingEnvLabel {
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-moonlight);
+  opacity: 0.45;
 }

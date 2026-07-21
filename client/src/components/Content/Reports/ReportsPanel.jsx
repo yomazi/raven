@@ -7,6 +7,7 @@ import styles from "./ReportsPanel.module.css";
 const FREQUENCIES = [
   { label: "Not scheduled", value: "" },
   { label: "Daily at midnight", value: "0 0 * * *" },
+  { label: "Daily at 12:01am", value: "1 0 * * *" },
   { label: "Monday mornings at 8am", value: "0 8 * * 1" },
   { label: "Friday mornings at 8am", value: "0 8 * * 5" },
   { label: "Custom…", value: "custom" },

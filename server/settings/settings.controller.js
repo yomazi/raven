@@ -7,7 +7,7 @@ class SettingsController {
     try {
       const settings = await SettingsService.getAllSettings();
 
-      res.json({ success: true, settings });
+      res.json({ success: true, environment: SettingsService.currentEnvironment(), settings });
     } catch (err) {
       next(err);
     }
@@ -16,8 +16,8 @@ class SettingsController {
   static async updateSetting(req, res, next) {
     try {
       const { key } = req.params;
-      const { value } = req.body;
-      const setting = await SettingsService.updateSetting(key, value);
+      const { environment, value } = req.body;
+      const setting = await SettingsService.updateSetting(key, environment, value);
 
       if (!setting) throw createError.NotFound("Setting not found");
       res.json({ success: true, setting });

@@ -10,28 +10,43 @@ import styles from "./SettingsButton.module.css";
 // ---------------------------------------------------------------------------
 
 function SettingRow({ setting, onUpdate }) {
-  const [draft, setDraft] = useState(setting.value ?? "");
+  const [testDraft, setTestDraft] = useState(setting.value?.test ?? "");
+  const [prodDraft, setProdDraft] = useState(setting.value?.prod ?? "");
 
-  function commit() {
+  function commit(environment, draft, original) {
     const trimmed = draft.trim();
-    if (trimmed !== setting.value) {
-      onUpdate({ key: setting.key, value: trimmed });
+    if (trimmed !== (original ?? "")) {
+      onUpdate({ key: setting.key, environment, value: trimmed });
     }
   }
 
   return (
     <div className={styles.settingRow}>
-      <label className={styles.settingLabel} htmlFor={`setting-${setting.key}`}>
-        {setting.label}
-      </label>
-      <input
-        id={`setting-${setting.key}`}
-        type="text"
-        className={styles.settingInput}
-        value={draft}
-        onChange={(e) => setDraft(e.target.value)}
-        onBlur={commit}
-      />
+      <span className={styles.settingLabel}>{setting.label}</span>
+      <div className={styles.settingValues}>
+        <div className={styles.settingValueField}>
+          <span className={styles.settingEnvLabel}>Test</span>
+          <input
+            id={`setting-${setting.key}-test`}
+            type="text"
+            className={styles.settingInput}
+            value={testDraft}
+            onChange={(e) => setTestDraft(e.target.value)}
+            onBlur={() => commit("test", testDraft, setting.value?.test)}
+          />
+        </div>
+        <div className={styles.settingValueField}>
+          <span className={styles.settingEnvLabel}>Prod</span>
+          <input
+            id={`setting-${setting.key}-prod`}
+            type="text"
+            className={styles.settingInput}
+            value={prodDraft}
+            onChange={(e) => setProdDraft(e.target.value)}
+            onBlur={() => commit("prod", prodDraft, setting.value?.prod)}
+          />
+        </div>
+      </div>
     </div>
   );
 }
@@ -41,7 +56,21 @@ export default function SettingsButton() {
   const [pos, setPos] = useState(null);
   const buttonRef = useRef(null);
   const panelRef = useRef(null);
-  const { data: settings = [], isLoading } = useSettings();
+  const { data, isLoading, refetch } = useSettings();
+  // Defends against a stale persisted query cache (localStorage) holding the
+  // pre-test/prod-split shape, where this query cached a bare array instead
+  // of { settings, environment } — self-heals instead of showing nothing
+  // until the cache naturally expires or gets busted.
+  const settings = Array.isArray(data) ? data : (data?.settings ?? []);
+  const environment = Array.isArray(data) ? null : data?.environment;
+
+  // staleTime: 0 (see useSettings) means a fresh mount refetches, but this
+  // component stays mounted the whole session — without this, reopening the
+  // panel would keep showing whatever was fetched at page load, missing any
+  // settings added/changed since (e.g. by a migration) until a hard reload.
+  useEffect(() => {
+    if (open) refetch();
+  }, [open, refetch]);
   const { mutate: updateSetting } = useUpdateSetting();
 
   // Position panel below the button, right-aligned to it
@@ -99,7 +128,10 @@ export default function SettingsButton() {
           : { position: "fixed", top: 0, left: 0, visibility: "hidden" }
       }
     >
-      <div className={styles.panelHeader}>Settings</div>
+      <div className={styles.panelHeader}>
+        Settings
+        {environment && <span className={styles.envBadge}>Active: {environment}</span>}
+      </div>
       {isLoading && <p className={styles.empty}>Loading…</p>}
       {!isLoading && settings.length === 0 && <p className={styles.empty}>No settings yet.</p>}
       {settings.map((setting) => (

@@ -155,6 +155,10 @@
   color: white;
 }
 
+.addTaskCell[data-has-task="true"] {
+  color: var(--status-blocked-fg);
+}
+
 .checkboxCell {
   position: relative;
   display: inline-block;
@@ -321,6 +325,10 @@
   margin: -4px;
   padding-top: 1px;
   color: white;
+}
+
+:global(.ag-cell:hover) .addTaskCell[data-has-task="true"] {
+  color: var(--status-blocked-fg);
 }
 
 :global(.ag-cell:hover) .checkboxCell {

@@ -46,7 +46,8 @@ const contractSchema = new Schema({
   isMainContract: { type: Boolean, default: false },
   // Freeform notes, editable only from Raven — mirrored into the
   // "Robin's notes" column on the live contract-status report as a
-  // protected (read-only-in-Sheets) range. See contract-status-90-day-outlook.js.
+  // protected (read-only-in-Sheets) range. See
+  // live-reports/definitions/contract-status-90-day-live.js.
   comments: { type: String },
 
   // terms
