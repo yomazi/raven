@@ -113,7 +113,7 @@ const buildSchema = new Schema(
 
     // --- Context ---
     notes: { type: String },
-    gmailLinks: [{ type: String }],
+    gmailThreadIds: { type: [String], default: [] },
     dateConfirmed: { type: Date, default: Date.now }, // automatically set to the date the show was created; can be updated
 
     // --- Setup ---

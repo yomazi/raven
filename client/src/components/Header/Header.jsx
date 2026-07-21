@@ -1,11 +1,13 @@
 import RgIcon from "@svg/rg.svg?react";
+import { Link } from "react-router-dom";
 import { useAuthStatus } from "../../hooks/useAuthStatus";
+import ApiTokensButton from "./ApiTokensButton/ApiTokensButton.jsx";
 import styles from "./Header.module.css";
 import SettingsButton from "./SettingsButton/SettingsButton.jsx";
 import Switcher from "./Switcher/Switcher";
 
 const Header = ({ mode }) => {
-  const { loggedIn, logout } = useAuthStatus();
+  const { loggedIn, hasLocalSession, logout } = useAuthStatus();
 
   const handleLogin = () => {
     window.location.href = "/auth/google"; // starts OAuth flow
@@ -24,10 +26,20 @@ const Header = ({ mode }) => {
         {loggedIn ? (
           <>
             <SettingsButton />
+            <ApiTokensButton />
             <button onClick={logout}>Logout</button>
           </>
         ) : (
           <button onClick={handleLogin}>Login with Google</button>
+        )}
+        {/* Only shown when this browser's own session is actually broken
+            (checked separately from loggedIn, which reflects the app-wide
+            Google grant and is essentially always true) — e.g. a new
+            device/browser or cleared cookies. Hidden during normal use. */}
+        {!hasLocalSession && (
+          <Link to="/token-login" className={styles.tokenLoginLink}>
+            Sign in with token
+          </Link>
         )}
         <div className={styles.rgIconContainer}>
           <RgIcon alt="RG Logo" className={styles.rgIcon} />

@@ -60,32 +60,9 @@ export function useShowBuild(show) {
     [googleFolderId, patch, toast]
   );
 
-  const addGmailLink = useCallback(
-    (url) => {
-      if (!url) return;
-      const current = committedRef.current.gmailLinks ?? [];
-      if (current.includes(url)) return;
-      setField("gmailLinks", [...current, url]);
-    },
-    [setField]
-  );
-
-  const removeGmailLink = useCallback(
-    (url) => {
-      const current = committedRef.current.gmailLinks ?? [];
-      setField(
-        "gmailLinks",
-        current.filter((u) => u !== url)
-      );
-    },
-    [setField]
-  );
-
   return {
     build,
     setField,
-    addGmailLink,
-    removeGmailLink,
   };
 }
 
@@ -97,7 +74,6 @@ const FIELD_LABELS = {
   shouldShowInRoster: "Roster",
   notes: "Notes",
   announceOnSaleNotes: "Announce / on sale notes",
-  gmailLinks: "Gmail links",
   showFolder: "Show folder",
   calendarUpdated: "Calendar",
   bookingSpreadsheet: "Booking spreadsheet",

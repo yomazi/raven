@@ -33,6 +33,28 @@ class AuthController {
     }
   }
 
+  static async tokenLogin(req, res, next) {
+    try {
+      const { token } = req.body;
+
+      await AuthService.loginWithToken(token);
+      cookifyApiToken(res, token);
+
+      res.sendStatus(200);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  // Distinct from checkAuth: that checks whether the app-wide Google grant
+  // exists at all (a single record, unrelated to any particular browser);
+  // this checks whether *this request's own* token (cookie or header) is
+  // currently valid — validateApiToken has already done that by the time
+  // this runs, so getting here at all is the whole answer.
+  static async session(req, res) {
+    res.sendStatus(200);
+  }
+
   static async checkAuth(req, res, next) {
     try {
       await AuthService.checkAuth();
@@ -60,17 +82,6 @@ class AuthController {
     }
   }
 
-  static async createApiToken(req, res, next) {
-    try {
-      const { email } = req.body;
-
-      await AuthService.createApiToken(email);
-
-      res.status(200).json(`token sent to: ${email}`);
-    } catch (error) {
-      next(error);
-    }
-  }
 }
 
 export default AuthController;

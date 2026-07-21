@@ -49,6 +49,9 @@ export default function UploadNamingModal({ file, folderId, remaining, onUploade
   const hasPaymentTypes = !!doctypeConfig?.paymentTypes;
   const effectiveSubtype = subtype === "__custom__" ? customSubtype : subtype;
   const effectivePaymentType = paymentType === "__custom__" ? customPaymentType : paymentType;
+  // Teams with no doctypes configured at all (Marketing, Box Office) skip
+  // every naming step and upload under the original filename.
+  const skipNaming = doctypeOptions.length === 0;
 
   const prevTeam = useRef(team);
   useEffect(() => {
@@ -82,6 +85,12 @@ export default function UploadNamingModal({ file, folderId, remaining, onUploade
   }, [doctypeKey, team]);
 
   useEffect(() => {
+    if (skipNaming) {
+      // No filename prefix for this team — upload under the original name.
+      setSuggestedName(file.name);
+      setEditedName(file.name);
+      return;
+    }
     if (!doctypeKey || loadingFolder) return;
     const config = (DOCTYPES[team] ?? []).find((d) => d.key === doctypeKey) ?? null;
     const stageOpts = getStageOptions(config);
@@ -125,6 +134,7 @@ export default function UploadNamingModal({ file, folderId, remaining, onUploade
     existingNames,
     loadingFolder,
     file.name,
+    skipNaming,
   ]);
 
   const handleUpload = async () => {
@@ -174,9 +184,9 @@ export default function UploadNamingModal({ file, folderId, remaining, onUploade
                 ))}
               </select>
             </div>
-            <div className={styles.field}>
-              <span className={styles.label}>Document type</span>
-              {doctypeOptions.length > 0 ? (
+            {!skipNaming && (
+              <div className={styles.field}>
+                <span className={styles.label}>Document type</span>
                 <select
                   className={styles.select}
                   value={doctypeKey}
@@ -188,15 +198,8 @@ export default function UploadNamingModal({ file, folderId, remaining, onUploade
                     </option>
                   ))}
                 </select>
-              ) : (
-                <input
-                  className={styles.input}
-                  value={doctypeKey}
-                  onChange={(e) => setDoctypeKey(e.target.value)}
-                  placeholder="doctype"
-                />
-              )}
-            </div>
+              </div>
+            )}
           </div>
 
           {hasSubtypes && (

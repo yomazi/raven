@@ -15,6 +15,7 @@ import { VITE_CONFIG_FILE } from "./utilities/constants.js";
 import { connectDb } from "./utilities/db.js";
 
 // routes
+import apiTokensRoutes from "./api-tokens/api-tokens.routes.js";
 import authRoutes from "./auth/auth.routes.js";
 import googleAuthRoutes from "./auth/google.auth.routes.js";
 import contactsRoutes from "./contacts/contacts.routes.js";
@@ -52,6 +53,7 @@ const version = "v1";
 const routePrefix = `/api/${version}`;
 
 app.use("", googleAuthRoutes);
+app.use(routePrefix, apiTokensRoutes);
 app.use(routePrefix, authRoutes);
 app.use(routePrefix, contactsRoutes);
 app.use(routePrefix, driveRoutes);

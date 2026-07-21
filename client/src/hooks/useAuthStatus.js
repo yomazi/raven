@@ -3,6 +3,12 @@ import { useEffect, useState } from "react";
 
 export function useAuthStatus() {
   const [loggedIn, setLoggedIn] = useState(false);
+  // Distinct from loggedIn: that reflects the app-wide Google grant (one
+  // record, shared across every browser); this reflects whether *this*
+  // browser's own apiToken cookie currently works — the two can disagree
+  // (e.g. a new device/browser, or cookies cleared) even though loggedIn is
+  // effectively always true once the app's been set up once.
+  const [hasLocalSession, setHasLocalSession] = useState(true); // optimistic until checked
   const [loading, setLoading] = useState(true); // optional, to track loading state
   const [error, setError] = useState(null); // optional, to track errors
 
@@ -21,9 +27,16 @@ export function useAuthStatus() {
       } catch (err) {
         console.error(err);
         setError(err);
-      } finally {
-        setLoading(false);
       }
+
+      try {
+        await axios.get("/api/v1/auth/session", { withCredentials: true });
+        setHasLocalSession(true);
+      } catch {
+        setHasLocalSession(false);
+      }
+
+      setLoading(false);
     };
 
     checkAuth();
@@ -39,5 +52,5 @@ export function useAuthStatus() {
     }
   };
 
-  return { loggedIn, loading, error, logout };
+  return { loggedIn, hasLocalSession, loading, error, logout };
 }

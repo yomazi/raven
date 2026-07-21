@@ -118,7 +118,7 @@ export function useShowSchedule(show) {
     [applyScheduleUpdate]
   );
 
-  // Presales helpers — operate on the full array, same pattern as gmailLinks
+  // Presales helpers — operate on the full array
 
   const addPresale = useCallback(() => {
     const current = committedRef.current;

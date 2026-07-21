@@ -9,6 +9,7 @@ import RosterClientArea from "@components/Content/Roster/RosterClientArea/Roster
 import RosterGrid from "@components/Content/Roster/RosterGrid/RosterGrid.jsx";
 import TasksFilter from "@components/Content/Tasks/TasksFilter/TasksFilter.jsx";
 import TasksView from "@components/Content/Tasks/TasksView/TasksView.jsx";
+import TokenLogin from "@components/Content/TokenLogin/TokenLogin.jsx";
 
 import styles from "./AppLayout.module.css";
 
@@ -21,6 +22,7 @@ const AppLayout = ({ mode }) => {
       roster: (
         <SplitPane resizable={true} leftPane={<RosterGrid />} rightPane={<RosterClientArea />} />
       ),
+      tokenLogin: <TokenLogin />,
       notfound: <NotFoundPanel />,
     }[mode] ?? <NotFoundPanel />;
 

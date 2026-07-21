@@ -146,6 +146,48 @@ class ShowsRepository {
       { new: true }
     );
   }
+
+  static async addGmailThreadId(googleFolderId, threadId) {
+    return Show.findOneAndUpdate(
+      { googleFolderId },
+      { $addToSet: { "build.gmailThreadIds": threadId } },
+      { new: true, runValidators: true }
+    );
+  }
+
+  static async removeGmailThreadId(googleFolderId, threadId) {
+    return Show.findOneAndUpdate(
+      { googleFolderId },
+      { $pull: { "build.gmailThreadIds": threadId } },
+      { new: true }
+    );
+  }
+
+  // No `deleted` filter — a thread's linked shows should still surface
+  // deleted ones (flagged, not hidden) rather than silently dropping them.
+  static async findByGmailThreadId(threadId) {
+    return Show.find({ "build.gmailThreadIds": threadId });
+  }
+
+  static async searchByArtist(query, limit = 15, upcomingOnly = true) {
+    // Escape regex metacharacters — this is a free-text search box, not a
+    // pattern-matching field, so a literal "(" or "+" shouldn't 500.
+    const escaped = query.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const filter = { artist: { $regex: escaped, $options: "i" }, deleted: { $ne: true } };
+
+    if (upcomingOnly) {
+      const startOfToday = new Date();
+      startOfToday.setHours(0, 0, 0, 0);
+      filter.date = { $gte: startOfToday };
+    }
+
+    // Soonest-first when narrowed to upcoming shows (the next one is the
+    // most useful result); most-recent-first otherwise, matching the
+    // existing "any show" browsing behavior.
+    return Show.find(filter)
+      .sort({ date: upcomingOnly ? 1 : -1 })
+      .limit(limit);
+  }
 }
 
 export default ShowsRepository;

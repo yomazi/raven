@@ -26,6 +26,22 @@ class ApiTokensService {
 
     return result;
   }
+
+  static async createNamedApiToken(name) {
+    const apiToken = ApiTokensService.generateApiToken();
+    const hashedToken = ApiTokensService.hashApiToken(apiToken);
+    const doc = await ApiTokensDbRepository.saveNamedApiTokenHash(hashedToken, name);
+
+    return { token: apiToken, id: doc._id, name: doc.name, createdAt: doc.apiTokenCreatedAt };
+  }
+
+  static async listNamedApiTokens() {
+    return ApiTokensDbRepository.findNamedApiTokens();
+  }
+
+  static async revokeApiToken(id) {
+    return ApiTokensDbRepository.revokeApiTokenById(id);
+  }
 }
 
 export default ApiTokensService;

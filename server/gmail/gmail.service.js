@@ -9,8 +9,8 @@ class GmailService {
     return GmailRepository.getMessage({ messageId });
   }
 
-  static async getAttachment({ messageId, attachmentId }) {
-    return GmailRepository.getAttachment({ messageId, attachmentId });
+  static async getAttachment({ messageId, attachmentId, mimeType, filename }) {
+    return GmailRepository.getAttachment({ messageId, attachmentId, mimeType, filename });
   }
 
   static async sendMessage({ to, subject, body, from, sentLabels, attachments }) {

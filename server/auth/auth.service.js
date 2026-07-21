@@ -32,6 +32,24 @@ class AuthService {
     return apiToken;
   }
 
+  // Verifies a token a user has pasted in directly (rather than one minted
+  // fresh by the OAuth callback) is valid and usable as a session — same
+  // existence + revoked check validateApiToken applies to every other
+  // request, just invoked ahead of time here so the controller only
+  // cookifies it once it's confirmed good.
+  static async loginWithToken(token) {
+    const apiTokenDoc = await ApiTokensService.getApiToken(token);
+
+    if (!apiTokenDoc) {
+      throw new createError.Unauthorized("Invalid token");
+    }
+    if (apiTokenDoc.revoked) {
+      throw new createError.Unauthorized("This token has been revoked");
+    }
+
+    return token;
+  }
+
   static async checkAuth() {
     const user = await AuthRepository.getUserByEmail(USER_EMAIL);
 

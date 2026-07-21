@@ -14,10 +14,14 @@ async function validateApiToken(req, res, next) {
     }
 
     const apiToken = authHeader.split(" ")[1];
-    const apiTokenHash = await ApiTokensService.getApiToken(apiToken);
+    const apiTokenDoc = await ApiTokensService.getApiToken(apiToken);
 
-    if (!apiTokenHash) {
+    if (!apiTokenDoc) {
       throw new createError.Unauthorized("Invalid API token");
+    }
+
+    if (apiTokenDoc.revoked) {
+      throw new createError.Unauthorized("API token has been revoked");
     }
 
     next();

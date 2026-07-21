@@ -17,6 +17,7 @@ function App() {
 
             <Route path="/roster/:showFolderId/*" element={<AppLayout mode="roster" />} />
             <Route path="/roster" element={<AppLayout mode="roster" />} />
+            <Route path="/token-login" element={<AppLayout mode="tokenLogin" />} />
             <Route path="/tasks/*" element={<AppLayout mode="tasks" />} />
             <Route path="/schedules" element={<AppLayout mode="schedules" />} />
             <Route path="/contacts" element={<AppLayout mode="contacts" />} />

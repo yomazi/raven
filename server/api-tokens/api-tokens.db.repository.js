@@ -16,5 +16,23 @@ class ApiTokensDbRepository {
 
     return apiToken;
   }
+
+  static async saveNamedApiTokenHash(apiTokenHash, name) {
+    return ApiToken.create({
+      apiTokenHash,
+      apiTokenCreatedAt: new Date(),
+      name,
+    });
+  }
+
+  static async findNamedApiTokens() {
+    return ApiToken.find({ name: { $ne: null } })
+      .select("name apiTokenCreatedAt revoked")
+      .sort({ apiTokenCreatedAt: -1 });
+  }
+
+  static async revokeApiTokenById(id) {
+    return ApiToken.findByIdAndUpdate(id, { revoked: true }, { new: true });
+  }
 }
 export default ApiTokensDbRepository;

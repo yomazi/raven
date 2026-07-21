@@ -5,7 +5,7 @@ import { useShowSchedule } from "@hooks/useShowSchedule.js";
 import * as Accordion from "@radix-ui/react-accordion";
 import { BASE_STATUS, ROLLUP_STATUS } from "@shared/constants/builds.js";
 import { deriveAllRollups } from "@shared/functions/builds.js";
-import { useCallback, useRef, useState } from "react";
+import { useCallback } from "react";
 import styles from "./BuildProperties.module.css";
 
 // ---------------------------------------------------------------------------
@@ -142,59 +142,6 @@ function PhaseSection({ title, rollup, value, children, disabled }) {
 }
 
 // ---------------------------------------------------------------------------
-// GmailLinks
-// ---------------------------------------------------------------------------
-
-function GmailLinks({ links = [], onAdd, onRemove }) {
-  const [input, setInput] = useState("");
-  const inputRef = useRef(null);
-
-  function handleAdd() {
-    const url = input.trim();
-    if (!url) return;
-    onAdd(url);
-    setInput("");
-    inputRef.current?.focus();
-  }
-
-  return (
-    <div className={styles.gmailLinks}>
-      <span className={styles.fieldLabel}>Gmail links</span>
-      <div className={styles.linkList}>
-        {links.map((url) => (
-          <div key={url} className={styles.linkRow}>
-            <a href={url} target="_blank" rel="noopener noreferrer" className={styles.link}>
-              {url}
-            </a>
-            <button
-              className={styles.removeLinkBtn}
-              onClick={() => onRemove(url)}
-              aria-label="Remove link"
-            >
-              ✕
-            </button>
-          </div>
-        ))}
-      </div>
-      <div className={styles.addLink}>
-        <input
-          ref={inputRef}
-          type="url"
-          className={styles.linkInput}
-          placeholder="Paste Gmail URL…"
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && handleAdd()}
-        />
-        <button className={styles.addLinkBtn} onClick={handleAdd}>
-          Add
-        </button>
-      </div>
-    </div>
-  );
-}
-
-// ---------------------------------------------------------------------------
 // isOverdue
 // ---------------------------------------------------------------------------
 
@@ -219,7 +166,7 @@ function isOverdue(date, workdays = 5) {
 // ---------------------------------------------------------------------------
 
 export default function BuildProperties({ show }) {
-  const { build, setField: setBuildField, addGmailLink, removeGmailLink } = useShowBuild(show);
+  const { build, setField: setBuildField } = useShowBuild(show);
   const {
     schedule,
     setField: setScheduleField,
@@ -272,12 +219,6 @@ export default function BuildProperties({ show }) {
             rows={3}
           />
         </div>
-
-        <GmailLinks
-          links={build.gmailLinks ?? []}
-          onAdd={addGmailLink}
-          onRemove={removeGmailLink}
-        />
 
         {build.dateConfirmed && (
           <div className={styles.fieldRow}>

@@ -142,6 +142,7 @@ export const DOCTYPES = {
   prg: [
     { key: "contract", label: "Contract", stages: "draft+FEC" },
     { key: "offer", label: "Offer", stages: "draft" },
+    { key: "misc", label: "Miscellaneous", stages: "none" },
   ],
   prod: [
     {
@@ -150,19 +151,23 @@ export const DOCTYPES = {
       stages: "draft+REDLINED",
       subtypes: { known: ["hospitality", "tech"], custom: true },
     },
-    { key: "stage-plot", label: "Stage Plot", stages: "draft" },
-    { key: "input-list", label: "Input List", stages: "draft" },
+    { key: "stageplot", label: "Stage Plot", stages: "draft+REDLINED" },
+    { key: "inputlist", label: "Input List", stages: "draft+REDLINED" },
+    { key: "misc", label: "Miscellaneous", stages: "none" },
   ],
   fin: [
     { key: "w9", label: "W9", stages: "none" },
-    { key: "w8ben", label: "W8-BEN", stages: "none" },
-    { key: "ACH info", label: "ACH Info", stages: "none" },
+    { key: "w8bene", label: "W8BEN/E", stages: "none" },
+    { key: "ach", label: "ACH Info", stages: "none" },
     {
       key: "payment",
       label: "Payment Confirmation",
-      stages: "numbered",
-      paymentTypes: { known: ["deposit", "balance", "back-end"], custom: true },
+      stages: "none",
+      paymentTypes: { known: ["deposit", "settlement", "back-end"], custom: true },
     },
+    { key: "590", label: "CA State Form 590", stages: "none" },
+    { key: "tax", label: "Tax", stages: "none" },
+    { key: "misc", label: "Miscellaneous", stages: "none" },
   ],
   mkt: [],
   bxo: [],

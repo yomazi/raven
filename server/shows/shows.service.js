@@ -79,6 +79,22 @@ class ShowsService {
     return ShowsRepository.findByGoogleFolderId(googleFolderId);
   }
 
+  static async registerGmailThread(googleFolderId, threadId) {
+    return ShowsRepository.addGmailThreadId(googleFolderId, threadId);
+  }
+
+  static async unregisterGmailThread(googleFolderId, threadId) {
+    return ShowsRepository.removeGmailThreadId(googleFolderId, threadId);
+  }
+
+  static async getByGmailThreadId(threadId) {
+    return ShowsRepository.findByGmailThreadId(threadId);
+  }
+
+  static async search(query, upcomingOnly = true) {
+    return ShowsRepository.searchByArtist(query, 15, upcomingOnly);
+  }
+
   static async updateDriveAssets(googleFolderId, driveUpdate) {
     return ShowsRepository.updateDriveAssets(googleFolderId, driveUpdate);
   }
