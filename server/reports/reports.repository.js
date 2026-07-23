@@ -135,6 +135,22 @@ class ReportRepository {
     await drive.comments.delete({ fileId, commentId });
   }
 
+  // The tabs (sheetId + title) on a spreadsheet — used to resolve a month
+  // tab name (e.g. "August 2026") to the numeric sheetId every other Sheets
+  // API request needs.
+  static async getSheetMetadata(spreadsheetId) {
+    const sheets = await ReportRepository.#getSheetsClient();
+    const response = await sheets.spreadsheets.get({
+      spreadsheetId,
+      fields: "sheets.properties(sheetId,title,gridProperties)",
+    });
+    return (response.data.sheets ?? []).map((s) => ({
+      sheetId: s.properties.sheetId,
+      title: s.properties.title,
+      rowCount: s.properties.gridProperties?.rowCount ?? 0,
+    }));
+  }
+
   // Existing conditional format rules on one sheet — used to avoid
   // duplicating rules that are already correctly in place.
   static async getConditionalFormatRules(spreadsheetId, sheetId) {

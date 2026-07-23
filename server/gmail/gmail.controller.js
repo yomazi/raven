@@ -23,6 +23,17 @@ class GmailController {
     }
   }
 
+  static async getMessageByRfc822(req, res) {
+    try {
+      const { rfcMessageId } = req.params;
+      const message = await GmailService.getMessageByRfc822({ rfcMessageId });
+      res.json({ success: true, ...message });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ success: false, error: err.message });
+    }
+  }
+
   static async getAttachment(req, res) {
     try {
       const { messageId, attachmentId } = req.params;

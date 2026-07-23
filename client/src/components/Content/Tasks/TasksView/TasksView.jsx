@@ -6,6 +6,7 @@ import { useDeleteTask, useTaskEvents, useTasks, useUpdateTask } from "@hooks/us
 import AddTaskModal from "@modals/AddTaskModal/AddTaskModal";
 import ConfirmModal from "@modals/ConfirmModal/ConfirmModal";
 import {
+  OPEN_TASK_STATUSES,
   PRIORITY_LABEL,
   STATUS_LABEL,
   TASK_PRIORITY,
@@ -123,7 +124,7 @@ const ActionsCell = ({ data, context }) => {
 
 // ─── TasksView ────────────────────────────────────────────────────────────────
 
-export default function TasksView() {
+export default function TasksView({ showFolderId } = {}) {
   useTaskEvents();
   const updateTask = useUpdateTask();
   const gridRef = useRef();
@@ -146,11 +147,17 @@ export default function TasksView() {
 
   const linkedParam = { all: undefined, linked: "true", general: "false" }[filterLinked];
 
-  const queryParams = {
-    linked: linkedParam,
-    status: filterStatus.length > 0 ? filterStatus.join(",") : undefined,
-    priority: filterPriority.length > 0 ? filterPriority.join(",") : undefined,
-  };
+  // Scoped to a single show: every open task linked to it belongs in the
+  // list, regardless of whatever status/priority/linked filters are set on
+  // the main Tasks page — this view has no filter UI of its own, and always
+  // hides done/shrug tasks (matching the nav badge's count).
+  const queryParams = showFolderId
+    ? { showFolderId, status: OPEN_TASK_STATUSES.join(",") }
+    : {
+        linked: linkedParam,
+        status: filterStatus.length > 0 ? filterStatus.join(",") : undefined,
+        priority: filterPriority.length > 0 ? filterPriority.join(",") : undefined,
+      };
 
   const { data: tasks = [], isLoading, refetch } = useTasks(queryParams);
 
@@ -215,25 +222,29 @@ export default function TasksView() {
   // ── column defs
   const columnDefs = useMemo(
     () => [
-      {
-        field: "_showDate",
-        headerName: "Date",
-        cellRenderer: ShowDateCell,
-        sortable: true,
-        width: 100,
-        minWidth: 100,
-        maxWidth: 100,
-      },
-      {
-        field: "_showArtist",
-        headerName: "Artist",
-        cellRenderer: ShowArtistCell,
-        sortable: true,
-        resizable: true,
-        flex: 2,
-        minWidth: 150,
-        maxWidth: 300,
-      },
+      ...(showFolderId
+        ? []
+        : [
+            {
+              field: "_showDate",
+              headerName: "Date",
+              cellRenderer: ShowDateCell,
+              sortable: true,
+              width: 100,
+              minWidth: 100,
+              maxWidth: 100,
+            },
+            {
+              field: "_showArtist",
+              headerName: "Artist",
+              cellRenderer: ShowArtistCell,
+              sortable: true,
+              resizable: true,
+              flex: 2,
+              minWidth: 150,
+              maxWidth: 300,
+            },
+          ]),
       {
         field: "description",
         headerName: "Description",
@@ -325,7 +336,7 @@ export default function TasksView() {
         suppressMovable: true,
       },
     ],
-    [updateTask]
+    [updateTask, showFolderId]
   );
 
   const defaultColDef = useMemo(() => ({ resizable: false, filter: false, sortable: true }), []);
@@ -346,6 +357,8 @@ export default function TasksView() {
   }, [editingTask, preloadFolderId, showMap]);
 
   useEffect(() => {
+    if (showFolderId) return; // no filter UI to control in the show-scoped view
+
     const handleKeyDown = (e) => {
       const tag = document.activeElement?.tagName;
       const isTyping =
@@ -371,7 +384,7 @@ export default function TasksView() {
     };
     window.addEventListener("keydown", handleKeyDown, { capture: true });
     return () => window.removeEventListener("keydown", handleKeyDown, { capture: true });
-  }, []);
+  }, [showFolderId]);
 
   const onFilterInput = useCallback((e) => {
     gridRef.current.api.setGridOption("quickFilterText", e.target.value);
@@ -384,29 +397,31 @@ export default function TasksView() {
   return (
     <div className={styles.root}>
       {/* ── toolbar */}
-      <div className={styles.toolbar}>
-        <div className={`${gridStyles.filterBar} ${styles.filterBar}`}>
-          <input
-            ref={filterInputRef}
-            name="raven-grid-filter"
-            type="search"
-            placeholder='(press "/" to filter)'
-            onChange={onFilterInput}
-            className={gridStyles.filterInput}
-          />
-        </div>
+      {!showFolderId && (
+        <div className={styles.toolbar}>
+          <div className={`${gridStyles.filterBar} ${styles.filterBar}`}>
+            <input
+              ref={filterInputRef}
+              name="raven-grid-filter"
+              type="search"
+              placeholder='(press "/" to filter)'
+              onChange={onFilterInput}
+              className={gridStyles.filterInput}
+            />
+          </div>
 
-        <div className={styles.rightActions}>
-          <button className="primary" onClick={() => openCreate()}>
-            <SvgAddTask />
-            New Task
-          </button>
-          <button className="primary" onClick={() => refetch()}>
-            <SvgRefresh />
-            Reload
-          </button>
+          <div className={styles.rightActions}>
+            <button className="primary" onClick={() => openCreate()}>
+              <SvgAddTask />
+              New Task
+            </button>
+            <button className="primary" onClick={() => refetch()}>
+              <SvgRefresh />
+              Reload
+            </button>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* ── grid */}
       {isLoading ? (

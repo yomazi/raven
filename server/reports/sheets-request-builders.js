@@ -294,4 +294,25 @@ export function protectedRangeRequest(sheetId, range, description, editorEmails 
   };
 }
 
+// Inserts one blank row at rowIndex (0-based, sheet-relative), pushing
+// everything at/after it down — used by the booking-sheet "add row"
+// resolution to add a new contract row within an existing date group.
+// inheritFromBefore: false keeps the new row unformatted rather than
+// copying the row above it, since the inserted row's own values (written
+// separately via writeValues) determine its look via the dropdown/
+// conditional-format rules already on the column.
+export function insertDimensionRequest(sheetId, rowIndex) {
+  return {
+    insertDimension: {
+      range: {
+        sheetId,
+        dimension: "ROWS",
+        startIndex: rowIndex,
+        endIndex: rowIndex + 1,
+      },
+      inheritFromBefore: false,
+    },
+  };
+}
+
 export { resolve };

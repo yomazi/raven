@@ -1,11 +1,14 @@
 import * as NavigationMenu from "@radix-ui/react-navigation-menu";
 import { useEffect, useRef, useState } from "react";
 import { NavLink, useLocation, useMatch, useNavigate } from "react-router-dom";
+import { clearAppCache } from "../../api/queryClient.js";
 import { useCancelShow } from "../../hooks/useCancelShow.js";
 import { useCreateMarketingAssetsFolder } from "../../hooks/useCreateMarketingAssetsFolder.js";
 import { useCreateSettlementWorkbook } from "../../hooks/useCreateSettlementWorkbook.js";
 import { useDeleteShow } from "../../hooks/useDeleteShow.js";
 import { useSyncShows } from "../../hooks/useSyncShows.js";
+import { useTasks } from "../../hooks/useTasks.js";
+import { OPEN_TASK_STATUSES } from "@shared/constants/tasks.js";
 import useRavenStore from "../../store/useRavenStore.js";
 import ConfirmModal from "../Modals/ConfirmModal/ConfirmModal.jsx";
 import CreateShowModal from "../Modals/CreateShowModal/CreateShowModal.jsx";
@@ -36,7 +39,7 @@ const NavDropdown = ({ label, items, disabled }) => (
   </NavigationMenu.Item>
 );
 
-const NavItem = ({ to, label, disabled }) => {
+const NavItem = ({ to, label, disabled, badgeCount }) => {
   const { pathname } = useLocation();
   const isActive = !!useMatch(to) || pathname.startsWith(to);
   const className = [styles.navLink, isActive && styles.navLinkActive].filter(Boolean).join(" ");
@@ -47,6 +50,7 @@ const NavItem = ({ to, label, disabled }) => {
       <NavigationMenu.Link asChild>
         <NavLink to={to} className={className} aria-disabled={isDisabled}>
           {label}
+          {!!badgeCount && <span className={styles.badge}>{badgeCount}</span>}
         </NavLink>
       </NavigationMenu.Link>
     </NavigationMenu.Item>
@@ -59,10 +63,7 @@ const showLinks = [
   { route: "contracts", label: "Contracts" },
   { route: "gmail", label: "Email" },
   { route: "files", label: "Files" },
-  {
-    label: "Workflows",
-    items: [{ route: "test", label: "Parse Offers & Contracts" }],
-  },
+  { route: "tasks", label: "Tasks" },
 ];
 
 const Nav = () => {
@@ -80,6 +81,10 @@ const Nav = () => {
   const [cancelConfirmOpen, setCancelConfirmOpen] = useState(false);
   const isSelectedShowVisible = useRavenStore((s) => s.isSelectedShowVisible);
   const leftPaneWidth = useRavenStore((s) => s.leftPaneWidth);
+  const { data: showTasks = [] } = useTasks(
+    { showFolderId: selectedShow?.googleFolderId, status: OPEN_TASK_STATUSES.join(",") },
+    { enabled: !!selectedShow?.googleFolderId }
+  );
   const leftNavRef = useRef(null);
   const [leftNavWidth, setLeftNavWidth] = useState(0);
   const oneRem = parseFloat(getComputedStyle(document.documentElement).fontSize);
@@ -92,6 +97,8 @@ const Nav = () => {
         { label: "Create a New Show Folder", onClick: () => setCreateShowOpen(true) },
         { separator: true },
         { label: "Sync from Drive", onClick: () => sync() },
+        { separator: true },
+        { label: "Clear Cache", onClick: () => clearAppCache() },
       ],
     },
     {
@@ -167,6 +174,7 @@ const Nav = () => {
                 to={`/roster/${selectedShow?.googleFolderId}/${entry.route}`}
                 label={entry.label}
                 disabled={!isSelectedShowVisible}
+                badgeCount={entry.route === "tasks" ? showTasks.length : undefined}
               />
             )
           )}

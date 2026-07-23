@@ -1,8 +1,8 @@
 import Banner from "@components/Content/shared/Banner/Banner.jsx";
 import BuildProperties from "@components/Content/shared/BuildProperties/BuildProperties.jsx";
 import ContractsPanel from "@components/Content/shared/ContractsPanel/ContractsPanel.jsx";
+import TasksView from "@components/Content/Tasks/TasksView/TasksView.jsx";
 import ShowProperties from "@components/ShowProperties/ShowProperties.jsx";
-import Parser from "@components/Workflows/Parser.jsx";
 import { useShowById } from "@hooks/useShowById.js";
 import { Navigate, Route, Routes, useParams } from "react-router-dom";
 import FileManager from "./FileManager/FileManager.jsx";
@@ -42,11 +42,11 @@ const RosterClientArea = () => {
                 element={<GmailContainer showFolderId={showFolderId} show={show} />}
               />
               <Route
-                path="gmail/:threadId/:messageId"
+                path="gmail/:rfcMessageId"
                 element={<GmailContainer showFolderId={showFolderId} show={show} />}
               />
               <Route path="files" element={<FileManager showFolderId={showFolderId} show={show} />} />
-              <Route path="test" element={<Parser showFolderId={showFolderId} show={show} />} />
+              <Route path="tasks" element={<TasksView key={showFolderId} showFolderId={showFolderId} />} />
             </Routes>
           </div>
         </>

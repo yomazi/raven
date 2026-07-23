@@ -7,12 +7,11 @@
  *
  * Props:
  *   showFolderId string | undefined   — Drive folder id (the show's folder)
- *   threadId     string | undefined
- *   messageId    string | undefined
+ *   rfcMessageId string | undefined   — RFC 822 Message-ID header of the message to open
  *   onCompose    ({ mode, message }) => void
  */
 
-import { fetchMessage, fetchThread } from "@api/gmail.api.js";
+import { fetchMessage, fetchMessageByRfc822, fetchThread } from "@api/gmail.api.js";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { AttachmentRow } from "./AttachmentUpload.jsx";
 import styles from "./GmailPanel.module.css";
@@ -164,44 +163,13 @@ function MessageGroup({
 
 // ─── GmailPanel ────────────────────────────────────────────────────────────────
 
-export default function GmailPanel({
-  showFolderId,
-  show,
-  threadId: rawThreadId,
-  messageId: rawMessageId,
-  onCompose,
-}) {
+export default function GmailPanel({ showFolderId, show, rfcMessageId, onCompose }) {
   const activeContracts = (show?.build?.contracts ?? []).filter((c) => !c.archived);
   const marketingFolderId = show?.drive?.folderIds?.marketingAssets ?? null;
-  // Gmail permalink ids come as e.g. "thread-f:123" or "msg-f:123", where
-  // the number is the id's plain decimal form (convert straight to hex for
-  // the API). Some links instead use "thread-a:r-123" / "msg-a:r-123" —
-  // that "a:r-" scheme is not a simple twos-complement encoding of the
-  // same id (confirmed by comparing a decoded "thread-a:r-" value against
-  // the real threadId Gmail returns for the matching message: they don't
-  // match), so we can't reliably decode it here.
-  //
-  // Because the route always carries a messageId alongside the threadId,
-  // we sidestep this: below, the thread is resolved from the *message's*
-  // own threadId (as reported by the Gmail API), not from this decoded
-  // value. This raw decode is kept only as a fallback for the case where
-  // a threadId shows up with no messageId to anchor off of.
-  const gmailIdToHex = (id) => {
-    if (!id) return undefined;
-    const match = /^(?:thread|msg)-[a-z]+:(\d+)$/.exec(id);
-    const digits = match ? match[1] : id;
-    try {
-      return BigInt(digits).toString(16);
-    } catch {
-      return undefined;
-    }
-  };
-
-  const threadId = gmailIdToHex(rawThreadId);
-  const messageId = gmailIdToHex(rawMessageId);
 
   const [stubs, setStubs] = useState([]);
   const [soloMsg, setSoloMsg] = useState(null);
+  const [resolvedMessageId, setResolvedMessageId] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [uploadedNames, setUploadedNames] = useState(new Map());
@@ -209,11 +177,12 @@ export default function GmailPanel({
   useEffect(() => {
     let ignore = false;
 
-    if (!threadId && !messageId) {
+    if (!rfcMessageId) {
       Promise.resolve().then(() => {
         if (ignore) return;
         setStubs([]);
         setSoloMsg(null);
+        setResolvedMessageId(null);
         setError(null);
         setLoading(false);
       });
@@ -227,29 +196,19 @@ export default function GmailPanel({
 
     (async () => {
       try {
-        if (messageId) {
-          // Resolve the thread off the message's own threadId (as reported
-          // by the Gmail API) rather than the URL's threadId — see the note
-          // on gmailIdToHex above for why that value can't be trusted.
-          const msg = await fetchMessage(messageId);
-          if (ignore) return;
-          try {
-            const thread = await fetchThread(msg.threadId);
-            if (!ignore) {
-              setStubs(thread.messages ?? []);
-              setSoloMsg(null);
-            }
-          } catch {
-            if (!ignore) {
-              setStubs([]);
-              setSoloMsg(msg);
-            }
-          }
-        } else {
-          const thread = await fetchThread(threadId);
+        const msg = await fetchMessageByRfc822(rfcMessageId);
+        if (ignore) return;
+        setResolvedMessageId(msg.id);
+        try {
+          const thread = await fetchThread(msg.threadId);
           if (!ignore) {
             setStubs(thread.messages ?? []);
             setSoloMsg(null);
+          }
+        } catch {
+          if (!ignore) {
+            setStubs([]);
+            setSoloMsg(msg);
           }
         }
       } catch (e) {
@@ -262,14 +221,14 @@ export default function GmailPanel({
     return () => {
       ignore = true;
     };
-  }, [threadId, messageId]);
+  }, [rfcMessageId]);
 
   const handleUploaded = useCallback((key, result) => {
     setUploadedNames((prev) => new Map([...prev, [key, result]]));
   }, []);
 
   const messageStubs = stubs.length > 0 ? stubs : soloMsg ? [soloMsg] : [];
-  const focusedId = messageId ?? messageStubs[messageStubs.length - 1]?.id;
+  const focusedId = resolvedMessageId ?? messageStubs[messageStubs.length - 1]?.id;
   const [selectedId, setSelectedId] = useState(focusedId);
   const focusedStub = messageStubs.find((m) => m.id === selectedId) ?? null;
   const uploadCount = uploadedNames.size;
@@ -278,7 +237,7 @@ export default function GmailPanel({
     <div className={styles.root}>
       {/* ── Toolbar ── */}
       <div className={styles.toolbar}>
-        {(threadId || messageId) && (
+        {rfcMessageId && (
           <div className={styles.uploads}>
             {uploadCount > 0 && <span>{uploadCount} file(s) uploaded</span>}
           </div>
@@ -321,11 +280,10 @@ export default function GmailPanel({
           </div>
         )}
 
-        {!threadId && !messageId && !loading && (
+        {!rfcMessageId && !loading && (
           <div className={styles.emptyState}>
             No message loaded.{"\n"}
-            Pass a <code className={styles.code}>threadId</code> or{" "}
-            <code className={styles.code}>messageId</code>,{"\n"}
+            Open this view from a message in dragonfly,{"\n"}
             or compose a new email above.
           </div>
         )}

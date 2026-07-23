@@ -20,6 +20,7 @@ function App() {
             <Route path="/token-login" element={<AppLayout mode="tokenLogin" />} />
             <Route path="/tasks/*" element={<AppLayout mode="tasks" />} />
             <Route path="/schedules" element={<AppLayout mode="schedules" />} />
+            <Route path="/booking-sync" element={<AppLayout mode="bookingSync" />} />
             <Route path="/contacts" element={<AppLayout mode="contacts" />} />
 
             {/* Catch-all for any unrecognized route */}

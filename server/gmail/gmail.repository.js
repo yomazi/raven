@@ -239,6 +239,32 @@ class GmailRepository {
     };
   }
 
+  /**
+   * Resolves a message by its RFC 822 Message-ID header (e.g.
+   * "<CAOb...@mail.gmail.com>") rather than Gmail's own internal id. Used by
+   * dragonfly, which only has reliable access to the header value — the
+   * add-on event framework's own threadId/messageId can come back in either
+   * of two encodings ("thread-f:123" or the opaque "thread-a:r-123"), and
+   * only the first is decodable into the id format the Gmail API expects.
+   * Searching by rfc822msgid sidesteps that ambiguity entirely.
+   */
+  static async getMessageByRfc822({ rfcMessageId }) {
+    const gmail = await GmailRepository.#getGmailClient();
+    const cleanId = rfcMessageId.replace(/^<|>$/g, "");
+
+    const response = await gmail.users.messages.list({
+      userId: "me",
+      q: `rfc822msgid:${cleanId}`,
+    });
+
+    const match = response.data.messages?.[0];
+    if (!match) {
+      throw new Error(`No Gmail message found for Message-ID ${rfcMessageId}`);
+    }
+
+    return GmailRepository.getMessage({ messageId: match.id });
+  }
+
   static async getAttachment({ messageId, attachmentId, mimeType, filename }) {
     const gmail = await GmailRepository.#getGmailClient();
     const response = await gmail.users.messages.attachments.get({

@@ -9,6 +9,10 @@ class GmailService {
     return GmailRepository.getMessage({ messageId });
   }
 
+  static async getMessageByRfc822({ rfcMessageId }) {
+    return GmailRepository.getMessageByRfc822({ rfcMessageId });
+  }
+
   static async getAttachment({ messageId, attachmentId, mimeType, filename }) {
     return GmailRepository.getAttachment({ messageId, attachmentId, mimeType, filename });
   }

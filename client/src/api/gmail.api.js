@@ -12,6 +12,13 @@ export const fetchMessage = async (messageId) => {
   return data;
 };
 
+export const fetchMessageByRfc822 = async (rfcMessageId) => {
+  const { data } = await apiClient.get(
+    `/gmail/messages/by-rfc822/${encodeURIComponent(rfcMessageId)}`
+  );
+  return data;
+};
+
 export const fetchAttachment = async (messageId, attachmentId) => {
   const response = await apiClient.get(`/gmail/attachments/${messageId}/${attachmentId}`, {
     responseType: "blob",

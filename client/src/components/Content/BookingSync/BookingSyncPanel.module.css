@@ -1,0 +1,131 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1.5rem 2rem;
+  overflow-y: auto;
+  flex: 1;
+  min-height: 0;
+}
+
+.heading {
+  font-family: var(--font-ui);
+  font-size: 0.9rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-rune);
+  margin-bottom: 0.5rem;
+}
+
+.empty {
+  padding: 2rem;
+  color: var(--color-rune);
+  font-family: var(--font-ui);
+  font-size: 0.85rem;
+  opacity: 0.6;
+}
+
+.row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: 1rem 1.25rem;
+  background: var(--color-void);
+  border: 1px solid var(--status-blocked-bd, var(--color-stone));
+  border-radius: 6px;
+}
+
+.rowHeader {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+}
+
+.artist {
+  font-family: var(--font-ui);
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--color-frost);
+}
+
+.signee {
+  font-family: var(--font-ui);
+  font-size: 0.82rem;
+  color: var(--color-rune);
+}
+
+.date {
+  font-family: var(--font-ui);
+  font-size: 0.78rem;
+  color: var(--color-rune);
+  opacity: 0.7;
+  margin-left: auto;
+}
+
+.meta {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-family: var(--font-ui);
+  font-size: 0.78rem;
+}
+
+.reason {
+  color: var(--status-blocked-fg);
+}
+
+.sheetLink {
+  color: var(--color-wyrd);
+  text-decoration: none;
+}
+
+.sheetLink:hover {
+  text-decoration: underline;
+}
+
+.actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.addRowBtn,
+.dismissBtn {
+  font-family: var(--font-ui);
+  font-size: 0.78rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.addRowBtn {
+  background: transparent;
+  color: var(--color-wyrd);
+  border: 1px solid var(--color-wyrd);
+}
+
+.addRowBtn:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--color-wyrd) 15%, transparent);
+}
+
+.dismissBtn {
+  background: transparent;
+  color: var(--color-rune);
+  border: 1px solid var(--color-stone);
+}
+
+.dismissBtn:hover:not(:disabled) {
+  background: var(--color-stone);
+}
+
+.addRowBtn:disabled,
+.dismissBtn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.errText {
+  font-family: var(--font-ui);
+  font-size: 0.76rem;
+  color: var(--status-blocked-fg);
+}

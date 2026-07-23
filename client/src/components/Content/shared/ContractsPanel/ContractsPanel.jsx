@@ -1,7 +1,9 @@
 import BadgeSelect from "@components/Content/shared/BadgeSelect/BadgeSelect.jsx";
+import { useSyncContractBookingSheet } from "@hooks/useBookingSyncIssues.js";
 import { useDriveFiles } from "@hooks/useDriveFiles.js";
 import { useImportableContractFolders } from "@hooks/useImportableContractFolders.js";
 import { useShowContracts } from "@hooks/useShowContracts.js";
+import { useToast } from "@hooks/useToast.js";
 import * as Switch from "@radix-ui/react-switch";
 import { CONTRACT_STATUS } from "@shared/constants/builds.js";
 import SvgContract from "@svg/contract_google.svg?react";
@@ -14,6 +16,16 @@ import styles from "./ContractsPanel.module.css";
 import ParseContractModal from "./ParseContractModal.jsx";
 
 const CONTRACT_STATUS_LABELS = Object.fromEntries(CONTRACT_STATUS.map((s) => [s, s]));
+
+const SYNC_FAILURE_MESSAGES = {
+  not_found: "Show or contract not found.",
+  no_show_date: "This show has no date set.",
+  archived: "This contract is archived.",
+  no_spreadsheet_for_year: "No booking spreadsheet is registered for this show's year.",
+  no_status_column: "Couldn't find a Status/FEC column on that sheet tab.",
+  no_match: "No matching row found in the booking spreadsheet.",
+  ambiguous_match: "Found more than one possible row — couldn't tell which one is correct.",
+};
 
 function formatDate(value) {
   return value ? new Date(value).toISOString().split("T")[0] : "";
@@ -40,6 +52,7 @@ function copyContractLink(signee, folderId) {
 // ---------------------------------------------------------------------------
 
 function ContractRow({
+  googleFolderId,
   contract,
   onUpdate,
   onArchive,
@@ -57,6 +70,37 @@ function ContractRow({
   const [isTermsOpen, setIsTermsOpen] = useState(false);
   const { data: files = [] } = useDriveFiles(contract.folderId);
   const hasPdf = files.some(isPdfFile);
+  const { mutate: syncBookingSheet, isPending: isSyncing } = useSyncContractBookingSheet();
+  const toast = useToast();
+
+  function handleSync() {
+    syncBookingSheet(
+      { googleFolderId, contractId: contract._id },
+      {
+        onSuccess: (result) => {
+          if (result.synced) {
+            toast({
+              description: `Synced to "${result.sheetTitle}", row ${result.row}.`,
+              duration: 4000,
+            });
+          } else {
+            toast({
+              title: "Couldn't sync",
+              description: SYNC_FAILURE_MESSAGES[result.reason] ?? result.reason,
+              duration: 6000,
+            });
+          }
+        },
+        onError: (err) => {
+          toast({
+            title: "Couldn't sync",
+            description: err.response?.data?.error ?? err.message,
+            duration: 6000,
+          });
+        },
+      }
+    );
+  }
 
   function startEditingName() {
     setDraftName(contract.signee ?? "");
@@ -231,6 +275,12 @@ function ContractRow({
           rows={2}
         />
       </div>
+
+      <div className={styles.syncRow}>
+        <button className={styles.syncButton} onClick={handleSync} disabled={isSyncing}>
+          {isSyncing ? "Syncing…" : "Sync Booking Sheet"}
+        </button>
+      </div>
     </div>
   );
 }
@@ -338,6 +388,7 @@ export default function ContractsPanel({ show }) {
       {contracts.map((contract) => (
         <ContractRow
           key={contract._id}
+          googleFolderId={googleFolderId}
           contract={contract}
           onUpdate={updateContract}
           onArchive={archiveContract}

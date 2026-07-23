@@ -50,3 +50,18 @@
   height: 18px;
   display: block;
 }
+
+.badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: 8px;
+  background: var(--status-blocked-fg);
+  color: var(--color-void);
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+}

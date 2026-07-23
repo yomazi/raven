@@ -39,6 +39,13 @@ class GmailSchemas {
     }),
   };
 
+  static getMessageByRfc822 = {
+    headers: authHeaderSchema,
+    params: Joi.object({
+      rfcMessageId: Joi.string().required(),
+    }),
+  };
+
   static getAttachment = {
     headers: authHeaderSchema,
     params: Joi.object({

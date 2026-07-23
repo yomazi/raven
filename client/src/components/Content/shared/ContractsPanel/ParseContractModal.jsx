@@ -1,11 +1,10 @@
 // client/src/components/Content/shared/ContractsPanel/ParseContractModal.jsx
 //
-// Per-contract version of the Parse Offers & Contracts workflow (see
-// Workflows/Parser.jsx): pick a PDF version of this contract, fetch its
-// text, trim it down, send it to the LLM, then review the structured fields
-// it extracts on a second "step" that swipes in. Every tile there writes
-// back onto this contract, merged at its own path so applying one tile
-// never clobbers another.
+// Per-contract parsing workflow: pick a PDF version of this contract, fetch
+// its text, trim it down, send it to the LLM, then review the structured
+// fields it extracts on a second "step" that swipes in. Every tile there
+// writes back onto this contract, merged at its own path so applying one
+// tile never clobbers another.
 
 import { fetchFileText } from "@api/drive.api.js";
 import { extractOfferLetter } from "@api/llm.api.js";

@@ -10,6 +10,25 @@ export const taskKeys = {
   detail: (id) => ["tasks", "detail", id],
 };
 
+// Mirrors the server-side filtering in tasks.service.js#getAllTasks, so a
+// cached list query can tell whether an updated task still belongs in it.
+function taskMatchesParams(task, params = {}) {
+  const { showFolderId, linked, status, priority } = params;
+
+  if (showFolderId) {
+    if (task.showFolderId !== showFolderId) return false;
+  } else if (linked === true || linked === "true") {
+    if (!task.showFolderId) return false;
+  } else if (linked === false || linked === "false") {
+    if (task.showFolderId) return false;
+  }
+
+  if (status && !status.split(",").includes(task.status)) return false;
+  if (priority && !priority.split(",").includes(task.priority)) return false;
+
+  return true;
+}
+
 // ─── hooks ───────────────────────────────────────────────────────────────────
 
 /**
@@ -17,10 +36,11 @@ export const taskKeys = {
  *
  * params: { showFolderId?, linked?: 'true'|'false', status?, priority?, sort?, order? }
  */
-export function useTasks(params = {}) {
+export function useTasks(params = {}, options = {}) {
   return useQuery({
     queryKey: taskKeys.list(params),
     queryFn: () => fetchTasks(params),
+    ...options,
   });
 }
 
@@ -40,24 +60,34 @@ export function useCreateTask() {
   });
 }
 
-/*
-export function useUpdateTask() {
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: updateTask,
-    onSuccess: () => qc.invalidateQueries({ queryKey: taskKeys.all }),
-  });
-}
-*/
 export function useUpdateTask() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: updateTask,
     onSuccess: (updatedTask) => {
-      qc.setQueriesData({ queryKey: taskKeys.all }, (prev) => {
-        if (!Array.isArray(prev)) return prev;
-        return prev.map((t) => (t._id === updatedTask._id ? updatedTask : t));
-      });
+      // Patch every cached "list" query in place rather than invalidating
+      // (avoids a refetch flash on inline grid edits) — but a status/priority
+      // change can move a task out of a filtered list's results, so each
+      // query's own params decide whether to update it or drop it.
+      for (const query of qc.getQueryCache().findAll({ queryKey: taskKeys.all })) {
+        const prev = query.state.data;
+        if (!Array.isArray(prev)) continue;
+
+        const params = query.queryKey[2] ?? {};
+        const exists = prev.some((t) => t._id === updatedTask._id);
+        const matches = taskMatchesParams(updatedTask, params);
+
+        let next = prev;
+        if (matches) {
+          next = exists
+            ? prev.map((t) => (t._id === updatedTask._id ? updatedTask : t))
+            : [...prev, updatedTask];
+        } else if (exists) {
+          next = prev.filter((t) => t._id !== updatedTask._id);
+        }
+
+        qc.setQueryData(query.queryKey, next);
+      }
     },
   });
 }

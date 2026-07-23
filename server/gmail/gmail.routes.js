@@ -23,6 +23,14 @@ router.get(
   Controller.getMessage
 );
 
+// GET /api/v1/gmail/messages/by-rfc822/:rfcMessageId
+router.get(
+  "/gmail/messages/by-rfc822/:rfcMessageId",
+  validate(Schemas.getMessageByRfc822),
+  validateApiToken,
+  Controller.getMessageByRfc822
+);
+
 // GET /api/v1/gmail/attachments/:messageId/:attachmentId
 router.get(
   "/gmail/attachments/:messageId/:attachmentId",

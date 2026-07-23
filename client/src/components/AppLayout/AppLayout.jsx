@@ -2,6 +2,7 @@ import SplitPane from "@components/Content/SplitPane";
 import Header from "@components/Header/Header";
 import Nav from "@components/Nav/Nav";
 
+import BookingSyncPanel from "@components/Content/BookingSync/BookingSyncPanel.jsx";
 import ContactsPanel from "@components/Content/Contacts/ContactsPanel.jsx";
 import NotFoundPanel from "@components/Content/NotFound/NotFoundPanel.jsx";
 import ReportsPanel from "@components/Content/Reports/ReportsPanel.jsx";
@@ -18,6 +19,7 @@ const AppLayout = ({ mode }) => {
     {
       tasks: <SplitPane resizable={false} leftPane={<TasksFilter />} rightPane={<TasksView />} />,
       schedules: <ReportsPanel />,
+      bookingSync: <BookingSyncPanel />,
       contacts: <ContactsPanel />,
       roster: (
         <SplitPane resizable={true} leftPane={<RosterGrid />} rightPane={<RosterClientArea />} />

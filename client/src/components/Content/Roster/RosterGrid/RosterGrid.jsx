@@ -4,6 +4,7 @@ import gridStyles from "@components/Content/shared/grid/Grid.module.css";
 import { useBuildRosterShows } from "@hooks/useBuildRosterShows";
 import { useShows } from "@hooks/useShows.js";
 import { useTasks } from "@hooks/useTasks.js";
+import { OPEN_TASK_STATUSES } from "@shared/constants/tasks.js";
 import useRavenStore from "@store/useRavenStore.js";
 import ConstructionIcon from "@svg/construction_google.svg?react";
 import EventIcon from "@svg/events_google.svg?react";
@@ -52,7 +53,10 @@ export default function RosterGrid() {
 
   const { data: shows = [], isLoading: isShowsLoading } = useShows();
   const { data: rosterShows = [], isLoading: isRosterLoading } = useBuildRosterShows();
-  const { data: openTasks = [] } = useTasks({ linked: "true", status: "to_do,in_progress,blocked" });
+  const { data: openTasks = [] } = useTasks({
+    linked: "true",
+    status: OPEN_TASK_STATUSES.join(","),
+  });
 
   const setSelectedShow = useRavenStore((s) => s.setSelectedShow);
   const setIsSelectedShowVisible = useRavenStore((s) => s.setIsSelectedShowVisible);
@@ -121,7 +125,7 @@ export default function RosterGrid() {
     window.open(url, "_blank", "noopener,noreferrer");
   };
 
-  // Keeps the current Properties/Contracts/Build/Email/Workflows sub-tab
+  // Keeps the current Properties/Contracts/Build/Email/Tasks sub-tab
   // active when switching to a different show.
   const routeToShow = useCallback(
     (folderId) => {

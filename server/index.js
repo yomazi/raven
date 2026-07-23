@@ -18,6 +18,8 @@ import { connectDb } from "./utilities/db.js";
 import apiTokensRoutes from "./api-tokens/api-tokens.routes.js";
 import authRoutes from "./auth/auth.routes.js";
 import googleAuthRoutes from "./auth/google.auth.routes.js";
+import bookingSheetsRoutes from "./booking-sheets/booking-sheets.routes.js";
+import BookingSheetsService from "./booking-sheets/booking-sheets.service.js";
 import contactsRoutes from "./contacts/contacts.routes.js";
 import driveRoutes from "./drive/drive.routes.js";
 import gmailRoutes from "./gmail/gmail.routes.js";
@@ -47,6 +49,20 @@ ShowsEvents.onChanged((event) => {
     console.error("[LiveReportService] handleShowChanged failed:", err)
   );
 });
+// Deliberately not filtered by changedFields/contractId, matching
+// LiveReportService.handleShowChanged's approach — the real UI's contract
+// status dropdown edits via the generic patch() path (build.contracts as a
+// whole), which carries neither a contractId nor a "status" field name, so
+// a narrower filter here would silently never fire for it. Anything that
+// can shift a contract's booking-sheet row (status, signee, isMainContract,
+// membership, or even the show's own date/artist) goes through the same
+// full re-sync; syncShowContracts no-ops cheaply per contract when nothing
+// relevant actually changed.
+ShowsEvents.onChanged((event) => {
+  BookingSheetsService.syncShowContracts(event.googleFolderId).catch((err) =>
+    console.error("[BookingSheetsService] syncShowContracts failed:", err)
+  );
+});
 
 // define API routes with versioning
 const version = "v1";
@@ -55,6 +71,7 @@ const routePrefix = `/api/${version}`;
 app.use("", googleAuthRoutes);
 app.use(routePrefix, apiTokensRoutes);
 app.use(routePrefix, authRoutes);
+app.use(routePrefix, bookingSheetsRoutes);
 app.use(routePrefix, contactsRoutes);
 app.use(routePrefix, driveRoutes);
 app.use(routePrefix, gmailRoutes);

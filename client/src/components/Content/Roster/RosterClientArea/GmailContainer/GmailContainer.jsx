@@ -7,7 +7,7 @@ import GmailEditor from "./GmailEditor/GmailEditor.jsx";
 import GmailPanel from "./GmailPanel/GmailPanel.jsx";
 
 const GmailContainer = ({ showFolderId, show }) => {
-  const { threadId, messageId } = useParams();
+  const { rfcMessageId } = useParams();
   const [editorState, setEditorState] = useState(null); // null | { mode, message }
 
   const [editorVisible, setEditorVisible] = useState(false);
@@ -21,14 +21,13 @@ const GmailContainer = ({ showFolderId, show }) => {
     setEditorVisible(false);
     setTimeout(() => setEditorState(null), 280); // match transition duration
   };
-  if (threadId && messageId) {
+  if (rfcMessageId) {
     return (
       <div className={styles.container}>
         <GmailPanel
           showFolderId={showFolderId}
           show={show}
-          threadId={threadId}
-          messageId={messageId}
+          rfcMessageId={rfcMessageId}
           onCompose={handleCompose}
         />
         {editorState && (

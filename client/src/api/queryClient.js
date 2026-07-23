@@ -27,6 +27,15 @@ const persister = createSyncStoragePersister({
 // Add to this list, not just the one query, next time this bites us.
 const NEVER_PERSIST_QUERY_KEYS = ["settings", "reports", "report-schedules"];
 
+// Wipes both the in-memory query cache and its persisted localStorage copy,
+// then reloads — the one guaranteed way to shake off a stale cache entry
+// (e.g. one written by a since-fixed bug) without waiting out maxAge.
+export function clearAppCache() {
+  queryClient.clear();
+  persister.removeClient();
+  window.location.reload();
+}
+
 persistQueryClient({
   queryClient,
   persister,
